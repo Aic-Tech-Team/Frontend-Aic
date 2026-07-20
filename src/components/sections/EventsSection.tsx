@@ -66,7 +66,7 @@ export function EventsSection() {
                   </p>
                 </div>
 
-                {/* Back */}
+
                 <div className="surface absolute inset-0 flex flex-col justify-between rounded-3xl p-6 [backface-visibility:hidden] [transform:rotateY(180deg)]">
                   <div>
                     <h3 className="text-lg font-bold text-foreground">
