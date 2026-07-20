@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { Hero } from "@/components/sections/hero";
+import { EventsSection } from "@/components/sections/EventsSection";
 
 
 export default async function HomePage({
@@ -13,6 +14,7 @@ export default async function HomePage({
   return (
     <>
       <Hero />
+      <EventsSection />
     </>
   );
 }
