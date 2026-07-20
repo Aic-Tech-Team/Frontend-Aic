@@ -10,8 +10,9 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Next.js Bilingual Template",
-  description: "A production-ready bilingual Next.js template",
+  title: "انجمن علمی هوش مصنوعی ",
+  description:
+    "بستری علمی برای یادگیری، پژوهش و همکاری دانشجویان علاقه‌مند به هوش مصنوعی.",
 };
 
 export function generateStaticParams() {
@@ -26,16 +27,14 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-
   if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
     notFound();
   }
 
   setRequestLocale(locale);
-
+  
   const messages = await getMessages();
-
-  const dir = locale === "fa" ? "rtl" : "ltr";
+  const dir = "rtl";
 
   return (
     <html lang={locale} dir={dir}>
@@ -46,9 +45,9 @@ export default async function LocaleLayout({
         />
         <ThemeInitializer />
       </head>
-      <body className="min-h-screen antialiased">
+      <body className="min-h-screen font-sans antialiased">
         <NextIntlClientProvider messages={messages}>
-          <div className="flex min-h-screen flex-col">
+          <div className="relative flex min-h-screen flex-col">
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />
