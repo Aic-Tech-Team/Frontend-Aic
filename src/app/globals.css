@@ -155,3 +155,7 @@ body {
     0 1px 0 0 hsl(var(--surface-line) / 0.12) inset,
     0 20px 60px -30px hsl(var(--primary) / 0.35);
 }
+
+html {
+  scroll-behavior: smooth;
+}
