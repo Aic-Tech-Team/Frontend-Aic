@@ -1,10 +1,14 @@
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/reveal";
 
 export function CtaSection() {
   return (
     <section id="join" className="px-4 py-10 sm:px-6">
-      <div className="surface relative mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] px-6 py-16 text-center sm:px-12">
+      <Reveal
+        direction="up"
+        className="surface relative mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] px-6 py-16 text-center sm:px-12"
+      >
         <div className="pointer-events-none absolute -top-24 start-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-primary-500/25 blur-[100px]" />
 
         <h2 className="relative mx-auto mt-6 max-w-xl text-2xl font-extrabold text-foreground sm:text-3xl">
@@ -33,7 +37,7 @@ export function CtaSection() {
             همکاری سازمانی
           </Button>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

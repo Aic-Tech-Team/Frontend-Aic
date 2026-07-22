@@ -1,6 +1,7 @@
 import { ArrowLeft, Brain, Sparkles, Users2, Activity } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/reveal";
 
 const stats = [
   { label: "عضو فعال", value: "+۱۵۰" },
@@ -12,7 +13,7 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden px-4 pb-20 pt-16 sm:px-6 sm:pt-24 lg:pt-28">
       <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2 lg:gap-10">
-        <div className="animate-fade-in-up text-center lg:text-start">
+        <Reveal direction="up" className="text-center lg:text-start">
           <h1 className="mt-6 text-4xl font-extrabold leading-[1.25] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]">
             آینده را با <span className="text-gradient">هوش مصنوعی</span>
             <br />
@@ -59,11 +60,13 @@ export function Hero() {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
 
-
-        {/* need animation for circle */}
-        <div className="relative mx-auto flex h-[320px] w-[320px] items-center justify-center sm:h-[420px] sm:w-[420px] lg:h-[460px] lg:w-[460px]">
+        <Reveal
+          direction="left"
+          delay={0.15}
+          className="relative mx-auto flex h-[320px] w-[320px] items-center justify-center sm:h-[420px] sm:w-[420px] lg:h-[460px] lg:w-[460px]"
+        >
           <div className="absolute inset-0 animate-pulse-glow rounded-full bg-gradient-to-br from-primary-500/40 via-glow-2/20 to-transparent blur-2xl" />
           <div className="absolute inset-6 animate-spin-slow rounded-full border border-dashed border-primary-400/25" />
           <div className="absolute inset-14 rounded-full border border-primary-300/15" />
@@ -110,7 +113,7 @@ export function Hero() {
               <span className="block text-[11px]">امسال</span>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

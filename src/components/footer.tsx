@@ -1,5 +1,6 @@
 import { Mail, MapPin, Clock, Send, Instagram, Linkedin } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { Reveal, RevealGroup, RevealItem } from "@/components/reveal";
 
 const quickLinks = [
   { label: "خانه", href: "/" },
@@ -24,8 +25,8 @@ export function Footer() {
       className="w-full border-t border-white/[0.06] bg-background/40 px-4 pb-8 pt-14 backdrop-blur-xl sm:px-6 lg:px-10"
     >
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
+        <RevealGroup className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <RevealItem direction="up">
             <div className="flex items-center gap-2.5">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-400 to-primary-700 shadow-glow">
                 logo
@@ -53,9 +54,9 @@ export function Footer() {
                 </a>
               ))}
             </div>
-          </div>
+          </RevealItem>
 
-          <div>
+          <RevealItem direction="up">
             <h4 className="text-sm font-bold text-foreground">دسترسی سریع</h4>
             <ul className="mt-4 space-y-3">
               {quickLinks.map((link) => (
@@ -69,9 +70,9 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </RevealItem>
 
-          <div>
+          <RevealItem direction="up">
             <h4 className="text-sm font-bold text-foreground">فعالیت‌ها</h4>
             <ul className="mt-4 space-y-3">
               {activityLinks.map((link) => (
@@ -85,9 +86,9 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </RevealItem>
 
-          <div>
+          <RevealItem direction="up">
             <h4 className="text-sm font-bold text-foreground">تماس با ما</h4>
             <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
               <li className="flex items-start gap-2.5">
@@ -103,10 +104,14 @@ export function Footer() {
                 شنبه تا چهارشنبه، ۱۰ تا ۱۶
               </li>
             </ul>
-          </div>
-        </div>
+          </RevealItem>
+        </RevealGroup>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-6 text-xs text-muted-foreground sm:flex-row">
+        <Reveal
+          direction="up"
+          delay={0.1}
+          className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-6 text-xs text-muted-foreground sm:flex-row"
+        >
           <p>© ۱۴۰۴ انجمن علمی هوش مصنوعی. تمامی حقوق محفوظ است.</p>
           <div className="flex items-center gap-5">
             <a href="#" className="transition-colors hover:text-primary-300">
@@ -116,7 +121,7 @@ export function Footer() {
               قوانین استفاده
             </a>
           </div>
-        </div>
+        </Reveal>
       </div>
     </footer>
   );
