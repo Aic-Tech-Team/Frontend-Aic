@@ -8,6 +8,7 @@ import "../globals.css";
 import { ThemeInitializer } from "@/components/theme-initializer";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
 
 export const metadata: Metadata = {
   title: "انجمن علمی هوش مصنوعی ",
@@ -32,7 +33,7 @@ export default async function LocaleLayout({
   }
 
   setRequestLocale(locale);
-  
+
   const messages = await getMessages();
   const dir = "rtl";
 
@@ -46,6 +47,7 @@ export default async function LocaleLayout({
         <ThemeInitializer />
       </head>
       <body className="min-h-screen font-sans antialiased">
+        <AnimatedBackground />
         <NextIntlClientProvider messages={messages}>
           <div className="relative flex min-h-screen flex-col">
             <Navbar />

@@ -45,6 +45,10 @@
   --glow-4: 250 90% 50%;
   --surface-line: 258 60% 80%;
   --surface-line-opacity: 0.08;
+
+  --blob-opacity: 0.45;
+  --blob-blur: 110px;
+  --blob-blend: screen;
 }
 
 [data-theme="pink"] {
@@ -88,12 +92,17 @@
   --glow-4: 250 85% 78%;
   --surface-line: 262 40% 20%;
   --surface-line-opacity: 0.08;
+
+  --blob-opacity: 0.5;
+  --blob-blur: 85px;
+  --blob-blend: multiply;
 }
 
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   transition: background-color 0.35s ease, color 0.35s ease;
+  position: relative;
 }
 
 [dir="rtl"] body {
@@ -165,13 +174,11 @@ html {
   color: hsl(var(--foreground));
 }
 
-/* Firefox */
 * {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--primary) / 0.5) transparent;
 }
 
-/* Chromium-based */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -211,4 +218,101 @@ html {
 
 ::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+
+/* Animated background blobs */
+.blob-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.blob-wrapper {
+  position: absolute;
+  will-change: transform;
+}
+
+.blob {
+  border-radius: 9999px;
+  filter: blur(var(--blob-blur));
+  opacity: var(--blob-opacity);
+  mix-blend-mode: var(--blob-blend);
+  animation: blob-float 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+.blob-1 {
+  width: 34rem;
+  height: 34rem;
+  background: radial-gradient(
+    circle at 30% 30%,
+    hsl(var(--glow-1) / 0.9),
+    transparent 70%
+  );
+  animation-duration: 20s;
+  animation-delay: 0s;
+}
+
+.blob-2 {
+  width: 26rem;
+  height: 26rem;
+  background: radial-gradient(
+    circle at 30% 30%,
+    hsl(var(--glow-2) / 0.9),
+    transparent 70%
+  );
+  animation-duration: 24s;
+  animation-delay: -6s;
+}
+
+.blob-3 {
+  width: 30rem;
+  height: 30rem;
+  background: radial-gradient(
+    circle at 30% 30%,
+    hsl(var(--glow-3) / 0.9),
+    transparent 70%
+  );
+  animation-duration: 22s;
+  animation-delay: -11s;
+}
+
+.blob-4 {
+  width: 24rem;
+  height: 24rem;
+  background: radial-gradient(
+    circle at 30% 30%,
+    hsl(var(--glow-4) / 0.9),
+    transparent 70%
+  );
+  animation-duration: 26s;
+  animation-delay: -16s;
+}
+
+@keyframes blob-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(4%, -5%) scale(1.06);
+  }
+  50% {
+    transform: translate(-3%, 4%) scale(0.95);
+  }
+  75% {
+    transform: translate(-5%, -3%) scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    animation: none !important;
+  }
+  .blob-wrapper {
+    transform: none !important;
+  }
 }
