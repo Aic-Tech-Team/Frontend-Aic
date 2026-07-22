@@ -45,10 +45,12 @@ export function TeamsSection() {
   return (
     <section id="teams" className="px-4 py-20 sm:px-6">
       <div className="mx-auto max-w-6xl text-center">
-        <span className="surface inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium text-primary-300">
-          <Layers className="h-4 w-4" />
-          ساختار انجمن
-        </span>
+        <div className="flex justify-start">
+          <span className="surface inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium text-primary-300">
+            <Layers className="h-4 w-4" />
+            ساختار انجمن
+          </span>
+        </div>
 
         <h2 className="mx-auto mt-5 max-w-xl text-2xl font-extrabold text-foreground sm:text-3xl">
           تیم‌های تخصصی انجمن
