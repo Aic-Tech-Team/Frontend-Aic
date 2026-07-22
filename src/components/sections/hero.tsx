@@ -2,11 +2,12 @@ import { ArrowLeft, Brain, Sparkles, Users2, Activity } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
+import { CountUp } from "../ui/count-up";
 
 const stats = [
-  { label: "عضو فعال", value: "+۱۵۰" },
-  { label: "رویداد برگزار‌شده", value: "+۳۰۰" },
-  { label: "سال فعالیت", value: "+۵" },
+  { label: "عضو فعال", value: 150, prefix: "", suffix: "+" },
+  { label: "رویداد برگزار‌شده", value: 300, prefix: "", suffix: "+" },
+  { label: "سال فعالیت", value: 10, prefix: "", suffix: "+" },
 ];
 
 export function Hero() {
@@ -50,13 +51,18 @@ export function Hero() {
           <div className="mt-14 grid grid-cols-3 gap-4 border-t border-white/[0.06] pt-8">
             {stats.map((stat) => (
               <div key={stat.label}>
-                <p className="text-2xl font-extrabold text-foreground sm:text-3xl">
-                  {stat.value}
-                </p>
+                <CountUp
+                  end={stat.value}
+                  prefix={stat.prefix}
+                  suffix={stat.suffix}
+                   duration={4}
+                  className="text-2xl font-extrabold text-foreground sm:text-3xl"
+                />
 
                 <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
                   {stat.label}
                 </p>
+
               </div>
             ))}
           </div>
