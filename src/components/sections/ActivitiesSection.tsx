@@ -1,5 +1,6 @@
 import { CalendarClock, ChevronLeft, LayoutGrid } from "lucide-react";
 import { Reveal, RevealGroup, RevealItem } from "@/components/reveal";
+import AutoBorderGlow from "../AutoBorderGlow";
 
 const activities = [
   {
@@ -46,30 +47,41 @@ export function ActivitiesSection() {
         <RevealGroup className="grid gap-6 sm:grid-cols-2">
           {activities.map((item) => (
             <RevealItem key={item.title} direction="up">
-              <div className="surface group flex gap-3 overflow-hidden rounded-3xl p-5 transition-transform duration-500 hover:-translate-y-1.5 sm:p-6">
-                <div
-                  className={`relative hidden w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br sm:block
-                    ${item.tone}`}>
-                  <item.icon className="absolute bottom-3 start-3 h-7 w-7 text-primary-200/80" />
-                </div>
+              <AutoBorderGlow
+                className="h-full w-full"
+                borderRadius={24}
+                glowColor="270 90 75"
+                colors={["#c084fc", "#f472b6", "#38bdf8"]}
+                glowRadius={24}
+                glowIntensity={0.9}
+                coneSpread={25}
+                speed={6}
+              >
+                <div className="surface group flex h-full gap-3 overflow-hidden rounded-3xl p-5 transition-transform duration-500 hover:-translate-y-1.5 sm:p-6">
+                  <div
+                    className={`relative hidden w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br sm:block
+                      ${item.tone}`}>
+                    <item.icon className="absolute bottom-3 start-3 h-7 w-7 text-primary-200/80" />
+                  </div>
 
-                <div className="flex flex-1 flex-col">
-                  <h3 className="text-base font-bold text-foreground sm:text-lg">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 flex-1 text-sm text-muted-foreground">
-                    {item.desc}
-                  </p>
-                  <div className="mt-4 flex items-center justify-between border-t border-white/[0.06] pt-3">
-                    <span className="text-xs text-muted-foreground">
-                      {item.date}
-                    </span>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-primary-300 transition-all duration-300 group-hover:-translate-x-1 group-hover:bg-primary/10">
-                      <ChevronLeft className="h-4 w-4" />
-                    </span>
+                  <div className="flex flex-1 flex-col">
+                    <h3 className="text-base font-bold text-foreground sm:text-lg">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 flex-1 text-sm text-muted-foreground">
+                      {item.desc}
+                    </p>
+                    <div className="mt-4 flex items-center justify-between border-t border-white/[0.06] pt-3">
+                      <span className="text-xs text-muted-foreground">
+                        {item.date}
+                      </span>
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-primary-300 transition-all duration-300 group-hover:-translate-x-1 group-hover:bg-primary/10">
+                        <ChevronLeft className="h-4 w-4" />
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </AutoBorderGlow>
             </RevealItem>
           ))}
         </RevealGroup>
