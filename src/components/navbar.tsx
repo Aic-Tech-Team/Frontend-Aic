@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
+import Aurora from "@/components/Aurora";
 
 const navLinks = [
   { href: "/#events", label: "رویدادها" },
@@ -15,32 +16,19 @@ const navLinks = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
   const closeMenu = () => setIsOpen(false);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
-    <header
-      className={`sticky top-0 z-50 w-full backdrop-blur-xl transition-all duration-500 ${
-        scrolled
-          ? "bg-background/60 shadow-[0_8px_40px_-16px_rgba(124,92,252,0.4)]"
-          : "bg-background/30"
-      }`}
-    >
+    <header className="relative w-full overflow-hidden transition-all duration-500">
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <Aurora amplitude={2} blend={0.6} />
+      </div>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
         <Link
           href="/"
           onClick={closeMenu}
           className="group flex items-center gap-2 text-lg font-bold tracking-tight"
         >
-          {/* need logo!! */}
           <span className="sm:inline">انجمن هوش مصنوعی</span>
         </Link>
 
