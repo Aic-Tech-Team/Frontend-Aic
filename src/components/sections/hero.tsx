@@ -3,7 +3,8 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import { CountUp } from "../ui/count-up";
-import ClickSpark from './../ClickSpark';
+import ClickSpark from "./../ClickSpark";
+import DecryptedText from "../DecryptedText";
 
 const stats = [
   { label: "عضو فعال", value: 150, prefix: "", suffix: "+" },
@@ -11,15 +12,31 @@ const stats = [
   { label: "سال فعالیت", value: 10, prefix: "", suffix: "+" },
 ];
 
+
 export function Hero() {
   return (
     <section className="relative overflow-hidden px-4 pb-20 pt-16 sm:px-6 sm:pt-24 lg:pt-28">
       <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2 lg:gap-10">
         <Reveal direction="up" className="text-center lg:text-start">
           <h1 className="mt-6 text-4xl font-extrabold leading-[1.25] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]">
-            آینده را با <span className="text-gradient">هوش مصنوعی</span>
+            <DecryptedText
+              text="آینده را با "
+              speed={150}
+              characters="اآبپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی"
+              animateOn="view"
+              sequential
+            />
+            <span className="text-gradient">
+              <DecryptedText
+                text="هوش مصنوعی"
+                speed={150}
+                characters="اآبپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی"
+                animateOn="view"
+                sequential
+              />
+            </span>
             <br />
-            بسازیم
+            <DecryptedText text="بسازیم" animateOn="view" />
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-base leading-8 text-muted-foreground lg:mx-0">
