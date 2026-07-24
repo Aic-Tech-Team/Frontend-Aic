@@ -1,8 +1,9 @@
-import { ArrowLeft, Brain, Sparkles, Users2, Activity } from "lucide-react";
+import { ArrowLeft, Sparkles, Users2, Activity } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import { CountUp } from "../ui/count-up";
+import ClickSpark from './../ClickSpark';
 
 const stats = [
   { label: "عضو فعال", value: 150, prefix: "", suffix: "+" },
@@ -26,27 +27,35 @@ export function Hero() {
             مصنوعی؛ از کارگاه‌های تخصصی تا رقابت‌های ملی — اینجا رشد می‌کنیم.
           </p>
 
-          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
-            <Button
-              asChild
-              size="lg"
-              className="w-full rounded-full shadow-glow sm:w-auto"
-            >
-              <Link href="/#events">
-                <ArrowLeft className="h-4 w-4" />
-                مشاهده رویدادها
-              </Link>
-            </Button>
+          <ClickSpark
+            sparkColor="#ffffff"
+            sparkSize={10}
+            sparkRadius={15}
+            sparkCount={8}
+            duration={400}
+          >
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+              <Button
+                asChild
+                size="lg"
+                className="w-full rounded-full shadow-glow sm:w-auto"
+              >
+                <Link href="/#events">
+                  <ArrowLeft className="h-4 w-4" />
+                  مشاهده رویدادها
+                </Link>
+              </Button>
 
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="w-full rounded-full border-white/10 bg-white/[0.02] sm:w-auto"
-            >
-              <Link href="/#teams">آشنایی با انجمن</Link>
-            </Button>
-          </div>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="w-full rounded-full border-white/10 bg-white/[0.02] sm:w-auto"
+              >
+                <Link href="/#teams">آشنایی با انجمن</Link>
+              </Button>
+            </div>
+          </ClickSpark>
 
           <div className="mt-14 grid grid-cols-3 gap-4 border-t border-white/[0.06] pt-8">
             {stats.map((stat) => (
@@ -55,14 +64,13 @@ export function Hero() {
                   end={stat.value}
                   prefix={stat.prefix}
                   suffix={stat.suffix}
-                   duration={4}
+                  duration={4}
                   className="text-2xl font-extrabold text-foreground sm:text-3xl"
                 />
 
                 <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
                   {stat.label}
                 </p>
-
               </div>
             ))}
           </div>
