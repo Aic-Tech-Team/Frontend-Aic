@@ -57,15 +57,15 @@ export function TeamsSection() {
 
         <RevealGroup className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
           {teams.map((team) => (
-            <RevealItem key={team.title} direction="up" hoverLift>
-              <div className="surface group flex flex-col items-center rounded-3xl p-6 text-center">
+            <RevealItem key={team.title} direction="up" hoverLift className="h-full">
+              <div className="surface group flex h-full flex-col items-center rounded-3xl p-6 text-center">
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary-500/25 to-primary-700/10 text-primary-300 transition-transform duration-500 group-hover:scale-110 group-hover:text-primary-200">
                   <team.icon className="h-6 w-6" />
                 </span>
                 <h3 className="mt-4 text-sm font-bold text-foreground sm:text-base">
                   {team.title}
                 </h3>
-                <p className="mt-2 text-xs leading-6 text-muted-foreground sm:text-[13px]">
+                <p className="mt-2 flex-1 text-xs leading-6 text-muted-foreground sm:text-[13px]">
                   {team.desc}
                 </p>
                 <span className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
