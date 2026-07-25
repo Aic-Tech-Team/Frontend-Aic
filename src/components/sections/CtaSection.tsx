@@ -6,7 +6,7 @@ import AutoBorderGlow from "../AutoBorderGlow";
 
 export function CtaSection() {
   return (
-    <section id="join" className="px-4 py-10 sm:px-6">
+    <section id="join" className="px-4 py-10 pb-24 sm:px-6 sm:pb-30">
       <Reveal direction="up" className="mx-auto max-w-6xl">
         <AutoBorderGlow
           className="w-full"
