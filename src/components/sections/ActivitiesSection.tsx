@@ -46,7 +46,7 @@ export function ActivitiesSection() {
           moreHref="#activities"
         />
 
-        <RevealGroup className="grid gap-6 sm:grid-cols-2">
+        <RevealGroup className="grid gap-6 lg:grid-cols-2">
           {activities.map((item) => (
             <RevealItem key={item.title} direction="up" hoverLift className="h-full">
               <AutoBorderGlow
@@ -59,18 +59,18 @@ export function ActivitiesSection() {
                 coneSpread={25}
                 speed={6}
               >
-                <div className="surface group flex h-full gap-3 overflow-hidden rounded-3xl p-5 sm:p-6">
+                <div className="surface group flex h-full gap-3 overflow-hidden rounded-3xl p-5 lg:p-6">
                   <div
-                    className={`relative hidden w-28 shrink-0 overflow-hidden rounded-2xl bg-linear-to-br sm:block ${item.tone}`}
+                    className={`relative aspect-square w-24 shrink-0 self-start overflow-hidden rounded-2xl bg-linear-to-br lg:w-44 ${item.tone}`}
                   >
-                    <item.icon className="absolute bottom-3 start-3 h-7 w-7 text-primary-200/80" />
+                    <item.icon className="absolute bottom-2 start-2 h-5 w-5 text-primary-200/80 lg:bottom-4 lg:start-4 lg:h-8 lg:w-8" />
                   </div>
 
                   <div className="flex flex-1 flex-col">
-                    <h3 className="text-base font-bold text-foreground sm:text-lg">
+                    <h3 className="text-sm font-bold text-foreground lg:text-lg">
                       {item.title}
                     </h3>
-                    <p className="mt-2 flex-1 text-sm text-muted-foreground">
+                    <p className="mt-2 flex-1 text-xs text-muted-foreground lg:text-sm">
                       {item.desc}
                     </p>
                     <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3">
