@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback, startTransition } from 'react';
 import { motion } from 'motion/react';
 import type { HTMLMotionProps } from 'motion/react';
 
@@ -362,14 +362,16 @@ export default function DecryptedText({
   }, [animateOn, hasAnimated, triggerDecrypt]);
 
   useEffect(() => {
-    if (animateOn === 'click') {
-      encryptInstantly();
-    } else {
-      setDisplayText(text);
-      setIsDecrypted(true);
-    }
-    setRevealedIndices(new Set());
-    setDirection('forward');
+    startTransition(() => {
+      if (animateOn === 'click') {
+        encryptInstantly();
+      } else {
+        setDisplayText(text);
+        setIsDecrypted(true);
+      }
+      setRevealedIndices(new Set());
+      setDirection('forward');
+    });
   }, [animateOn, text, encryptInstantly]);
 
   const animateProps =

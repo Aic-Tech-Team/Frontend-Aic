@@ -58,7 +58,7 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
   className = '',
   edgeSensitivity = 30,
   glowColor = '40 80 80',
-  backgroundColor = '#120F17',
+  backgroundColor = "transparent",
   borderRadius = 28,
   glowRadius = 40,
   glowIntensity = 1.0,
@@ -98,16 +98,18 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
   const borderBg = meshGradients.map(g => `${g} border-box`);
   const fillBg = meshGradients.map(g => `${g} padding-box`);
   const angleDeg = `${cursorAngle.toFixed(3)}deg`;
+  const fillColor =
+    backgroundColor === "transparent" ? "var(--card)" : backgroundColor;
 
   return (
     <div
       ref={cardRef}
-      className={`relative grid isolate border border-white/15 ${className}`}
+      className={`relative grid isolate border border-border/60 bg-card/50 ${className}`}
       style={{
-        background: backgroundColor,
+        background: backgroundColor === "transparent" ? undefined : backgroundColor,
         borderRadius: `${borderRadius}px`,
         transform: 'translate3d(0, 0, 0.01px)',
-        boxShadow: 'rgba(0,0,0,0.1) 0 1px 2px, rgba(0,0,0,0.1) 0 2px 4px, rgba(0,0,0,0.1) 0 4px 8px, rgba(0,0,0,0.1) 0 8px 16px, rgba(0,0,0,0.1) 0 16px 32px, rgba(0,0,0,0.1) 0 32px 64px',
+        boxShadow: '0 12px 40px -24px color-mix(in srgb, var(--primary) 35%, transparent)',
       }}
     >
       <div
@@ -115,7 +117,7 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
         style={{
           border: '1px solid transparent',
           background: [
-            `linear-gradient(${backgroundColor} 0 100%) padding-box`,
+            `linear-gradient(${fillColor} 0 100%) padding-box`,
             'linear-gradient(rgb(255 255 255 / 0%) 0% 100%) border-box',
             ...borderBg,
           ].join(', '),

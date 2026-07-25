@@ -5,6 +5,8 @@ import { ActivitiesSection } from "@/components/sections/ActivitiesSection";
 import { BlogSection } from "@/components/sections/BlogSection";
 import { TeamsSection } from "@/components/sections/TeamsSection";
 import { CtaSection } from "@/components/sections/CtaSection";
+import { AboutSection } from "@/components/sections/AboutSection";
+import { WhatYouExperienceSection } from "@/components/sections/WhatYouExperienceSection";
 
 
 export default async function HomePage({
@@ -18,6 +20,8 @@ export default async function HomePage({
   return (
     <>
       <Hero />
+      <WhatYouExperienceSection />
+      <AboutSection />      
       <EventsSection />
       <ActivitiesSection />
       <BlogSection />

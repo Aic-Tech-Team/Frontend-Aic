@@ -1,9 +1,13 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
-import type { ReactNode } from "react";
+import { motion, type Variants } from "motion/react";
+import type { ComponentProps, ReactNode } from "react";
 
 type RevealDirection = "up" | "down" | "left" | "right" | "none";
+
+type ViewportMargin = NonNullable<
+  NonNullable<ComponentProps<typeof motion.div>["viewport"]>["margin"]
+>;
 
 interface RevealProps {
   children: ReactNode;
@@ -11,7 +15,7 @@ interface RevealProps {
   delay?: number;
   duration?: number;
   amount?: number;
-  margin?: string;
+  margin?: ViewportMargin;
   className?: string;
 }
 
@@ -49,7 +53,7 @@ export function Reveal({
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount, margin: margin as any }}
+      viewport={{ once: true, amount, margin }}
       variants={variants}
     >
       {children}
@@ -57,13 +61,12 @@ export function Reveal({
   );
 }
 
-
 interface RevealGroupProps {
   children: ReactNode;
   className?: string;
   stagger?: number;
   amount?: number;
-  margin?: string;
+  margin?: ViewportMargin;
 }
 
 export function RevealGroup({
@@ -85,7 +88,7 @@ export function RevealGroup({
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount, margin: margin as any }}
+      viewport={{ once: true, amount, margin }}
       variants={containerVariants}
     >
       {children}
@@ -98,6 +101,8 @@ interface RevealItemProps {
   direction?: RevealDirection;
   duration?: number;
   className?: string;
+  /** Lift on hover via a child wrapper — keeps motion transform off CSS hover transform. */
+  hoverLift?: boolean;
 }
 
 export function RevealItem({
@@ -105,6 +110,7 @@ export function RevealItem({
   direction = "up",
   duration = 0.6,
   className,
+  hoverLift = false,
 }: RevealItemProps) {
   const offset = offsets[direction];
 
@@ -120,7 +126,13 @@ export function RevealItem({
 
   return (
     <motion.div className={className} variants={itemVariants}>
-      {children}
+      {hoverLift ? (
+        <div className="h-full transition-transform duration-500 hover:-translate-y-1.5">
+          {children}
+        </div>
+      ) : (
+        children
+      )}
     </motion.div>
   );
 }

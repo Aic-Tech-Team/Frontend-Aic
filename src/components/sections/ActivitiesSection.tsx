@@ -1,5 +1,6 @@
 import { CalendarClock, ChevronLeft, LayoutGrid } from "lucide-react";
-import { Reveal, RevealGroup, RevealItem } from "@/components/reveal";
+import { RevealGroup, RevealItem } from "@/components/reveal";
+import { SectionHeading } from "@/components/section-heading";
 import AutoBorderGlow from "../AutoBorderGlow";
 
 const activities = [
@@ -37,16 +38,17 @@ export function ActivitiesSection() {
   return (
     <section id="activities" className="px-4 py-20 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <Reveal direction="up" className="mb-10 flex gap-2 text-center">
-          <span className="surface flex items-center gap-2 rounded-sm px-4 py-2 text-sm font-medium text-primary-300">
-            <CalendarClock className="h-4 w-4" />
-            فعالیت‌ها
-          </span>
-        </Reveal>
+        <SectionHeading
+          badge="فعالیت‌ها"
+          icon={CalendarClock}
+          title="فعالیت‌ها و برنامه‌های انجمن"
+          description="مسابقات، جشنواره‌ها و برنامه‌هایی برای تجربه، یادگیری و رشد در کنار هم."
+          moreHref="#activities"
+        />
 
         <RevealGroup className="grid gap-6 sm:grid-cols-2">
           {activities.map((item) => (
-            <RevealItem key={item.title} direction="up">
+            <RevealItem key={item.title} direction="up" hoverLift className="h-full">
               <AutoBorderGlow
                 className="h-full w-full"
                 borderRadius={24}
@@ -57,10 +59,10 @@ export function ActivitiesSection() {
                 coneSpread={25}
                 speed={6}
               >
-                <div className="surface group flex h-full gap-3 overflow-hidden rounded-3xl p-5 transition-transform duration-500 hover:-translate-y-1.5 sm:p-6">
+                <div className="surface group flex h-full gap-3 overflow-hidden rounded-3xl p-5 sm:p-6">
                   <div
-                    className={`relative hidden w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br sm:block
-                      ${item.tone}`}>
+                    className={`relative hidden w-28 shrink-0 overflow-hidden rounded-2xl bg-linear-to-br sm:block ${item.tone}`}
+                  >
                     <item.icon className="absolute bottom-3 start-3 h-7 w-7 text-primary-200/80" />
                   </div>
 
@@ -71,11 +73,11 @@ export function ActivitiesSection() {
                     <p className="mt-2 flex-1 text-sm text-muted-foreground">
                       {item.desc}
                     </p>
-                    <div className="mt-4 flex items-center justify-between border-t border-white/[0.06] pt-3">
+                    <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3">
                       <span className="text-xs text-muted-foreground">
                         {item.date}
                       </span>
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-primary-300 transition-all duration-300 group-hover:-translate-x-1 group-hover:bg-primary/10">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 text-primary-300 transition-all duration-300 group-hover:-translate-x-1 group-hover:bg-primary/10">
                         <ChevronLeft className="h-4 w-4" />
                       </span>
                     </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowLeft, Sparkles, Users2, Activity } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -45,7 +47,7 @@ export function Hero() {
           </p>
 
           <ClickSpark
-            sparkColor="#ffffff"
+            sparkColor="#8b5cf6"
             sparkSize={10}
             sparkRadius={15}
             sparkCount={8}
@@ -67,14 +69,14 @@ export function Hero() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="w-full rounded-full border-white/10 bg-white/[0.02] sm:w-auto"
+                className="w-full rounded-full border-border/70 bg-card/40 sm:w-auto"
               >
                 <Link href="/#teams">آشنایی با انجمن</Link>
               </Button>
             </div>
           </ClickSpark>
 
-          <div className="mt-14 grid grid-cols-3 gap-4 border-t border-white/[0.06] pt-8">
+          <div className="mt-14 grid grid-cols-3 gap-4 border-t border-border/50 pt-8">
             {stats.map((stat) => (
               <div key={stat.label}>
                 <CountUp
@@ -106,7 +108,7 @@ export function Hero() {
           </div>
 
           <div className="surface animate-float absolute -start-2 top-6 flex flex-row items-center gap-2.5 rounded-2xl px-3.5 py-2.5 sm:-start-6">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-900/60 text-primary-300">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
               <Activity className="h-4 w-4" />
             </span>
 
@@ -121,27 +123,41 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="absolute -end-2 bottom-16 flex flex-row items-center gap-2.5 rounded-2xl px-3.5 py-2.5 sm:-end-6">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-900/60 text-primary-300">
+          <div
+            className="surface animate-float absolute -end-2 bottom-16 flex flex-row items-center gap-2.5 rounded-2xl px-3.5 py-2.5 sm:-end-6"
+            style={{ animationDelay: "-2s" }}
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
               <Users2 className="h-4 w-4" />
             </span>
 
             <div className="text-right">
-              <span className="block text-sm font-bold">۳۲ دانشجو</span>
+              <span className="block text-sm font-bold text-foreground">
+                ۳۲ دانشجو
+              </span>
 
-              <span className="block text-[11px]">این ترم پیوستند</span>
+              <span className="block text-[11px] text-muted-foreground">
+                این ترم پیوستند
+              </span>
             </div>
           </div>
 
-          <div className="absolute bottom-0 start-8 flex flex-row items-center gap-2.5 rounded-2xl px-3.5 py-2.5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-900/60 text-primary-300">
+          <div
+            className="surface animate-float absolute bottom-0 start-8 flex flex-row items-center gap-2.5 rounded-2xl px-3.5 py-2.5"
+            style={{ animationDelay: "-4s" }}
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
               <Sparkles className="h-4 w-4" />
             </span>
 
             <div className="text-right">
-              <span className="block text-sm font-bold">۱۲ کارگاه</span>
+              <span className="block text-sm font-bold text-foreground">
+                ۱۲ کارگاه
+              </span>
 
-              <span className="block text-[11px]">امسال</span>
+              <span className="block text-[11px] text-muted-foreground">
+                امسال
+              </span>
             </div>
           </div>
         </Reveal>

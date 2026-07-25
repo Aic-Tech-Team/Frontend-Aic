@@ -1,0 +1,82 @@
+/* * -----------------------------------------------------
+   * ### Font Face Declarations for <YourFontName>
+
+    Load custom font weights for <YourFontName> 
+    to provide typographic variety in the application.
+    Ensure font files are correctly located and accessible 
+    in the specified path.
+    
+    Font Weight Descriptions:
+    - 100: Thin
+    - 200: ExtraLight
+    - 300: Light
+    - 400: Normal (Regular)
+    - 500: Medium
+    - 600: SemiBold
+    - 700: Bold
+    - 800: ExtraBold
+    - 900: Black
+    - 950: ExtraBlack
+   * ------------------------------------------------------- */
+
+/* ---------------------------
+   Font YekanBakh
+   ---------------------------*/
+
+ 
+/* 100 - Thin */
+@font-face {
+  font-family: "YekanBakh";
+  font-weight: 100;
+  src: url("./fonts/YekanBakh/YekanBakhFaNum-Thin.ttf") format("truetype");
+  font-display: swap;
+}
+ 
+/* 300 - Light */
+@font-face {
+  font-family: "YekanBakh";
+  font-weight: 300;
+  src: url("./fonts/YekanBakh/YekanBakhFaNum-Light.ttf") format("truetype");
+  font-display: swap;
+}
+ 
+/* 400 - Regular */
+@font-face {
+  font-family: "YekanBakh";
+  font-weight: 400;
+  src: url("./fonts/YekanBakh/YekanBakhFaNum-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+ 
+/* 600 - SemiBold */
+@font-face {
+  font-family: "YekanBakh";
+  font-weight: 600;
+  src: url("./fonts/YekanBakh/YekanBakhFaNum-SemiBold.ttf") format("truetype");
+  font-display: swap;
+}
+ 
+/* 700 - Bold */
+@font-face {
+  font-family: "YekanBakh";
+  font-weight: 700;
+  src: url("./fonts/YekanBakh/YekanBakhFaNum-Bold.ttf") format("truetype");
+  font-display: swap;
+}
+ 
+/* 800 - ExtraBold */
+@font-face {
+  font-family: "YekanBakh";
+  font-weight: 800;
+  src: url("./fonts/YekanBakh/YekanBakhFaNum-ExtraBold.ttf") format("truetype");
+  font-display: swap;
+}
+ 
+/* 950 - ExtraBlack */
+@font-face {
+  font-family: "YekanBakh";
+  font-weight: 950;
+  src: url("./fonts/YekanBakh/YekanBakhFaNum-ExtraBlack.ttf") format("truetype");
+  font-display: swap;
+}
+ 

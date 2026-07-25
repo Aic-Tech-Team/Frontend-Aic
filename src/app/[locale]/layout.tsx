@@ -35,18 +35,19 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   const messages = await getMessages();
-  const dir = "rtl";
+  const dir = locale === "fa" ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={dir}>
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"
-        />
+    <html
+      lang={locale}
+      dir={dir}
+      data-theme="navy"
+      suppressHydrationWarning
+      className={dir === "rtl" ? "font-fa" : "font-en"}
+    >
+
+      <body className="min-h-screen antialiased">
         <ThemeInitializer />
-      </head>
-      <body className="min-h-screen font-sans antialiased">
         <AnimatedBackground />
         <NextIntlClientProvider messages={messages}>
           <div className="relative flex min-h-screen flex-col">

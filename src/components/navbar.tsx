@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import Aurora from "@/components/Aurora";
+import { cn } from "@/lib/utils";
+import { useThemeStore } from "@/store/useThemeStore";
 
 const navLinks = [
   { href: "/#events", label: "رویدادها" },
@@ -14,20 +16,51 @@ const navLinks = [
   { href: "/#blog", label: "بلاگ" },
 ] as const;
 
+const auroraStops = {
+  navy: ["#432086", "#5227FF", "#a15fe0"],
+  pink: ["#c4b5fd", "#e9d5ff", "#93c5fd"],
+} as const;
+
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const theme = useThemeStore((s) => s.theme);
   const closeMenu = () => setIsOpen(false);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="relative w-full overflow-hidden transition-all duration-500">
-      <div className="absolute inset-0 -z-10 pointer-events-none">
-        <Aurora amplitude={2} blend={0.6} />
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
+        scrolled || isOpen
+          ? "border-b border-border/60 bg-background/85 shadow-sm backdrop-blur-xl"
+          : "border-b border-transparent bg-transparent"
+      )}
+    >
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-0 -z-10 transition-opacity duration-300",
+          scrolled || isOpen ? "opacity-0" : "opacity-100"
+        )}
+      >
+        <Aurora
+          amplitude={1.4}
+          blend={theme === "pink" ? 0.35 : 0.6}
+          colorStops={[...auroraStops[theme]]}
+        />
       </div>
+
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
         <Link
           href="/"
           onClick={closeMenu}
-          className="group flex items-center gap-2 text-lg font-bold tracking-tight"
+          className="group flex items-center gap-2 text-lg font-bold tracking-tight text-foreground"
         >
           <span className="sm:inline">انجمن هوش مصنوعی</span>
         </Link>
@@ -37,10 +70,10 @@ export function Navbar() {
             <Link
               key={link.label}
               href={link.href}
-              className="group relative px-3.5 py-2 text-sm font-medium"
+              className="group relative px-3.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
             >
               {link.label}
-              <span className="pointer-events-none absolute inset-x-1 bottom-1 h-[2px] origin-center scale-x-0 rounded-full bg-gradient-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-smooth group-hover:scale-x-100" />
+              <span className="pointer-events-none absolute inset-x-1 bottom-1 h-[2px] origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
             </Link>
           ))}
         </nav>
@@ -67,7 +100,7 @@ export function Navbar() {
       </div>
 
       {isOpen && (
-        <nav className="animate-fade-in flex w-full flex-col gap-1 bg-background/80 px-4 py-4 backdrop-blur-xl sm:hidden">
+        <nav className="animate-fade-in flex w-full flex-col gap-1 border-t border-border/50 px-4 py-4 sm:hidden">
           {navLinks.map((link) => (
             <Link
               key={link.label}
@@ -78,7 +111,7 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <div className="mt-2 flex items-center justify-between border-t border-white/[0.06] pt-3">
+          <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-3">
             <ThemeSwitcher />
             <Button asChild size="sm" className="rounded-xl">
               <Link href="/#join" onClick={closeMenu}>

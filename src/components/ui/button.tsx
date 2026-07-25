@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -10,9 +12,9 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary-600",
         outline:
-          "border border-border bg-transparent hover:bg-primary-50 text-foreground",
+          "border border-border/70 bg-transparent text-foreground hover:bg-primary/10",
         secondary: "bg-secondary text-secondary-foreground hover:opacity-90",
-        ghost: "hover:bg-primary-50",
+        ghost: "hover:bg-primary/10",
       },
       size: {
         default: "h-10 px-5 py-2",
