@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/reveal";
 import { CountUp } from "../ui/count-up";
 import ClickSpark from "./../ClickSpark";
-import DecryptedText from "../DecryptedText";
+import TextType from "../TextType";
 
 const stats = [
   { label: "عضو فعال", value: 150, prefix: "", suffix: "+" },
@@ -21,24 +21,35 @@ export function Hero() {
       <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2 lg:gap-10">
         <Reveal direction="up" className="text-center lg:text-start">
           <h1 className="mt-6 text-4xl font-extrabold leading-[1.25] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]">
-            <DecryptedText
+            <TextType
+              as="span"
               text="آینده را با "
-              speed={150}
-              characters="اآبپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی"
-              animateOn="view"
-              sequential
+              typingSpeed={150}
+              initialDelay={0}
+              loop={false}
+              showCursor={false}
+              startOnVisible
             />
             <span className="text-gradient">
-              <DecryptedText
+              <TextType
+                as="span"
                 text="هوش مصنوعی"
-                speed={150}
-                characters="اآبپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی"
-                animateOn="view"
-                sequential
+                typingSpeed={150}
+                initialDelay={1800}
+                loop={false}
+                showCursor={false}
+                startOnVisible
               />
             </span>
             <br />
-            <DecryptedText text="بسازیم" animateOn="view" />
+            <TextType
+              as="span"
+              text="بسازیم ! "
+              typingSpeed={150}
+              initialDelay={3300}
+              loop={false}
+              startOnVisible
+            />
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-base leading-8 text-muted-foreground lg:mx-0">
