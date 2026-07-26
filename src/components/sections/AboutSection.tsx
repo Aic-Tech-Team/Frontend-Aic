@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ChevronLeft, HouseHeart } from "lucide-react";
 import { RevealGroup, RevealItem } from "@/components/reveal";
 import { SectionHeading } from "../section-heading";
+import PixelCard from "../PixelCard";
 
 export function AboutSection() {
   return (
@@ -32,15 +33,17 @@ export function AboutSection() {
         </RevealGroup>
 
         <RevealItem direction="left" className="lg:order-1">
-          <div className="relative overflow-hidden rounded-3xl">
-            <Image
-              src="/images/about.jpg"
-              alt="اعضای انجمن هوش مصنوعی"
-              width={900}
-              height={700}
-              className="h-[420px] w-full object-cover sm:h-[520px]"
-            />
-          </div>
+          <PixelCard variant="pink" className="inline-block">
+            <div className="relative overflow-hidden rounded-3xl">
+              <Image
+                src="/download - 2026-07-14T232704.664.jpg"
+                alt="..."
+                width={900}
+                height={700}
+                className="relative z-0 h-[420px] w-full object-cover sm:h-[520px]"
+              />
+            </div>
+          </PixelCard>
         </RevealItem>
       </div>
     </section>
