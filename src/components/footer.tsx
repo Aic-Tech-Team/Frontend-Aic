@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef } from "react";
 import { Mail, MapPin, Clock, Send } from "lucide-react";
 
 // Brand icons removed from lucide-react — using inline SVGs instead
@@ -18,6 +21,7 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
 );
 import { Link } from "@/i18n/navigation";
 import { Reveal, RevealGroup, RevealItem } from "@/components/reveal";
+import SplashCursor from "./SplashCursor";
 
 const quickLinks = [
   { label: "خانه", href: "/" },
@@ -36,12 +40,32 @@ const activityLinks = [
 ];
 
 export function Footer() {
+  const footerRef = useRef<HTMLElement>(null);
+
   return (
     <footer
+      ref={footerRef}
       dir="rtl"
-      className="w-full border-t border-border/50 bg-background/40 px-4 pb-8 pt-14 backdrop-blur-xl sm:px-6 lg:px-10"
+      className="relative w-full overflow-hidden border-t border-border/50 bg-background/40 px-4 pb-8 pt-14 backdrop-blur-xl sm:px-6 lg:px-10"
     >
-      <div className="mx-auto max-w-7xl">
+      <div className="opacity-50 pointer-events-none absolute inset-0 z-0">
+        <SplashCursor
+          containerRef={footerRef}
+          DENSITY_DISSIPATION={2}
+          VELOCITY_DISSIPATION={4}
+          PRESSURE={0.1}
+          CURL={14}
+          SPLAT_RADIUS={0.90}
+          SPLAT_FORCE={5500}
+          COLOR_UPDATE_SPEED={11}
+          COLOR_INTENSITY={0.15}
+          SHADING
+          RAINBOW_MODE={false}
+          COLOR="#5f1f99"
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl">
         <RevealGroup className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <RevealItem direction="up">
             <div className="flex items-center gap-2.5">

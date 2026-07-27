@@ -20,23 +20,7 @@ export function CtaSection() {
           speed={8}
         >
           <div className="surface relative w-full overflow-hidden rounded-[2.5rem] px-6 py-16 text-center sm:px-12">
-            <div className="pointer-events-none absolute inset-0 z-0">
-              <SplashCursor
-                DENSITY_DISSIPATION={2}
-                VELOCITY_DISSIPATION={4}
-                PRESSURE={0.1}
-                CURL={14}
-                SPLAT_RADIUS={0.27}
-                SPLAT_FORCE={5500}
-                COLOR_UPDATE_SPEED={11}
-                SHADING
-                RAINBOW_MODE={false}
-                COLOR="#5f1f99"
-              />
-            </div>
-
             <div className="pointer-events-none absolute -top-24 start-1/2 z-0 h-64 w-64 -translate-x-1/2 rounded-full bg-primary-500/25 blur-[100px]" />
-
             <div className="relative z-10">
               <div className="flex justify-center">
                 <SectionBadge icon={Handshake}>عضویت در انجمن</SectionBadge>

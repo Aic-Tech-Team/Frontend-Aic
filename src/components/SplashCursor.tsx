@@ -24,6 +24,20 @@ interface SplashCursorProps {
   TRANSPARENT?: boolean;
   RAINBOW_MODE?: boolean;
   COLOR?: string;
+  /**
+   * Multiplier applied to generated colors before they're used as dye.
+   * Was previously hardcoded to 0.15 (tuned for a full-viewport canvas).
+   * Smaller containers (like a footer) usually need a higher value to
+   * read as visibly saturated. Default keeps prior behavior.
+   */
+  COLOR_INTENSITY?: number;
+  /**
+   * Optional element to scope the effect to. When provided, mouse/touch
+   * tracking is attached to this element (instead of window) and
+   * coordinates are computed relative to it, so the animation only
+   * reacts while the pointer is over that element (e.g. a footer).
+   */
+  containerRef?: React.RefObject<HTMLElement | null>;
 }
 
 interface Pointer {
@@ -75,13 +89,20 @@ export default function SplashCursor({
   BACK_COLOR = { r: 0.5, g: 0, b: 0 },
   TRANSPARENT = true,
   RAINBOW_MODE = true,
-  COLOR = '#ff0000'
+  COLOR = '#ff0000',
+  COLOR_INTENSITY = 0.15,
+  containerRef
 }: SplashCursorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // Scope event listening to the given container (e.g. the footer)
+    // instead of the whole window, so the effect only reacts to the
+    // mouse while it's over that element.
+    const eventTarget: HTMLElement | Window = containerRef?.current ?? window;
 
     let pointers: Pointer[] = [pointerPrototype()];
 
@@ -102,7 +123,8 @@ export default function SplashCursor({
       BACK_COLOR,
       TRANSPARENT,
       RAINBOW_MODE,
-      COLOR
+      COLOR,
+      COLOR_INTENSITY: COLOR_INTENSITY!
     };
 
     const { gl, ext } = getWebGLContext(canvas);
@@ -862,11 +884,23 @@ export default function SplashCursor({
       return Math.floor(input * pixelRatio);
     }
 
+    // Converts a clientX/clientY viewport coordinate into a coordinate
+    // relative to the canvas itself (accounting for its position on the
+    // page), instead of assuming the canvas fills the whole viewport.
+    function getLocalPos(clientX: number, clientY: number) {
+      const rect = canvas!.getBoundingClientRect();
+      return {
+        x: scaleByPixelRatio(clientX - rect.left),
+        y: scaleByPixelRatio(clientY - rect.top)
+      };
+    }
+
     updateKeywords();
     initFramebuffers();
 
     let lastUpdateTime = Date.now();
     let colorUpdateTimer = 0.0;
+    let rafId: number;
 
     function updateFrame() {
       const dt = calcDeltaTime();
@@ -875,7 +909,7 @@ export default function SplashCursor({
       applyInputs();
       step(dt);
       render(null);
-      requestAnimationFrame(updateFrame);
+      rafId = requestAnimationFrame(updateFrame);
     }
 
     function calcDeltaTime() {
@@ -1150,7 +1184,7 @@ export default function SplashCursor({
       const r = parseInt(val.slice(0, 2), 16) / 255;
       const g = parseInt(val.slice(2, 4), 16) / 255;
       const b = parseInt(val.slice(4, 6), 16) / 255;
-      return { r: r * 0.15, g: g * 0.15, b: b * 0.15 };
+      return { r: r * config.COLOR_INTENSITY, g: g * config.COLOR_INTENSITY, b: b * config.COLOR_INTENSITY };
     }
 
     function generateColor(): ColorRGB {
@@ -1158,9 +1192,9 @@ export default function SplashCursor({
         return hexToRGB(config.COLOR!);
       }
       const c = HSVtoRGB(Math.random(), 1.0, 1.0);
-      c.r *= 0.15;
-      c.g *= 0.15;
-      c.b *= 0.15;
+      c.r *= config.COLOR_INTENSITY;
+      c.g *= config.COLOR_INTENSITY;
+      c.b *= config.COLOR_INTENSITY;
       return c;
     }
 
@@ -1215,81 +1249,70 @@ export default function SplashCursor({
       return ((value - min) % range) + min;
     }
 
-    window.addEventListener('mousedown', e => {
+    // Start the render loop immediately; splats only occur once the
+    // pointer actually moves within the scoped container.
+    updateFrame();
+
+    const handleMouseDown = (e: MouseEvent) => {
       const pointer = pointers[0];
-      const posX = scaleByPixelRatio(e.clientX);
-      const posY = scaleByPixelRatio(e.clientY);
+      const { x: posX, y: posY } = getLocalPos(e.clientX, e.clientY);
       updatePointerDownData(pointer, -1, posX, posY);
       clickSplat(pointer);
-    });
+    };
 
-    function handleFirstMouseMove(e: MouseEvent) {
+    const handleMouseMove = (e: MouseEvent) => {
       const pointer = pointers[0];
-      const posX = scaleByPixelRatio(e.clientX);
-      const posY = scaleByPixelRatio(e.clientY);
-      const color = generateColor();
-      updateFrame();
-      updatePointerMoveData(pointer, posX, posY, color);
-      document.body.removeEventListener('mousemove', handleFirstMouseMove);
-    }
-    document.body.addEventListener('mousemove', handleFirstMouseMove);
-
-    window.addEventListener('mousemove', e => {
-      const pointer = pointers[0];
-      const posX = scaleByPixelRatio(e.clientX);
-      const posY = scaleByPixelRatio(e.clientY);
+      const { x: posX, y: posY } = getLocalPos(e.clientX, e.clientY);
       const color = pointer.color;
       updatePointerMoveData(pointer, posX, posY, color);
-    });
+    };
 
-    function handleFirstTouchStart(e: TouchEvent) {
+    const handleMouseLeave = () => {
+      updatePointerUpData(pointers[0]);
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
       const touches = e.targetTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
-        const posX = scaleByPixelRatio(touches[i].clientX);
-        const posY = scaleByPixelRatio(touches[i].clientY);
-        updateFrame();
+        const { x: posX, y: posY } = getLocalPos(touches[i].clientX, touches[i].clientY);
         updatePointerDownData(pointer, touches[i].identifier, posX, posY);
       }
-      document.body.removeEventListener('touchstart', handleFirstTouchStart);
-    }
-    document.body.addEventListener('touchstart', handleFirstTouchStart);
+    };
 
-    window.addEventListener(
-      'touchstart',
-      e => {
-        const touches = e.targetTouches;
-        const pointer = pointers[0];
-        for (let i = 0; i < touches.length; i++) {
-          const posX = scaleByPixelRatio(touches[i].clientX);
-          const posY = scaleByPixelRatio(touches[i].clientY);
-          updatePointerDownData(pointer, touches[i].identifier, posX, posY);
-        }
-      },
-      false
-    );
+    const handleTouchMove = (e: TouchEvent) => {
+      const touches = e.targetTouches;
+      const pointer = pointers[0];
+      for (let i = 0; i < touches.length; i++) {
+        const { x: posX, y: posY } = getLocalPos(touches[i].clientX, touches[i].clientY);
+        updatePointerMoveData(pointer, posX, posY, pointer.color);
+      }
+    };
 
-    window.addEventListener(
-      'touchmove',
-      e => {
-        const touches = e.targetTouches;
-        const pointer = pointers[0];
-        for (let i = 0; i < touches.length; i++) {
-          const posX = scaleByPixelRatio(touches[i].clientX);
-          const posY = scaleByPixelRatio(touches[i].clientY);
-          updatePointerMoveData(pointer, posX, posY, pointer.color);
-        }
-      },
-      false
-    );
-
-    window.addEventListener('touchend', e => {
+    const handleTouchEnd = (e: TouchEvent) => {
       const touches = e.changedTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
         updatePointerUpData(pointer);
       }
-    });
+    };
+
+    eventTarget.addEventListener('mousedown', handleMouseDown as EventListener);
+    eventTarget.addEventListener('mousemove', handleMouseMove as EventListener);
+    eventTarget.addEventListener('mouseleave', handleMouseLeave as EventListener);
+    eventTarget.addEventListener('touchstart', handleTouchStart as EventListener, false);
+    eventTarget.addEventListener('touchmove', handleTouchMove as EventListener, false);
+    eventTarget.addEventListener('touchend', handleTouchEnd as EventListener);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      eventTarget.removeEventListener('mousedown', handleMouseDown as EventListener);
+      eventTarget.removeEventListener('mousemove', handleMouseMove as EventListener);
+      eventTarget.removeEventListener('mouseleave', handleMouseLeave as EventListener);
+      eventTarget.removeEventListener('touchstart', handleTouchStart as EventListener);
+      eventTarget.removeEventListener('touchmove', handleTouchMove as EventListener);
+      eventTarget.removeEventListener('touchend', handleTouchEnd as EventListener);
+    };
   }, [
     SIM_RESOLUTION,
     DYE_RESOLUTION,
@@ -1306,16 +1329,16 @@ export default function SplashCursor({
     BACK_COLOR,
     TRANSPARENT,
     RAINBOW_MODE,
-    COLOR
+    COLOR,
+    COLOR_INTENSITY,
+    containerRef
   ]);
 
   return (
     <div
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: 50,
+        position: 'absolute',
+        inset: 0,
         pointerEvents: 'none',
         width: '100%',
         height: '100%'
@@ -1325,8 +1348,8 @@ export default function SplashCursor({
         ref={canvasRef}
         id="fluid"
         style={{
-          width: '100vw',
-          height: '100vh',
+          width: '100%',
+          height: '100%',
           display: 'block'
         }}
       />
