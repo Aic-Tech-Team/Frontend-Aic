@@ -9,6 +9,7 @@ import { ThemeInitializer } from "@/components/theme-initializer";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
+import Particles from "@/components/Particles";
 
 export const metadata: Metadata = {
   title: "انجمن علمی هوش مصنوعی ",
@@ -45,12 +46,27 @@ export default async function LocaleLayout({
       suppressHydrationWarning
       className={dir === "rtl" ? "font-fa" : "font-en"}
     >
-
       <body className="min-h-screen antialiased">
         <ThemeInitializer />
         <AnimatedBackground />
+
+        {/* Fixed full-viewport particle background, sits behind all content */}
+        <div className="pointer-events-none fixed inset-0 -z-10">
+          <Particles
+            particleColors={["#ffffff"]}
+            particleCount={600}
+            particleSpread={20}
+            speed={0.2}
+            particleBaseSize={100}
+            moveParticlesOnHover={false}
+            alphaParticles
+            disableRotation
+            pixelRatio={1}
+          />
+        </div>
+
         <NextIntlClientProvider messages={messages}>
-          <div className="relative flex min-h-screen flex-col">
+          <div className="relative z-0 flex min-h-screen flex-col">
             <Navbar />
             <main className="flex-1">{children}</main>
             <Footer />

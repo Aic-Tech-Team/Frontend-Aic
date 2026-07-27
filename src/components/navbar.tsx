@@ -5,9 +5,7 @@ import { Menu, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
-import Aurora from "@/components/Aurora";
 import { cn } from "@/lib/utils";
-import { useThemeStore } from "@/store/useThemeStore";
 
 const navLinks = [
   { href: "/#events", label: "رویدادها" },
@@ -16,15 +14,10 @@ const navLinks = [
   { href: "/#blog", label: "بلاگ" },
 ] as const;
 
-const auroraStops = {
-  navy: ["#432086", "#5227FF", "#a15fe0"],
-  pink: ["#c4b5fd", "#e9d5ff", "#93c5fd"],
-} as const;
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const theme = useThemeStore((s) => s.theme);
   const closeMenu = () => setIsOpen(false);
 
   useEffect(() => {
@@ -49,11 +42,6 @@ export function Navbar() {
           scrolled || isOpen ? "opacity-0" : "opacity-100"
         )}
       >
-        <Aurora
-          amplitude={1.4}
-          blend={theme === "pink" ? 0.35 : 0.6}
-          colorStops={[...auroraStops[theme]]}
-        />
       </div>
 
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
