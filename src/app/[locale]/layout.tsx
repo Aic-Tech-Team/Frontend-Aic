@@ -11,6 +11,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AnimatedBackground } from "@/components/animations/AnimatedBackground";
 import { ThemeAwareParticles } from "@/components/animations/ThemeAwareParticles";
+import { ExperienceSplash } from "@/components/animations/ExperienceSplash";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -73,6 +74,8 @@ export default async function LocaleLayout({
               pixelRatio={1}
             />
           </div>
+
+          <ExperienceSplash />
 
           <NextIntlClientProvider messages={messages}>
             <div className="relative z-0 flex min-h-screen flex-col">

@@ -27,8 +27,8 @@ export async function EventsSection() {
   const items = t.raw("items") as EventItem[];
 
   return (
-    <section id="events" className="px-4 py-10 sm:px-6 sm:py-20">
-      <div className="mx-auto max-w-6xl">
+    <section id="events" className="py-10 sm:py-20">
+      <div className="container min-w-0">
         <SectionHeading
           badge={t("badge")}
           icon={Ticket}

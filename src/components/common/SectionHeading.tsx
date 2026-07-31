@@ -72,7 +72,7 @@ export function SectionHeading({
     <Reveal
       direction="up"
       className={cn(
-        "mb-10 flex flex-col gap-6",
+        "mb-8 flex flex-col gap-5 sm:mb-10 sm:gap-6",
         isCenter
           ? "items-center text-center"
           : "items-center justify-between text-center lg:flex-row lg:items-end lg:justify-between",
@@ -84,14 +84,14 @@ export function SectionHeading({
         )}
       >
         <SectionBadge icon={icon}>{badge}</SectionBadge>
-        <h2 className="mt-5 text-2xl font-extrabold text-foreground sm:text-3xl">
+        <h2 className="mt-4 max-w-full text-xl font-extrabold break-words text-foreground sm:mt-5 sm:text-2xl md:text-3xl">
           {title}
         </h2>
         {description ? (
           <p
             className={cn(
-              "mt-2 text-sm text-muted-foreground sm:text-base",
-              isCenter && "mx-auto max-w-2xl leading-7",
+              "mt-2 max-w-full text-sm leading-7 text-muted-foreground sm:text-base",
+              isCenter && "mx-auto max-w-2xl",
             )}
           >
             {description}
