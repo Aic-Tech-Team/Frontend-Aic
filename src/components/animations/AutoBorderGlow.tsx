@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect, type ReactNode, type CSSProperties } from 'react';
+import { useRef, useState, useEffect, useSyncExternalStore, type ReactNode, type CSSProperties } from 'react';
 import { useTheme } from 'next-themes';
 
 interface AutoBorderGlowProps {
@@ -18,6 +18,8 @@ interface AutoBorderGlowProps {
   speed?: number;
   reverse?: boolean;
   lightModeBoost?: number;
+  /** Starting angle offset in degrees (0–360) so multiple cards stay out of sync */
+  phaseOffset?: number;
 }
 
 function parseHSL(hslStr: string): { h: number; s: number; l: number } {
@@ -70,15 +72,17 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
   speed = 6,
   reverse = false,
   lightModeBoost = 1.7,
+  phaseOffset = 0,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [cursorAngle, setCursorAngle] = useState(0);
+  const [cursorAngle, setCursorAngle] = useState(phaseOffset);
 
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const isLight = mounted && resolvedTheme === 'light';
   const themeBoost = isLight ? lightModeBoost : 1;
 
@@ -86,19 +90,20 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
     let rafId: number;
     let start: number | null = null;
     const durationMs = speed * 1000;
+    const offset = ((phaseOffset % 360) + 360) % 360;
 
     const tick = (timestamp: number) => {
       if (start === null) start = timestamp;
       const elapsed = (timestamp - start) % durationMs;
-      let angle = (elapsed / durationMs) * 360;
+      let angle = (elapsed / durationMs) * 360 + offset;
       if (reverse) angle = 360 - angle;
-      setCursorAngle(angle);
+      setCursorAngle(((angle % 360) + 360) % 360);
       rafId = requestAnimationFrame(tick);
     };
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [speed, reverse]);
+  }, [speed, reverse, phaseOffset]);
 
   const edgeProximity = 1;
   const colorSensitivity = edgeSensitivity + 20;
@@ -190,7 +195,7 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
         />
       </span>
 
-      <div className="flex flex-col relative overflow-auto z-[1]">
+      <div className="relative z-[1] flex h-full min-h-0 flex-col overflow-auto">
         {children}
       </div>
     </div>
