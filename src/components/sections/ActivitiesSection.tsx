@@ -77,7 +77,7 @@ export async function ActivitiesSection() {
                       lightModeBoost={2.5}
                       phaseOffset={index * 90}
                     >
-                      <div className="surface group flex h-full flex-row items-stretch gap-3 rounded-2xl p-3 sm:gap-4 sm:p-4 lg:gap-4 lg:p-4 xl:gap-5">
+                      <div className="surface group flex h-full flex-row items-stretch gap-3 rounded-[inherit] border-0 p-3 sm:gap-4 sm:p-4 lg:gap-4 lg:p-4 xl:gap-5">
                         <div className="relative aspect-square w-28 shrink-0 self-start overflow-hidden rounded-xl sm:w-32 md:w-36 lg:w-32 xl:w-40 2xl:w-44">
                           <Image
                             src={activityImages[index] ?? activityImages[0]}

@@ -8,6 +8,7 @@ import {
   type CSSProperties,
 } from "react";
 import { useTheme } from "next-themes";
+import { useMotionCapability } from "@/hooks/useMotionCapability";
 import "./AutoBorderGlow.css";
 
 interface AutoBorderGlowProps {
@@ -88,6 +89,41 @@ function buildMeshGradients(colors: string[]): string[] {
   return gradients;
 }
 
+/** Cheap static ring — no @property spin, no multi-mask, no 13-layer shadow. */
+function LiteBorderShell({
+  children,
+  className,
+  borderRadius,
+  backgroundColor,
+  colors,
+}: {
+  children?: ReactNode;
+  className: string;
+  borderRadius: number;
+  backgroundColor: string;
+  colors: string[];
+}) {
+  const accent = colors[0] ?? "#c084fc";
+  return (
+    <div
+      className={`relative grid isolate overflow-hidden bg-transparent ${className}`}
+      style={{
+        background:
+          backgroundColor === "transparent" ? undefined : backgroundColor,
+        borderRadius: `${borderRadius}px`,
+        boxShadow: `
+          0 0 0 1px color-mix(in srgb, ${accent} 55%, transparent),
+          0 10px 28px -18px color-mix(in srgb, var(--primary) 35%, transparent)
+        `,
+      }}
+    >
+      <div className="relative z-[1] flex h-full min-h-0 flex-col overflow-visible rounded-[inherit]">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
   children,
   className = "",
@@ -106,38 +142,53 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
   phaseOffset = 0,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const { isNarrow, prefersReducedMotion, mounted: capMounted } =
+    useMotionCapability();
 
   const { resolvedTheme } = useTheme();
-  const mounted = useSyncExternalStore(
+  const themeMounted = useSyncExternalStore(
     () => () => {},
     () => true,
     () => false
   );
-  const isLight = mounted && resolvedTheme === "light";
+  const isLight = themeMounted && resolvedTheme === "light";
   const themeBoost = isLight ? lightModeBoost : 1;
 
+  // Mobile / reduced-motion: static ring only (spinning masks destroy weak GPUs)
+  const useLite =
+    !capMounted || isNarrow || prefersReducedMotion;
+
   useEffect(() => {
+    if (useLite) return;
     const el = cardRef.current;
     if (!el) return;
 
     const io = new IntersectionObserver(
       ([entry]) => {
-        el.style.animationPlayState = entry.isIntersecting
-          ? "running"
-          : "paused";
-        el
-          .querySelectorAll<HTMLElement>(".abg-spin")
-          .forEach((node) => {
-            node.style.animationPlayState = entry.isIntersecting
-              ? "running"
-              : "paused";
-          });
+        el.querySelectorAll<HTMLElement>(".abg-spin").forEach((node) => {
+          node.style.animationPlayState = entry.isIntersecting
+            ? "running"
+            : "paused";
+        });
       },
       { rootMargin: "60px", threshold: 0 }
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [useLite]);
+
+  if (useLite) {
+    return (
+      <LiteBorderShell
+        className={className}
+        borderRadius={borderRadius}
+        backgroundColor={backgroundColor}
+        colors={colors}
+      >
+        {children}
+      </LiteBorderShell>
+    );
+  }
 
   const edgeProximity = 1;
   const colorSensitivity = edgeSensitivity + 20;
@@ -172,7 +223,7 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
   return (
     <div
       ref={cardRef}
-      className={`relative grid isolate border border-border/60 bg-card/50 ${className}`}
+      className={`relative grid isolate overflow-hidden bg-transparent ${className}`}
       style={{
         background:
           backgroundColor === "transparent" ? undefined : backgroundColor,
@@ -254,7 +305,7 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
         />
       </span>
 
-      <div className="relative z-[1] flex h-full min-h-0 flex-col overflow-visible">
+      <div className="relative z-[1] flex h-full min-h-0 flex-col overflow-visible rounded-[inherit]">
         {children}
       </div>
     </div>
