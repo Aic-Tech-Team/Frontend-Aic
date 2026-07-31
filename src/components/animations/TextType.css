@@ -1,0 +1,18 @@
+.text-type {
+  display: inline;
+  white-space: pre-wrap;
+}
+
+.text-type__content {
+  display: inline;
+}
+
+.text-type__cursor {
+  display: inline;
+  margin-inline-start: 0;
+  vertical-align: baseline;
+}
+
+.text-type__cursor--hidden {
+  visibility: hidden;
+}

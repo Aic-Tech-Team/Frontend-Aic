@@ -1,0 +1,88 @@
+/* * -----------------------------------------------------
+   * ### Font Face Declarations for <YourFontName>
+
+    Load custom font weights for <YourFontName> 
+    to provide typographic variety in the application.
+    Ensure font files are correctly located and accessible
+    in the specified path.
+
+    Font Weight Descriptions:
+    - 100: Thin
+    - 200: ExtraLight
+    - 300: Light
+    - 400: Normal (Regular)
+    - 500: Medium
+    - 600: SemiBold
+    - 700: Bold
+    - 800: ExtraBold
+    - 900: Black
+    - 950: ExtraBlack
+   * ------------------------------------------------------- */
+
+/* ---------------------------
+   Font IranYekan
+   ---------------------------*/
+
+/* 100 - Thin */
+@font-face {
+  font-family: "IranYekan";
+  font-weight: 100;
+  src: url("./fonts/IranYekan/iranyekanwebthinfanum.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* 300 - Light */
+@font-face {
+  font-family: "IranYekan";
+  font-weight: 300;
+  src: url("./fonts/IranYekan/iranyekanweblightfanum.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* 400 - Regular */
+@font-face {
+  font-family: "IranYekan";
+  font-weight: 400;
+  src: url("./fonts/IranYekan/iranyekanwebregularfanum.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* 500 - Medium */
+@font-face {
+  font-family: "IranYekan";
+  font-weight: 500;
+  src: url("./fonts/IranYekan/iranyekanwebmediumfanum.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* 700 - Bold */
+@font-face {
+  font-family: "IranYekan";
+  font-weight: 700;
+  src: url("./fonts/IranYekan/iranyekanwebboldfanum.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* 800 - ExtraBold */
+@font-face {
+  font-family: "IranYekan";
+  font-weight: 800;
+  src: url("./fonts/IranYekan/iranyekanwebextraboldfanum.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* 900 - Black */
+@font-face {
+  font-family: "IranYekan";
+  font-weight: 900;
+  src: url("./fonts/IranYekan/iranyekanwebblackfanum.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* 950 - ExtraBlack */
+@font-face {
+  font-family: "IranYekan";
+  font-weight: 950;
+  src: url("./fonts/IranYekan/iranyekanwebextrablackfanum.ttf") format("truetype");
+  font-display: swap;
+}

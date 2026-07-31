@@ -1,21 +1,32 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import { NextIntlClientProvider, hasLocale } from "next-intl";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
-import { ThemeInitializer } from "@/components/theme-initializer";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
-
-export const metadata: Metadata = {
-  title: "Next.js Bilingual Template",
-  description: "A production-ready bilingual Next.js template",
-};
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { ThemeInitScript } from "@/components/layout/ThemeInitScript";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { AnimatedBackground } from "@/components/animations/AnimatedBackground";
+import { ThemeAwareParticles } from "@/components/animations/ThemeAwareParticles";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Meta" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
 }
 
 export default async function LocaleLayout({
@@ -26,34 +37,51 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-
-  if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
+  if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
 
   setRequestLocale(locale);
 
   const messages = await getMessages();
-
   const dir = locale === "fa" ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={dir}>
+    <html
+      lang={locale}
+      dir={dir}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+      className={dir === "rtl" ? "font-fa" : "font-en"}
+    >
       <head>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"
-        />
-        <ThemeInitializer />
+        <ThemeInitScript />
       </head>
-      <body className="min-h-screen antialiased">
-        <NextIntlClientProvider messages={messages}>
-          <div className="flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
+      <body className="min-h-screen antialiased" suppressHydrationWarning>
+        <ThemeProvider>
+          <AnimatedBackground />
+
+          <div className="pointer-events-none fixed inset-0 -z-10">
+            <ThemeAwareParticles
+              particleCount={600}
+              particleSpread={20}
+              speed={0.2}
+              particleBaseSize={100}
+              moveParticlesOnHover={false}
+              alphaParticles
+              disableRotation
+              pixelRatio={1}
+            />
           </div>
-        </NextIntlClientProvider>
+
+          <NextIntlClientProvider messages={messages}>
+            <div className="relative z-0 flex min-h-screen flex-col">
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

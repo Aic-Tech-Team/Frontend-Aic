@@ -1,32 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import { Palette } from "lucide-react";
-import { useThemeStore } from "@/store/useThemeStore";
+import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
+
+const emptySubscribe = () => () => {};
 
 export function ThemeSwitcher() {
   const t = useTranslations("Theme");
+  const { theme, setTheme } = useTheme();
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
-  const { theme, setTheme } = useThemeStore();
-
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted) {
-      document.documentElement.setAttribute("data-theme", theme);
-    }
-  }, [theme, mounted]);
+  const current = theme === "light" ? "light" : "dark";
 
   const toggleThemeWithAnimation = async (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
-    const nextTheme = theme === "navy" ? "pink" : "navy";
+    const nextTheme = current === "dark" ? "light" : "dark";
     const root = document.documentElement;
     const el = event.currentTarget;
 
@@ -44,7 +40,8 @@ export function ThemeSwitcher() {
 
     root.style.setProperty("--theme-transition-x", `${x}%`);
     root.style.setProperty("--theme-transition-y", `${y}%`);
-    root.dataset.themeTransition = nextTheme === "navy" ? "to-navy" : "to-pink";
+    root.dataset.themeTransition =
+      nextTheme === "dark" ? "to-dark" : "to-light";
 
     const transition = document.startViewTransition(() => {
       setTheme(nextTheme);
@@ -69,7 +66,7 @@ export function ThemeSwitcher() {
       size="icon"
       onClick={toggleThemeWithAnimation}
       aria-label={t("switchLabel")}
-      title={theme === "navy" ? t("pink") : t("navy")}
+      title={current === "dark" ? t("light") : t("dark")}
       className="animate-theme-pulse"
     >
       <Palette className="h-5 w-5" />
