@@ -4,7 +4,7 @@ import { EventsSection } from "@/components/sections/EventsSection";
 import { ActivitiesSection } from "@/components/sections/ActivitiesSection";
 import { BlogSection } from "@/components/sections/BlogSection";
 import { TeamsSection } from "@/components/sections/TeamsSection";
-import { CtaSection } from "@/components/sections/CTASection";
+import { CtaSection } from "@/components/sections/CtaSection";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { WhatYouExperienceSection } from "@/components/sections/WhatYouExperienceSection";
 

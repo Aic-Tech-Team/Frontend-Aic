@@ -122,10 +122,10 @@ export function Hero() {
   ];
 
   return (
-    <section className="relative overflow-hidden px-4 pb-14 pt-12 sm:px-6 sm:pb-20 sm:pt-24 lg:pt-28">
+    <section className="relative overflow-hidden px-4 pb-14 pt-6 sm:px-6 sm:pb-20 sm:pt-10 lg:pt-12">
       <div className="mx-auto grid max-w-6xl items-center gap-8 sm:gap-14 lg:grid-cols-2 lg:gap-10">
         <Reveal direction="up" className="text-center lg:text-start">
-          <h1 className="mt-6 text-4xl font-extrabold leading-snug tracking-tight text-foreground sm:text-5xl lg:text-[3rem]">
+          <h1 className="mt-2 text-4xl font-extrabold leading-snug tracking-tight text-foreground sm:text-5xl lg:text-[3rem]">
             <span className="sr-only">{t("titleStatic")}</span>
             <span aria-hidden="true" className="grid">
               <span className="invisible col-start-1 row-start-1 whitespace-pre-wrap">
