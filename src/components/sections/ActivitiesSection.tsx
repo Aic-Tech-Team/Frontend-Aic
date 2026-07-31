@@ -89,11 +89,11 @@ export async function ActivitiesSection() {
                           <Icon className="absolute bottom-1.5 start-1.5 h-3.5 w-3.5 text-white drop-shadow sm:bottom-2 sm:start-2 sm:h-4 sm:w-4 lg:h-5 lg:w-5" />
                         </div>
 
-                        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-                          <h3 className="line-clamp-2 text-[12px] font-bold leading-snug text-foreground sm:text-[13px] lg:text-sm">
+                        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-visible py-0.5">
+                          <h3 className="line-clamp-2 text-[12px] font-bold leading-6 text-foreground sm:text-[13px] sm:leading-6 lg:text-sm lg:leading-7">
                             {item.title}
                           </h3>
-                          <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-muted-foreground sm:mt-1.5 sm:line-clamp-3 sm:text-[11px] sm:leading-5 lg:text-xs lg:leading-5">
+                          <p className="mt-1 line-clamp-2 text-[10px] leading-5 text-muted-foreground sm:mt-1.5 sm:line-clamp-3 sm:text-[11px] sm:leading-5 lg:text-xs lg:leading-6">
                             {item.desc}
                           </p>
                           <div className="mt-auto pt-3 sm:pt-4">
