@@ -195,7 +195,7 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
         />
       </span>
 
-      <div className="relative z-[1] flex h-full min-h-0 flex-col overflow-auto">
+      <div className="relative z-[1] flex h-full min-h-0 flex-col overflow-hidden">
         {children}
       </div>
     </div>

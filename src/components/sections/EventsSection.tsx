@@ -81,7 +81,7 @@ export async function EventsSection() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-6">
-                        <h3 className="text-lg font-bold leading-snug text-white">
+                        <h3 className="text-lg font-bold leading-7 text-white">
                           {event.title}
                         </h3>
                         <p className="mt-1 text-sm text-white/70">{event.date}</p>
@@ -91,7 +91,7 @@ export async function EventsSection() {
 
                   <div className="surface absolute inset-0 flex flex-col rounded-3xl p-4 [backface-visibility:hidden] [transform:rotateY(180deg)]">
                     <div className="min-h-0 flex-1 overflow-hidden">
-                      <h3 className="text-base font-bold leading-snug text-foreground">
+                      <h3 className="text-base font-bold leading-7 text-foreground">
                         {event.title}
                       </h3>
                       <p className="mt-2 line-clamp-5 text-sm leading-6 text-muted-foreground">
