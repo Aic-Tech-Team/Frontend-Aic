@@ -1,21 +1,21 @@
 {
   "Meta": {
-    "title": "AI Scientific Association",
-    "description": "A place for learning, research, and collaboration for students interested in artificial intelligence."
+    "title": "AIC | Artificial Intelligence Community",
+    "description": "A home for learning, research, and collaboration for students passionate about artificial intelligence."
   },
   "Common": {
     "more": "See more",
-    "brandTitle": "AI Scientific Association",
-    "brandSubtitle": "Artificial Intelligence"
+    "brandTitle": "AIC",
+    "brandSubtitle": "AI Community"
   },
   "Nav": {
-    "brand": "AI Association",
+    "brand": "AIC",
     "home": "Home",
     "events": "Events",
     "activities": "Activities",
     "teams": "Teams",
     "blog": "Blog",
-    "join": "Join the association",
+    "join": "Join AIC",
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
   },
@@ -24,9 +24,9 @@
     "line1": ["Build the future with ", "Brighter future with "],
     "line2": ["AI", "modern tech"],
     "line3": ["together!", "forward!"],
-    "subtitle": "A place for learning, research, and collaboration for students interested in AI — from specialized workshops to national competitions.",
+    "subtitle": "A home for learning, research, and collaboration for students passionate about AI — from specialized workshops to national competitions.",
     "ctaEvents": "View events",
-    "ctaAbout": "About the association",
+    "ctaAbout": "About AIC",
     "statMembers": "Active members",
     "statEvents": "Events hosted",
     "statYears": "Years active",
@@ -40,12 +40,12 @@
   },
   "Experience": {
     "badge": "Core areas",
-    "title": "What you experience in the association",
-    "description": "From scientific visits to international contests, we provide diverse activities for your academic growth.",
+    "title": "What you experience in AIC",
+    "description": "From scientific visits to international contests, we offer diverse activities for your academic growth.",
     "items": [
       {
         "title": "Contests",
-        "desc": "Specialized AI challenges and inter-university scientific contests to discover talent."
+        "desc": "Specialized AI challenges and inter-university contests to discover and grow talent."
       },
       {
         "title": "Conferences",
@@ -62,12 +62,12 @@
     ]
   },
   "AboutSection": {
-    "badge": "About the association",
-    "title": "An association for AI enthusiasts",
-    "description": "The AI Scientific Association was founded in 2019 to create a scientific space for students interested in AI, under the Faculty of Computer Engineering.",
+    "badge": "About AIC",
+    "title": "A community for AI enthusiasts",
+    "description": "The Artificial Intelligence Community (AIC) was founded in 2019 to create a scientific space for students interested in AI, under the Faculty of Computer Engineering.",
     "body": "From educational workshops and scientific conferences to industry collaboration and research projects, members grow in a dynamic and creative environment.",
-    "cta": "More about the association",
-    "imageAlt": "AI association illustration"
+    "cta": "More about AIC",
+    "imageAlt": "AIC illustration"
   },
   "Events": {
     "badge": "Events",
@@ -97,7 +97,7 @@
   },
   "Activities": {
     "badge": "Activities",
-    "title": "Association activities and programs",
+    "title": "AIC activities and programs",
     "description": "Contests, festivals, and programs for experience, learning, and growth together.",
     "items": [
       {
@@ -125,7 +125,7 @@
   "Blog": {
     "badge": "Blog",
     "title": "Articles and scientific writing",
-    "description": "Read the latest educational and research posts from association members.",
+    "description": "Read the latest educational and research posts from AIC members.",
     "items": [
       {
         "tag": "Guide",
@@ -155,8 +155,8 @@
   },
   "Teams": {
     "badge": "Structure",
-    "title": "Specialized association teams",
-    "description": "Each team works with expertise and motivation to advance the association’s scientific and organizational goals.",
+    "title": "AIC specialized teams",
+    "description": "Each team works with expertise and drive to advance AIC’s scientific and organizational goals.",
     "membersLabel": "{count} active members",
     "items": [
       {
@@ -169,7 +169,7 @@
       },
       {
         "title": "Media team",
-        "desc": "Educational content, social media, and publishing association news."
+        "desc": "Educational content, social media, and sharing AIC news."
       },
       {
         "title": "Events team",
@@ -182,17 +182,17 @@
     ]
   },
   "Cta": {
-    "badge": "Join the association",
-    "title": "Be part of our association",
-    "description": "If you are a student interested in AI, join us in scientific, educational, and research activities — and grow with us.",
+    "badge": "Join AIC",
+    "title": "Be part of our community",
+    "description": "If you are a student passionate about AI, join us in scientific, educational, and research activities — and grow with AIC.",
     "join": "Apply to join",
     "partner": "Organizational partnership"
   },
   "AboutPage": {
-    "title": "About the association",
-    "description": "The AI Scientific Association is a place for learning, research, and collaboration among students interested in the field.",
+    "title": "About AIC",
+    "description": "The Artificial Intelligence Community (AIC) is a place for learning, research, and collaboration among students passionate about the field.",
     "archTitle": "Mission",
-    "archDesc": "Create a specialized scientific space for student growth and effective links with industry and research.",
+    "archDesc": "Create a specialized scientific space for student growth and meaningful links with industry and research.",
     "techTitle": "Focus areas",
     "focusAreas": [
       "Machine learning",
@@ -210,9 +210,7 @@
     "switchLabel": "Switch color theme"
   },
   "Footer": {
-    "brandTitle": "Scientific Association",
-    "brandSubtitle": "Artificial Intelligence",
-    "blurb": "A scientific space for growth, learning, and collaboration among students interested in AI.",
+    "blurb": "A scientific space for growth, learning, and collaboration among students passionate about AI.",
     "quickTitle": "Quick links",
     "home": "Home",
     "events": "Events",
@@ -226,10 +224,10 @@
     "contests": "Student contests",
     "research": "Research projects",
     "contactTitle": "Contact us",
-    "email": "ai.association@university.ac.ir",
+    "email": "aic@university.ac.ir",
     "address": "Faculty of Computer Engineering, Academic Building 2",
     "hours": "Sat–Wed, 10:00–16:00",
-    "copyright": "© {years} AI Scientific Association. All rights reserved.",
+    "copyright": "© {years} Artificial Intelligence Community (AIC). All rights reserved.",
     "privacy": "Privacy",
     "terms": "Terms of use",
     "instagram": "Instagram",
