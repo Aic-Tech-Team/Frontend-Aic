@@ -1,0 +1,248 @@
+{
+  "Meta": {
+    "title": "AI Scientific Association",
+    "description": "A place for learning, research, and collaboration for students interested in artificial intelligence."
+  },
+  "Common": {
+    "more": "See more",
+    "brandTitle": "AI Scientific Association",
+    "brandSubtitle": "Artificial Intelligence"
+  },
+  "Nav": {
+    "brand": "AI Association",
+    "home": "Home",
+    "events": "Events",
+    "activities": "Activities",
+    "teams": "Teams",
+    "blog": "Blog",
+    "join": "Join the association",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "Hero": {
+    "titleStatic": "Build the future with artificial intelligence!",
+    "line1": ["Build the future with ", "Brighter future with "],
+    "line2": ["AI", "modern tech"],
+    "line3": ["together!", "forward!"],
+    "subtitle": "A place for learning, research, and collaboration for students interested in AI — from specialized workshops to national competitions.",
+    "ctaEvents": "View events",
+    "ctaAbout": "About the association",
+    "statMembers": "Active members",
+    "statEvents": "Events hosted",
+    "statYears": "Years active",
+    "floatProjects": "48 projects",
+    "floatProjectsSub": "Active",
+    "floatStudents": "32 students",
+    "floatStudentsSub": "Joined this term",
+    "floatWorkshops": "12 workshops",
+    "floatWorkshopsSub": "This year",
+    "imageAlt": "World map"
+  },
+  "Experience": {
+    "badge": "Core areas",
+    "title": "What you experience in the association",
+    "description": "From scientific visits to international contests, we provide diverse activities for your academic growth.",
+    "items": [
+      {
+        "title": "Contests",
+        "desc": "Specialized AI challenges and inter-university scientific contests to discover talent."
+      },
+      {
+        "title": "Conferences",
+        "desc": "Scientific events with professors, leading researchers, and AI industry experts."
+      },
+      {
+        "title": "Workshops",
+        "desc": "Specialized courses in machine learning, NLP, computer vision, and deep learning."
+      },
+      {
+        "title": "Scientific visits",
+        "desc": "Visits to leading research centers, tech companies, and advanced AI labs."
+      }
+    ]
+  },
+  "AboutSection": {
+    "badge": "About the association",
+    "title": "An association for AI enthusiasts",
+    "description": "The AI Scientific Association was founded in 2019 to create a scientific space for students interested in AI, under the Faculty of Computer Engineering.",
+    "body": "From educational workshops and scientific conferences to industry collaboration and research projects, members grow in a dynamic and creative environment.",
+    "cta": "More about the association",
+    "imageAlt": "AI association illustration"
+  },
+  "Events": {
+    "badge": "Events",
+    "title": "Upcoming events and workshops",
+    "description": "Specialized workshops and events for hands-on learning and networking with domain experts.",
+    "detailsCta": "View details",
+    "items": [
+      {
+        "title": "Art in AI",
+        "date": "Nov 8 — 12:00",
+        "desc": "A workshop on generative text and image tools and their use in graphic design, print, and digital media. Participants explore practical workflows and real domain examples."
+      },
+      {
+        "title": "Computer vision workshop",
+        "instructor": "Sara Mohammadi",
+        "date": "Nov 13 — 16:00",
+        "seats": "8 seats left",
+        "desc": "Practical introduction to CNNs and building an image recognition model from scratch to deployment. Covers data prep through model evaluation."
+      },
+      {
+        "title": "Robotics and reinforcement learning",
+        "instructor": "Amir Rezaei",
+        "date": "Nov 20 — 10:00",
+        "desc": "Explore intelligent robot control architectures and train an agent with reinforcement learning in simulation environments."
+      }
+    ]
+  },
+  "Activities": {
+    "badge": "Activities",
+    "title": "Association activities and programs",
+    "description": "Contests, festivals, and programs for experience, learning, and growth together.",
+    "items": [
+      {
+        "title": "AI image generation contest",
+        "desc": "Combine imagination with generative image models and showcase creativity. Ideas become images as art and technology meet.",
+        "date": "Nov 8 — 12:00"
+      },
+      {
+        "title": "Specialized AI festival",
+        "desc": "A different event to go deeper into algorithms, data, and digital creativity — learning, experience, and competition together.",
+        "date": "Nov 8 — 12:00"
+      },
+      {
+        "title": "Grand AI summit",
+        "desc": "Take your first step into the smart world. Learn foundations, growth paths, and the bright future of AI.",
+        "date": "Nov 8 — 12:00"
+      },
+      {
+        "title": "Journey of experiences summit",
+        "desc": "Hear growth paths, challenges, and successes from tech and AI practitioners — and build your path smarter.",
+        "date": "Nov 8 — 12:00"
+      }
+    ]
+  },
+  "Blog": {
+    "badge": "Blog",
+    "title": "Articles and scientific writing",
+    "description": "Read the latest educational and research posts from association members.",
+    "items": [
+      {
+        "tag": "Guide",
+        "title": "Getting started with AI for students",
+        "desc": "Where to begin? Resources, learning paths, and practical tips for students entering the field.",
+        "author": "Sara Mohammadi",
+        "date": "May 26, 2025",
+        "readTime": "6 min"
+      },
+      {
+        "tag": "Research",
+        "title": "Reinforcement learning in the real world",
+        "desc": "Practical RL applications from robotics to energy network optimization — recent progress and open challenges.",
+        "author": "Amir Rezaei",
+        "date": "Jun 5, 2025",
+        "readTime": "12 min"
+      },
+      {
+        "tag": "Tutorial",
+        "title": "How transformers work",
+        "desc": "The transformer architecture powers large language models. This article covers Self-Attention and why it succeeds.",
+        "author": "Jabbar Seyfi",
+        "date": "Jun 18, 2025",
+        "readTime": "8 min"
+      }
+    ]
+  },
+  "Teams": {
+    "badge": "Structure",
+    "title": "Specialized association teams",
+    "description": "Each team works with expertise and motivation to advance the association’s scientific and organizational goals.",
+    "membersLabel": "{count} active members",
+    "items": [
+      {
+        "title": "Public relations",
+        "desc": "Connecting with universities, companies, and scientific institutions to grow collaborations."
+      },
+      {
+        "title": "Tech team",
+        "desc": "Building software projects, event tech support, and digital infrastructure."
+      },
+      {
+        "title": "Media team",
+        "desc": "Educational content, social media, and publishing association news."
+      },
+      {
+        "title": "Events team",
+        "desc": "Planning and running conferences, scientific visits, and student contests."
+      },
+      {
+        "title": "Education team",
+        "desc": "Workshops, courses, and study sessions to raise members’ scientific level."
+      }
+    ]
+  },
+  "Cta": {
+    "badge": "Join the association",
+    "title": "Be part of our association",
+    "description": "If you are a student interested in AI, join us in scientific, educational, and research activities — and grow with us.",
+    "join": "Apply to join",
+    "partner": "Organizational partnership"
+  },
+  "AboutPage": {
+    "title": "About the association",
+    "description": "The AI Scientific Association is a place for learning, research, and collaboration among students interested in the field.",
+    "archTitle": "Mission",
+    "archDesc": "Create a specialized scientific space for student growth and effective links with industry and research.",
+    "techTitle": "Focus areas",
+    "focusAreas": [
+      "Machine learning",
+      "Natural language processing",
+      "Computer vision",
+      "Deep learning",
+      "Robotics",
+      "Applied research"
+    ],
+    "backToHome": "Back to home"
+  },
+  "Theme": {
+    "dark": "Dark",
+    "light": "Light",
+    "switchLabel": "Switch color theme"
+  },
+  "Footer": {
+    "brandTitle": "Scientific Association",
+    "brandSubtitle": "Artificial Intelligence",
+    "blurb": "A scientific space for growth, learning, and collaboration among students interested in AI.",
+    "quickTitle": "Quick links",
+    "home": "Home",
+    "events": "Events",
+    "activities": "Activities",
+    "blog": "Blog",
+    "about": "About us",
+    "activitiesTitle": "Activities",
+    "workshops": "Training workshops",
+    "conferences": "Scientific conferences",
+    "visits": "Industry visits",
+    "contests": "Student contests",
+    "research": "Research projects",
+    "contactTitle": "Contact us",
+    "email": "ai.association@university.ac.ir",
+    "address": "Faculty of Computer Engineering, Academic Building 2",
+    "hours": "Sat–Wed, 10:00–16:00",
+    "copyright": "© {years} AI Scientific Association. All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms of use",
+    "instagram": "Instagram",
+    "linkedin": "LinkedIn",
+    "telegram": "Telegram"
+  },
+  "Carousel": {
+    "prevSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "roleDescription": "carousel",
+    "slideRoleDescription": "slide",
+    "slideLabel": "Slide {index} of {total}",
+    "goToSlide": "Go to slide {index} of {total}",
+    "showingSlide": "Showing slide {index} of {total}"
+  }
+}
