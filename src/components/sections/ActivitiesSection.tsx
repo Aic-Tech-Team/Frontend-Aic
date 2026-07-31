@@ -77,23 +77,23 @@ export async function ActivitiesSection() {
                       lightModeBoost={2.5}
                       phaseOffset={index * 90}
                     >
-                      <div className="surface group flex h-full flex-row items-stretch gap-2.5 rounded-2xl p-2.5 sm:gap-4 sm:p-3.5 lg:gap-5 lg:p-4">
-                        <div className="relative aspect-square w-[4.5rem] shrink-0 self-start overflow-hidden rounded-xl sm:w-24 md:w-28 lg:w-32 xl:w-36">
+                      <div className="surface group flex h-full flex-row items-stretch gap-3 rounded-2xl p-3 sm:gap-4 sm:p-4 lg:gap-4 lg:p-4 xl:gap-5">
+                        <div className="relative aspect-square w-28 shrink-0 self-start overflow-hidden rounded-xl sm:w-32 md:w-36 lg:w-32 xl:w-40 2xl:w-44">
                           <Image
                             src={activityImages[index] ?? activityImages[0]}
                             alt={item.title}
                             fill
-                            sizes="(min-width: 1280px) 144px, (min-width: 1024px) 128px, (min-width: 768px) 112px, (min-width: 640px) 96px, 72px"
+                            sizes="(min-width: 1536px) 176px, (min-width: 1280px) 160px, (min-width: 1024px) 128px, (min-width: 768px) 144px, (min-width: 640px) 128px, 112px"
                             className="object-cover"
                           />
-                          <Icon className="absolute bottom-1.5 start-1.5 h-3.5 w-3.5 text-white drop-shadow sm:bottom-2 sm:start-2 sm:h-4 sm:w-4 lg:h-5 lg:w-5" />
+                          <Icon className="absolute bottom-2 start-2 h-4 w-4 text-white drop-shadow sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-4 lg:w-4 xl:h-5 xl:w-5" />
                         </div>
 
                         <div className="flex min-w-0 flex-1 flex-col py-0.5">
-                          <h3 className="text-[12px] font-bold leading-6 text-foreground sm:text-[13px] sm:leading-6 lg:text-sm lg:leading-7">
+                          <h3 className="line-clamp-2 break-words text-[12px] font-bold leading-6 text-foreground sm:text-[13px] sm:leading-7 lg:text-sm lg:leading-7">
                             {item.title}
                           </h3>
-                          <p className="mt-1.5 text-[10px] leading-5 text-muted-foreground sm:mt-2 sm:text-[11px] sm:leading-5 lg:text-xs lg:leading-6">
+                          <p className="mt-1.5 line-clamp-2 break-words text-[10px] leading-5 text-muted-foreground sm:mt-2 sm:line-clamp-3 sm:text-[11px] sm:leading-6 lg:text-xs lg:leading-6">
                             {item.desc}
                           </p>
                           <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2.5 sm:mt-4 sm:pt-3">
