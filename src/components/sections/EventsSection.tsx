@@ -90,11 +90,11 @@ export async function EventsSection() {
                   </div>
 
                   <div className="surface absolute inset-0 flex flex-col rounded-3xl p-4 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-                    <div className="min-h-0 flex-1 overflow-hidden">
-                      <h3 className="text-base font-bold leading-7 text-foreground">
+                    <div className="min-h-0 flex-1">
+                      <h3 className="line-clamp-2 break-words text-base font-bold leading-7 text-foreground">
                         {event.title}
                       </h3>
-                      <p className="mt-2 line-clamp-5 text-sm leading-6 text-muted-foreground">
+                      <p className="mt-2 line-clamp-5 break-words text-sm leading-7 text-muted-foreground">
                         {event.desc}
                       </p>
                     </div>
