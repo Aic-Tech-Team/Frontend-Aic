@@ -1,92 +1,114 @@
+import Image from "next/image";
 import { CalendarClock, ChevronLeft, LayoutGrid } from "lucide-react";
-import { RevealGroup, RevealItem } from "@/components/reveal";
-import { SectionHeading } from "@/components/section-heading";
-import AutoBorderGlow from "../AutoBorderGlow";
+import { getTranslations } from "next-intl/server";
+import { RevealItem } from "@/components/animations/Reveal";
+import { SectionHeading } from "@/components/common/SectionHeading";
+import { Carousel } from "@/components/common/Carousel";
+import AutoBorderGlow from "@/components/animations/AutoBorderGlow";
 
-const activities = [
-  {
-    title: "مسابقه ساخت تصویر با هوش مصنوعی",
-    desc: "توانایی تخیل خودت را با قدرت مدل‌های مولد تصویر ترکیب کن و خلاقیتت را به نمایش بگذار. ایده‌ها در این رقابت به تصویر تبدیل می‌شوند و مرز بین هنر و فناوری از بین می‌رود.",
-    date: "۱۷ آبان — ساعت ۱۲:۰۰",
-    icon: LayoutGrid,
-    tone: "from-fuchsia-500/25 to-yellow-500/30",
-  },
-  {
-    title: "جشنواره تخصصی هوش مصنوعی",
-    desc: "رویدادی متفاوت برای آشنایی عمیق‌تر با دنیای الگوریتم‌ها، داده و خلاقیت دیجیتال. اینجا یادگیری، تجربه و رقابت در کنار هم معنا پیدا می‌کنند تا ذهنی هوشمندتر بسازیم.",
-    date: "۱۷ آبان — ساعت ۱۲:۰۰",
-    icon: CalendarClock,
-    tone: "from-pink-500/25 to-sky-400/40",
-  },
-  {
-    title: "همایش بزرگ هوش مصنوعی",
-    desc: "اولین قدم در دنیای هوشمند را با ما بردار. در این همایش، با مفاهیم پایه، مسیر پیشرفت و آینده‌ی درخشان هوش مصنوعی آشنا می‌شوی و مسیر یادگیری خودت را آغاز می‌کنی.",
-    date: "۱۷ آبان — ساعت ۱۲:۰۰",
-    icon: LayoutGrid,
-    tone: "from-emerald-400/20 to-primary-500/80",
-  },
-  {
-    title: "همایش سفر تجربه‌ها",
-    desc: "جایی برای شنیدن مسیر رشد، چالش‌ها و موفقیت‌های فعالان حوزه فناوری و هوش مصنوعی. همراه ما شو تا از تجربه‌های واقعی الهام بگیری و مسیر پیشرفتت را هوشمندانه‌تر بسازی.",
-    date: "۱۷ آبان — ساعت ۱۲:۰۰",
-    icon: CalendarClock,
-    tone: "from-amber-400/20 to-primary-500/60",
-  },
-];
+const icons = [LayoutGrid, CalendarClock, LayoutGrid, CalendarClock] as const;
+const activityImages = [
+  "/images/1088745278696137752.jpg",
+  "/images/download - 2026-07-30T233837.402.jpg",
+  "/images/Heewon on Instagram_ “Shout out to local pizza….jpg",
+  "/images/So cute ___.jpg",
+] as const;
 
-export function ActivitiesSection() {
+function chunk<T>(arr: T[], size: number): T[][] {
+  const groups: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) {
+    groups.push(arr.slice(i, i + size));
+  }
+  return groups;
+}
+
+export async function ActivitiesSection() {
+  const t = await getTranslations("Activities");
+  const common = await getTranslations("Common");
+  const items = t.raw("items") as {
+    title: string;
+    desc: string;
+    date: string;
+  }[];
+
+  const groups = chunk(items, 2);
+
   return (
     <section id="activities" className="px-4 py-20 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <SectionHeading
-          badge="فعالیت‌ها"
+          badge={t("badge")}
           icon={CalendarClock}
-          title="فعالیت‌ها و برنامه‌های انجمن"
-          description="مسابقات، جشنواره‌ها و برنامه‌هایی برای تجربه، یادگیری و رشد در کنار هم."
+          title={t("title")}
+          description={t("description")}
           moreHref="#activities"
+          moreLabel={common("more")}
         />
 
-        <RevealGroup className="grid gap-6 lg:grid-cols-2">
-          {activities.map((item) => (
-            <RevealItem key={item.title} direction="up" hoverLift className="h-full">
-              <AutoBorderGlow
-                className="h-full w-full"
-                borderRadius={24}
-                glowColor="270 90 75"
-                colors={["#c084fc", "#f472b6", "#38bdf8"]}
-                glowRadius={24}
-                glowIntensity={0.9}
-                coneSpread={25}
-                speed={6}
-              >
-                <div className="surface group flex h-full gap-3 overflow-hidden rounded-3xl p-5 lg:p-6">
-                  <div
-                    className={`relative aspect-square w-24 shrink-0 self-start overflow-hidden rounded-2xl bg-linear-to-br lg:w-44 ${item.tone}`}
+        <Carousel
+          ariaLabel={t("title")}
+          slideClassName="flex-[0_0_100%] lg:flex-[0_0_calc((100%-1.25rem)/2)]"
+        >
+          {groups.map((group, groupIndex) => (
+            <div key={groupIndex} className="flex h-full flex-col gap-6">
+              {group.map((item, i) => {
+                const index = groupIndex * 2 + i;
+                const Icon = icons[index] ?? icons[0];
+                return (
+                  <RevealItem
+                    key={item.title}
+                    direction="up"
+                    hoverLift
+                    delay={index * 0.06}
+                    className="h-full"
                   >
-                    <item.icon className="absolute bottom-2 start-2 h-5 w-5 text-primary-200/80 lg:bottom-4 lg:start-4 lg:h-8 lg:w-8" />
-                  </div>
+                    <AutoBorderGlow
+                      className="h-full w-full"
+                      borderRadius={24}
+                      glowColor="270 90 75"
+                      colors={["#c084fc", "#f472b6", "#38bdf8"]}
+                      glowRadius={24}
+                      glowIntensity={0.9}
+                      coneSpread={25}
+                      speed={6}
+                      lightModeBoost={2.5}
+                    >
+                      <div className="surface group flex h-full gap-3 overflow-hidden rounded-3xl p-5 lg:p-6">
+                        <div className="relative aspect-square w-35 shrink-0 self-start overflow-hidden rounded-2xl lg:w-44">
+                          <Image
+                            src={activityImages[index] ?? activityImages[0]}
+                            alt={item.title}
+                            fill
+                            sizes="(min-width: 1024px) 176px, 112px"
+                            className="object-cover"
+                          />
+                          <Icon className="absolute bottom-2 inset-2 h-5 w-5 text-white drop-shadow lg:bottom-4 lg:inset-4 lg:h-8 lg:w-8" />
+                        </div>
 
-                  <div className="flex flex-1 flex-col">
-                    <h3 className="text-sm font-bold text-foreground lg:text-lg">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2 flex-1 text-xs text-muted-foreground lg:text-sm">
-                      {item.desc}
-                    </p>
-                    <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3">
-                      <span className="text-xs text-muted-foreground">
-                        {item.date}
-                      </span>
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 text-primary-300 transition-all duration-300 group-hover:-translate-x-1 group-hover:bg-primary/10">
-                        <ChevronLeft className="h-4 w-4" />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </AutoBorderGlow>
-            </RevealItem>
+                        <div className="flex flex-1 flex-col">
+                          <h3 className="text-sm font-bold text-foreground lg:text-lg">
+                            {item.title}
+                          </h3>
+                          <p className="mt-2 flex-1 text-xs text-muted-foreground lg:text-sm">
+                            {item.desc}
+                          </p>
+                          <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3">
+                            <span className="text-xs text-muted-foreground lg:text-sm">
+                              {item.date}
+                            </span>
+                            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-border/60 text-primary-300 transition-all duration-300 group-hover:bg-primary/10 group-hover:ltr:translate-x-1 group-hover:rtl:-translate-x-1">
+                              <ChevronLeft className="h-4 w-4 ltr:rotate-180" />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </AutoBorderGlow>
+                  </RevealItem>
+                );
+              })}
+            </div>
           ))}
-        </RevealGroup>
+        </Carousel>
       </div>
     </section>
   );

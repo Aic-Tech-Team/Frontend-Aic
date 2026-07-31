@@ -1,53 +1,55 @@
+import Image from "next/image";
 import { BookOpen, CalendarDays, Clock } from "lucide-react";
-import { RevealGroup, RevealItem } from "@/components/reveal";
-import { SectionHeading } from "@/components/section-heading";
-import GlareHover from "../GlareHover";
+import { getTranslations } from "next-intl/server";
+import { RevealItem } from "@/components/animations/Reveal";
+import { SectionHeading } from "@/components/common/SectionHeading";
+import GlareHover from "@/components/animations/GlareHover";
+import { Carousel } from "@/components/common/Carousel";
 
-const posts = [
-  {
-    tag: "راهنما",
-    title: "راهنمای ورود به هوش مصنوعی برای دانشجویان",
-    desc: "از کجا شروع کنیم؟ منابع، مسیر یادگیری، و توصیه‌های کاربردی برای دانشجویانی که می‌خواهند وارد این دنیا شوند.",
-    author: "سارا محمدی",
-    date: "۵ خرداد ۱۴۰۴",
-    readTime: "۶ دقیقه",
-    tone: "from-orange-400/25 to-rose-400/10",
-  },
-  {
-    tag: "پژوهشی",
-    title: "یادگیری تقویتی در دنیای واقعی",
-    desc: "کاربردهای عملی یادگیری تقویتی از رباتیک تا بهینه‌سازی شبکه‌های انرژی؛ مروری بر پیشرفت‌های اخیر و چالش‌های پیش رو.",
-    author: "امیر رضایی",
-    date: "۱۵ خرداد ۱۴۰۴",
-    readTime: "۱۲ دقیقه",
-    tone: "from-pink-400/25 to-indigo-400/10",
-  },
-  {
-    tag: "آموزشی",
-    title: "ترانسفورمرها چگونه کار می‌کنند؟",
-    desc: "معماری ترانسفورمر بنیان مدل‌های زبانی بزرگ است. در این مقاله به مکانیزم Self-Attention و دلیل موفقیت این معماری می‌پردازیم.",
-    author: "جبار صیفی",
-    date: "۲۸ خرداد ۱۴۰۴",
-    readTime: "۸ دقیقه",
-    tone: "from-yellow-400/25 to-primary-500/10",
-  },
-];
 
-export function BlogSection() {
+const postImages = [
+  "/images/581949583092327844.jpg",
+  "/images/766456430349003443.jpg",
+  "/images/All posts • Instagram.jpg",
+  "/images/Heewon on Instagram_ “Coffee beans of delight….jpg",
+] as const;
+
+export async function BlogSection() {
+  const t = await getTranslations("Blog");
+  const common = await getTranslations("Common");
+  const posts = t.raw("items") as {
+    tag: string;
+    title: string;
+    desc: string;
+    author: string;
+    date: string;
+    readTime: string;
+  }[];
+
   return (
     <section id="blog" className="px-4 py-20 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <SectionHeading
-          badge="وبلاگ"
+          badge={t("badge")}
           icon={BookOpen}
-          title="مقالات و نوشته‌های علمی"
-          description="آخرین مطالب آموزشی و پژوهشی اعضای انجمن را بخوانید."
+          title={t("title")}
+          description={t("description")}
           moreHref="#blog"
+          moreLabel={common("more")}
         />
 
-        <RevealGroup className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <RevealItem key={post.title} direction="up" hoverLift className="h-full">
+        <Carousel
+          ariaLabel={t("title")}
+          slideClassName="flex-[0_0_100%] sm:flex-[0_0_calc((100%-1.25rem)/2)] md:flex-[0_0_calc((100%-2.5rem)/3)]"
+        >
+          {posts.map((post, index) => (
+            <RevealItem
+              key={post.title}
+              direction="up"
+              hoverLift
+              delay={index * 0.06}
+              className="h-full"
+            >
               <GlareHover
                 width="100%"
                 height="100%"
@@ -63,14 +65,13 @@ export function BlogSection() {
                 className="h-full"
               >
                 <article className="surface group flex h-full flex-col overflow-hidden rounded-3xl">
-                  <div
-                    className={`relative aspect-16/10 w-full overflow-hidden bg-linear-to-br ${post.tone}`}
-                  >
-                    <div
-                      className="absolute inset-0 opacity-40 transition-transform duration-700 group-hover:scale-110"
-                      style={{
-                        backgroundSize: "16px 16px",
-                      }}
+                  <div className="relative aspect-16/10 w-full overflow-hidden">
+                    <Image
+                      src={postImages[index] ?? postImages[0]}
+                      alt={post.title}
+                      fill
+                      sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover"
                     />
                     <span className="surface absolute end-4 top-4 rounded-full px-3 py-1 text-[11px] font-medium text-primary-300">
                       {post.tag}
@@ -102,7 +103,7 @@ export function BlogSection() {
               </GlareHover>
             </RevealItem>
           ))}
-        </RevealGroup>
+        </Carousel>
       </div>
     </section>
   );

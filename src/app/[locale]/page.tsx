@@ -1,13 +1,12 @@
 import { setRequestLocale } from "next-intl/server";
-import { Hero } from "@/components/sections/hero";
+import { Hero } from "@/components/sections/HeroSection";
 import { EventsSection } from "@/components/sections/EventsSection";
 import { ActivitiesSection } from "@/components/sections/ActivitiesSection";
 import { BlogSection } from "@/components/sections/BlogSection";
 import { TeamsSection } from "@/components/sections/TeamsSection";
-import { CtaSection } from "@/components/sections/CtaSection";
+import { CtaSection } from "@/components/sections/CTASection";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { WhatYouExperienceSection } from "@/components/sections/WhatYouExperienceSection";
-
 
 export default async function HomePage({
   params,
@@ -21,7 +20,7 @@ export default async function HomePage({
     <>
       <Hero />
       <WhatYouExperienceSection />
-      <AboutSection />      
+      <AboutSection />
       <EventsSection />
       <ActivitiesSection />
       <BlogSection />

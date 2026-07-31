@@ -1,24 +1,32 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import { NextIntlClientProvider, hasLocale } from "next-intl";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
-import { ThemeInitializer } from "@/components/theme-initializer";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
-import { AnimatedBackground } from "@/components/AnimatedBackground";
-import Particles from "@/components/Particles";
-
-export const metadata: Metadata = {
-  title: "انجمن علمی هوش مصنوعی ",
-  description:
-    "بستری علمی برای یادگیری، پژوهش و همکاری دانشجویان علاقه‌مند به هوش مصنوعی.",
-};
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { ThemeInitScript } from "@/components/layout/ThemeInitScript";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { AnimatedBackground } from "@/components/animations/AnimatedBackground";
+import { ThemeAwareParticles } from "@/components/animations/ThemeAwareParticles";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Meta" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
 }
 
 export default async function LocaleLayout({
@@ -29,7 +37,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
+  if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
 
@@ -42,36 +50,38 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={dir}
-      data-theme="navy"
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={dir === "rtl" ? "font-fa" : "font-en"}
     >
-      <body className="min-h-screen antialiased">
-        <ThemeInitializer />
-        <AnimatedBackground />
+      <head>
+        <ThemeInitScript />
+      </head>
+      <body className="min-h-screen antialiased" suppressHydrationWarning>
+        <ThemeProvider>
+          <AnimatedBackground />
 
-        {/* Fixed full-viewport particle background, sits behind all content */}
-        <div className="pointer-events-none fixed inset-0 -z-10">
-          <Particles
-            particleColors={["#ffffff"]}
-            particleCount={600}
-            particleSpread={20}
-            speed={0.2}
-            particleBaseSize={100}
-            moveParticlesOnHover={false}
-            alphaParticles
-            disableRotation
-            pixelRatio={1}
-          />
-        </div>
-
-        <NextIntlClientProvider messages={messages}>
-          <div className="relative z-0 flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
+          <div className="pointer-events-none fixed inset-0 -z-10">
+            <ThemeAwareParticles
+              particleCount={600}
+              particleSpread={20}
+              speed={0.2}
+              particleBaseSize={100}
+              moveParticlesOnHover={false}
+              alphaParticles
+              disableRotation
+              pixelRatio={1}
+            />
           </div>
-        </NextIntlClientProvider>
+
+          <NextIntlClientProvider messages={messages}>
+            <div className="relative z-0 flex min-h-screen flex-col">
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

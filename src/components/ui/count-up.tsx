@@ -11,15 +11,7 @@ interface CountUpProps {
   className?: string;
 }
 
-/**
- * الهام‌گرفته از CountUp در reactbits.dev، بازسازی‌شده با
- * useMotionValue + useSpring از Framer Motion (بدون نیاز به کتابخونه‌ی جدا).
- *
- * وقتی وارد دید بشه، از ۰ تا `end` می‌شماره.
- *
- * مثال:
- * <CountUp end={150} prefix="+" />
- */
+/** SSR shows final value; animates 0→end after in-view (progressive enhancement). */
 export function CountUp({
   end,
   prefix = "",
@@ -29,17 +21,21 @@ export function CountUp({
 }: CountUpProps) {
   const ref = useRef<HTMLSpanElement | null>(null);
   const isInView = useInView(ref, { once: true, amount: 0.6 });
+  const didAnimate = useRef(false);
 
-  const motionValue = useMotionValue(0);
+  const motionValue = useMotionValue(end);
   const springValue = useSpring(motionValue, {
     duration: duration * 1000,
     bounce: 0,
   });
 
   useEffect(() => {
-    if (isInView) {
+    if (!isInView || didAnimate.current) return;
+    didAnimate.current = true;
+    motionValue.set(0);
+    requestAnimationFrame(() => {
       motionValue.set(end);
-    }
+    });
   }, [isInView, end, motionValue]);
 
   useEffect(() => {
@@ -53,7 +49,9 @@ export function CountUp({
 
   return (
     <span ref={ref} className={className}>
-      {prefix}0{suffix}
+      {prefix}
+      {end}
+      {suffix}
     </span>
   );
 }
