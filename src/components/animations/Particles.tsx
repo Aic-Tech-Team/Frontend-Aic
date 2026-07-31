@@ -19,6 +19,8 @@ interface ParticlesProps {
   cameraDistance?: number;
   disableRotation?: boolean;
   pixelRatio?: number;
+  /** Stop RAF when true (tab hidden / reduced-motion). */
+  paused?: boolean;
   className?: string;
 }
 
@@ -116,10 +118,18 @@ const Particles: React.FC<ParticlesProps> = ({
   cameraDistance = 20,
   disableRotation = false,
   pixelRatio = 1,
+  paused = false,
   className
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const pausedRef = useRef(paused);
+  const startLoopRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    pausedRef.current = paused;
+    if (!paused) startLoopRef.current?.();
+  }, [paused]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -200,12 +210,19 @@ const Particles: React.FC<ParticlesProps> = ({
 
     const particles = new Mesh(gl, { mode: gl.POINTS, geometry, program });
 
-    let animationFrameId: number;
+    let animationFrameId: number | null = null;
     let lastTime = performance.now();
     let elapsed = 0;
 
     const update = (t: number) => {
+      if (pausedRef.current) {
+        animationFrameId = null;
+        lastTime = t;
+        return;
+      }
+
       animationFrameId = requestAnimationFrame(update);
+
       const delta = t - lastTime;
       lastTime = t;
       elapsed += delta * speed;
@@ -229,14 +246,23 @@ const Particles: React.FC<ParticlesProps> = ({
       renderer.render({ scene: particles, camera });
     };
 
-    animationFrameId = requestAnimationFrame(update);
+    const ensureLoop = () => {
+      if (!pausedRef.current && animationFrameId === null) {
+        lastTime = performance.now();
+        animationFrameId = requestAnimationFrame(update);
+      }
+    };
+
+    startLoopRef.current = ensureLoop;
+    ensureLoop();
 
     return () => {
+      startLoopRef.current = null;
       window.removeEventListener('resize', resize);
       if (moveParticlesOnHover) {
         container.removeEventListener('mousemove', handleMouseMove);
       }
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
       if (container.contains(gl.canvas)) {
         container.removeChild(gl.canvas);
       }
@@ -246,6 +272,8 @@ const Particles: React.FC<ParticlesProps> = ({
     particleCount,
     particleSpread,
     speed,
+    // Stable string key — avoid remount when parent passes a new array ref of same colors
+    (particleColors ?? defaultColors).join(','),
     moveParticlesOnHover,
     particleHoverFactor,
     alphaParticles,

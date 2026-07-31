@@ -99,14 +99,33 @@ export default function SplashCursor({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    let disposed = false;
+    let rafId: number | null = null;
+    let eventTarget: HTMLElement | Window = window;
+    let removeListeners: (() => void) | null = null;
+
+    const start = () => {
+      if (disposed || !canvasRef.current) return;
+
+      try {
+        initSplash(canvasRef.current);
+      } catch (err) {
+        console.warn('[SplashCursor] init failed, effect disabled:', err);
+      }
+    };
+
+    // Wait one frame so the canvas has a real layout size
+    const bootId = requestAnimationFrame(start);
+
+    function initSplash(canvasEl: HTMLCanvasElement) {
     // Scope event listening to the given container (e.g. the footer)
     // instead of the whole window, so the effect only reacts to the
     // mouse while it's over that element.
-    const eventTarget: HTMLElement | Window = containerRef?.current ?? window;
+    eventTarget = containerRef?.current ?? window;
 
-    let pointers: Pointer[] = [pointerPrototype()];
+    const pointers: Pointer[] = [pointerPrototype()];
 
-    let config = {
+    const config = {
       SIM_RESOLUTION: SIM_RESOLUTION!,
       DYE_RESOLUTION: DYE_RESOLUTION!,
       CAPTURE_RESOLUTION: CAPTURE_RESOLUTION!,
@@ -127,8 +146,10 @@ export default function SplashCursor({
       COLOR_INTENSITY: COLOR_INTENSITY!
     };
 
-    const { gl, ext } = getWebGLContext(canvas);
-    if (!gl || !ext) return;
+    const webgl = getWebGLContext(canvasEl);
+    if (!webgl.gl || !webgl.ext) return;
+    const gl = webgl.gl;
+    const ext = webgl.ext;
 
     if (!ext.supportLinearFiltering) {
       config.DYE_RESOLUTION = 256;
@@ -152,7 +173,7 @@ export default function SplashCursor({
       }
 
       if (!gl) {
-        throw new Error('Unable to initialize WebGL.');
+        return { gl: null, ext: null };
       }
 
       const isWebGL2 = 'drawBuffers' in gl;
@@ -170,7 +191,7 @@ export default function SplashCursor({
 
       gl.clearColor(0, 0, 0, 1);
 
-      const halfFloatTexType = isWebGL2
+      let halfFloatTexType: number = isWebGL2
         ? (gl as WebGL2RenderingContext).HALF_FLOAT
         : (halfFloat && halfFloat.HALF_FLOAT_OES) || 0;
 
@@ -198,8 +219,16 @@ export default function SplashCursor({
         formatR = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
       }
 
+      // Some GPUs / lost-context recoveries reject float FBOs — fall back to 8-bit
       if (!formatRGBA || !formatRG || !formatR) {
-        throw new Error('Unable to initialize WebGL render texture formats.');
+        halfFloatTexType = gl.UNSIGNED_BYTE;
+        formatRGBA = getSupportedFormat(gl, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE);
+        formatRG = formatRGBA;
+        formatR = formatRGBA;
+      }
+
+      if (!formatRGBA || !formatRG || !formatR) {
+        return { gl: null, ext: null };
       }
 
       return {
@@ -307,7 +336,7 @@ export default function SplashCursor({
     }
 
     function getUniforms(program: WebGLProgram) {
-      let uniforms: Record<string, WebGLUniformLocation | null> = {};
+      const uniforms: Record<string, WebGLUniformLocation | null> = {};
       const uniformCount = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
       for (let i = 0; i < uniformCount; i++) {
         const uniformInfo = gl.getActiveUniform(program, i);
@@ -870,7 +899,7 @@ export default function SplashCursor({
       const w = gl.drawingBufferWidth;
       const h = gl.drawingBufferHeight;
       const aspectRatio = w / h;
-      let aspect = aspectRatio < 1 ? 1 / aspectRatio : aspectRatio;
+      const aspect = aspectRatio < 1 ? 1 / aspectRatio : aspectRatio;
       const min = Math.round(resolution);
       const max = Math.round(resolution * aspect);
       if (w > h) {
@@ -880,7 +909,7 @@ export default function SplashCursor({
     }
 
     function scaleByPixelRatio(input: number) {
-      const pixelRatio = window.devicePixelRatio || 1;
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
       return Math.floor(input * pixelRatio);
     }
 
@@ -888,7 +917,7 @@ export default function SplashCursor({
     // relative to the canvas itself (accounting for its position on the
     // page), instead of assuming the canvas fills the whole viewport.
     function getLocalPos(clientX: number, clientY: number) {
-      const rect = canvas!.getBoundingClientRect();
+      const rect = canvasEl.getBoundingClientRect();
       return {
         x: scaleByPixelRatio(clientX - rect.left),
         y: scaleByPixelRatio(clientY - rect.top)
@@ -900,9 +929,40 @@ export default function SplashCursor({
 
     let lastUpdateTime = Date.now();
     let colorUpdateTimer = 0.0;
-    let rafId: number;
+    let lastInputAt = Date.now();
+    let idleSince = 0;
+
+    const IDLE_AFTER_MS = 1400;
+    const IDLE_DRAIN_MS = 1600;
+
+    function bumpActivity() {
+      if (disposed || document.visibilityState !== 'visible') return;
+      lastInputAt = Date.now();
+      idleSince = 0;
+      if (rafId === null) {
+        lastUpdateTime = Date.now();
+        rafId = requestAnimationFrame(updateFrame);
+      }
+    }
 
     function updateFrame() {
+      if (disposed || document.visibilityState !== 'visible') {
+        rafId = null;
+        return;
+      }
+
+      const now = Date.now();
+      const quietMs = now - lastInputAt;
+
+      if (quietMs > IDLE_AFTER_MS) {
+        if (!idleSince) idleSince = now;
+        // Keep stepping briefly so dye/velocity dissipate, then stop RAF
+        if (now - idleSince > IDLE_DRAIN_MS) {
+          rafId = null;
+          return;
+        }
+      }
+
       const dt = calcDeltaTime();
       if (resizeCanvas()) initFramebuffers();
       updateColors(dt);
@@ -1249,11 +1309,9 @@ export default function SplashCursor({
       return ((value - min) % range) + min;
     }
 
-    // Start the render loop immediately; splats only occur once the
-    // pointer actually moves within the scoped container.
-    updateFrame();
-
+    // Render loop starts on first pointer activity, then idles when quiet.
     const handleMouseDown = (e: MouseEvent) => {
+      bumpActivity();
       const pointer = pointers[0];
       const { x: posX, y: posY } = getLocalPos(e.clientX, e.clientY);
       updatePointerDownData(pointer, -1, posX, posY);
@@ -1261,6 +1319,7 @@ export default function SplashCursor({
     };
 
     const handleMouseMove = (e: MouseEvent) => {
+      bumpActivity();
       const pointer = pointers[0];
       const { x: posX, y: posY } = getLocalPos(e.clientX, e.clientY);
       const color = pointer.color;
@@ -1272,6 +1331,7 @@ export default function SplashCursor({
     };
 
     const handleTouchStart = (e: TouchEvent) => {
+      bumpActivity();
       const touches = e.targetTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
@@ -1281,6 +1341,7 @@ export default function SplashCursor({
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      bumpActivity();
       const touches = e.targetTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
@@ -1304,14 +1365,22 @@ export default function SplashCursor({
     eventTarget.addEventListener('touchmove', handleTouchMove as EventListener, false);
     eventTarget.addEventListener('touchend', handleTouchEnd as EventListener);
 
-    return () => {
-      cancelAnimationFrame(rafId);
+    removeListeners = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = null;
       eventTarget.removeEventListener('mousedown', handleMouseDown as EventListener);
       eventTarget.removeEventListener('mousemove', handleMouseMove as EventListener);
       eventTarget.removeEventListener('mouseleave', handleMouseLeave as EventListener);
       eventTarget.removeEventListener('touchstart', handleTouchStart as EventListener);
       eventTarget.removeEventListener('touchmove', handleTouchMove as EventListener);
       eventTarget.removeEventListener('touchend', handleTouchEnd as EventListener);
+    };
+    } // end initSplash
+
+    return () => {
+      disposed = true;
+      cancelAnimationFrame(bootId);
+      removeListeners?.();
     };
   }, [
     SIM_RESOLUTION,
@@ -1346,7 +1415,6 @@ export default function SplashCursor({
     >
       <canvas
         ref={canvasRef}
-        id="fluid"
         style={{
           width: '100%',
           height: '100%',

@@ -1,7 +1,14 @@
-'use client';
+"use client";
 
-import { useRef, useState, useEffect, useSyncExternalStore, type ReactNode, type CSSProperties } from 'react';
-import { useTheme } from 'next-themes';
+import {
+  useEffect,
+  useRef,
+  useSyncExternalStore,
+  type ReactNode,
+  type CSSProperties,
+} from "react";
+import { useTheme } from "next-themes";
+import "./AutoBorderGlow.css";
 
 interface AutoBorderGlowProps {
   children?: ReactNode;
@@ -25,33 +32,57 @@ interface AutoBorderGlowProps {
 function parseHSL(hslStr: string): { h: number; s: number; l: number } {
   const match = hslStr.match(/([\d.]+)\s*([\d.]+)%?\s*([\d.]+)%?/);
   if (!match) return { h: 40, s: 80, l: 80 };
-  return { h: parseFloat(match[1]), s: parseFloat(match[2]), l: parseFloat(match[3]) };
+  return {
+    h: parseFloat(match[1]),
+    s: parseFloat(match[2]),
+    l: parseFloat(match[3]),
+  };
 }
 
 function buildBoxShadow(glowColor: string, intensity: number): string {
   const { h, s, l } = parseHSL(glowColor);
   const base = `${h}deg ${s}% ${l}%`;
   const layers: [number, number, number, number, number, boolean][] = [
-    [0, 0, 0, 1, 100, true], [0, 0, 1, 0, 60, true], [0, 0, 3, 0, 50, true],
-    [0, 0, 6, 0, 40, true], [0, 0, 15, 0, 30, true], [0, 0, 25, 2, 20, true],
+    [0, 0, 0, 1, 100, true],
+    [0, 0, 1, 0, 60, true],
+    [0, 0, 3, 0, 50, true],
+    [0, 0, 6, 0, 40, true],
+    [0, 0, 15, 0, 30, true],
+    [0, 0, 25, 2, 20, true],
     [0, 0, 50, 2, 10, true],
-    [0, 0, 1, 0, 60, false], [0, 0, 3, 0, 50, false], [0, 0, 6, 0, 40, false],
-    [0, 0, 15, 0, 30, false], [0, 0, 25, 2, 20, false], [0, 0, 50, 2, 10, false],
+    [0, 0, 1, 0, 60, false],
+    [0, 0, 3, 0, 50, false],
+    [0, 0, 6, 0, 40, false],
+    [0, 0, 15, 0, 30, false],
+    [0, 0, 25, 2, 20, false],
+    [0, 0, 50, 2, 10, false],
   ];
-  return layers.map(([x, y, blur, spread, alpha, inset]) => {
-    const a = Math.min(alpha * intensity, 100);
-    return `${inset ? 'inset ' : ''}${x}px ${y}px ${blur}px ${spread}px hsl(${base} / ${a}%)`;
-  }).join(', ');
+  return layers
+    .map(([x, y, blur, spread, alpha, inset]) => {
+      const a = Math.min(alpha * intensity, 100);
+      return `${inset ? "inset " : ""}${x}px ${y}px ${blur}px ${spread}px hsl(${base} / ${a}%)`;
+    })
+    .join(", ");
 }
 
-const GRADIENT_POSITIONS = ['80% 55%', '69% 34%', '8% 6%', '41% 38%', '86% 85%', '82% 18%', '51% 4%'];
+const GRADIENT_POSITIONS = [
+  "80% 55%",
+  "69% 34%",
+  "8% 6%",
+  "41% 38%",
+  "86% 85%",
+  "82% 18%",
+  "51% 4%",
+];
 const COLOR_MAP = [0, 1, 2, 0, 1, 2, 1];
 
 function buildMeshGradients(colors: string[]): string[] {
   const gradients: string[] = [];
   for (let i = 0; i < 7; i++) {
     const c = colors[Math.min(COLOR_MAP[i], colors.length - 1)];
-    gradients.push(`radial-gradient(at ${GRADIENT_POSITIONS[i]}, ${c} 0px, transparent 50%)`);
+    gradients.push(
+      `radial-gradient(at ${GRADIENT_POSITIONS[i]}, ${c} 0px, transparent 50%)`
+    );
   }
   gradients.push(`linear-gradient(${colors[0]} 0 100%)`);
   return gradients;
@@ -59,15 +90,15 @@ function buildMeshGradients(colors: string[]): string[] {
 
 const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
   children,
-  className = '',
+  className = "",
   edgeSensitivity = 30,
-  glowColor = '40 80 80',
-  backgroundColor = 'transparent',
+  glowColor = "40 80 80",
+  backgroundColor = "transparent",
   borderRadius = 28,
   glowRadius = 40,
   glowIntensity = 1.0,
   coneSpread = 25,
-  colors = ['#c084fc', '#f472b6', '#38bdf8'],
+  colors = ["#c084fc", "#f472b6", "#38bdf8"],
   fillOpacity = 0.5,
   speed = 6,
   reverse = false,
@@ -75,40 +106,49 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
   phaseOffset = 0,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [cursorAngle, setCursorAngle] = useState(phaseOffset);
 
   const { resolvedTheme } = useTheme();
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
-    () => false,
+    () => false
   );
-  const isLight = mounted && resolvedTheme === 'light';
+  const isLight = mounted && resolvedTheme === "light";
   const themeBoost = isLight ? lightModeBoost : 1;
 
   useEffect(() => {
-    let rafId: number;
-    let start: number | null = null;
-    const durationMs = speed * 1000;
-    const offset = ((phaseOffset % 360) + 360) % 360;
+    const el = cardRef.current;
+    if (!el) return;
 
-    const tick = (timestamp: number) => {
-      if (start === null) start = timestamp;
-      const elapsed = (timestamp - start) % durationMs;
-      let angle = (elapsed / durationMs) * 360 + offset;
-      if (reverse) angle = 360 - angle;
-      setCursorAngle(((angle % 360) + 360) % 360);
-      rafId = requestAnimationFrame(tick);
-    };
-
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
-  }, [speed, reverse, phaseOffset]);
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        el.style.animationPlayState = entry.isIntersecting
+          ? "running"
+          : "paused";
+        el
+          .querySelectorAll<HTMLElement>(".abg-spin")
+          .forEach((node) => {
+            node.style.animationPlayState = entry.isIntersecting
+              ? "running"
+              : "paused";
+          });
+      },
+      { rootMargin: "60px", threshold: 0 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const edgeProximity = 1;
   const colorSensitivity = edgeSensitivity + 20;
-  const rawBorderOpacity = Math.max(0, (edgeProximity * 100 - colorSensitivity) / (100 - colorSensitivity));
-  const rawGlowOpacity = Math.max(0, (edgeProximity * 100 - edgeSensitivity) / (100 - edgeSensitivity));
+  const rawBorderOpacity = Math.max(
+    0,
+    (edgeProximity * 100 - colorSensitivity) / (100 - colorSensitivity)
+  );
+  const rawGlowOpacity = Math.max(
+    0,
+    (edgeProximity * 100 - edgeSensitivity) / (100 - edgeSensitivity)
+  );
 
   const borderOpacity = Math.min(1, rawBorderOpacity * themeBoost);
   const glowOpacity = Math.min(1, rawGlowOpacity * themeBoost);
@@ -117,74 +157,93 @@ const AutoBorderGlow: React.FC<AutoBorderGlowProps> = ({
   const meshGradients = buildMeshGradients(colors);
   const borderBg = meshGradients.map((g) => `${g} border-box`);
   const fillBg = meshGradients.map((g) => `${g} padding-box`);
-  const angleDeg = `${cursorAngle.toFixed(3)}deg`;
-  const fillColor = backgroundColor === 'transparent' ? 'var(--card)' : backgroundColor;
+  const fillColor =
+    backgroundColor === "transparent" ? "var(--card)" : backgroundColor;
+  const offset = ((phaseOffset % 360) + 360) % 360;
+  const duration = `${speed}s`;
+  const direction = reverse ? "reverse" : "normal";
+
+  const spinStyle = {
+    "--abg-duration": duration,
+    "--abg-direction": direction,
+    animationDelay: `-${(offset / 360) * speed}s`,
+  } as CSSProperties;
 
   return (
     <div
       ref={cardRef}
       className={`relative grid isolate border border-border/60 bg-card/50 ${className}`}
       style={{
-        background: backgroundColor === 'transparent' ? undefined : backgroundColor,
+        background:
+          backgroundColor === "transparent" ? undefined : backgroundColor,
         borderRadius: `${borderRadius}px`,
-        transform: 'translate3d(0, 0, 0.01px)',
-        boxShadow: '0 12px 40px -24px color-mix(in srgb, var(--primary) 35%, transparent)',
+        transform: "translate3d(0, 0, 0.01px)",
+        boxShadow:
+          "0 12px 40px -24px color-mix(in srgb, var(--primary) 35%, transparent)",
       }}
     >
       <div
-        className="absolute inset-0 rounded-[inherit] -z-[1]"
+        className="abg-spin absolute inset-0 -z-[1] rounded-[inherit]"
         style={{
-          border: '1px solid transparent',
+          ...spinStyle,
+          border: "1px solid transparent",
           background: [
             `linear-gradient(${fillColor} 0 100%) padding-box`,
-            'linear-gradient(rgb(255 255 255 / 0%) 0% 100%) border-box',
+            "linear-gradient(rgb(255 255 255 / 0%) 0% 100%) border-box",
             ...borderBg,
-          ].join(', '),
+          ].join(", "),
           opacity: borderOpacity,
-          maskImage: `conic-gradient(from ${angleDeg} at center, black ${coneSpread}%, transparent ${coneSpread + 15}%, transparent ${100 - coneSpread - 15}%, black ${100 - coneSpread}%)`,
-          WebkitMaskImage: `conic-gradient(from ${angleDeg} at center, black ${coneSpread}%, transparent ${coneSpread + 15}%, transparent ${100 - coneSpread - 15}%, black ${100 - coneSpread}%)`,
+          maskImage: `conic-gradient(from var(--abg-angle) at center, black ${coneSpread}%, transparent ${coneSpread + 15}%, transparent ${100 - coneSpread - 15}%, black ${100 - coneSpread}%)`,
+          WebkitMaskImage: `conic-gradient(from var(--abg-angle) at center, black ${coneSpread}%, transparent ${coneSpread + 15}%, transparent ${100 - coneSpread - 15}%, black ${100 - coneSpread}%)`,
         }}
       />
 
       <div
-        className="absolute inset-0 rounded-[inherit] -z-[1]"
-        style={{
-          border: '1px solid transparent',
-          background: fillBg.join(', '),
-          maskImage: [
-            'linear-gradient(to bottom, black, black)',
-            'radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%)',
-            'radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%)',
-            'radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%)',
-            'radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%)',
-            'radial-gradient(ellipse at 33% 66%, black 5%, transparent 40%)',
-            `conic-gradient(from ${angleDeg} at center, transparent 5%, black 15%, black 85%, transparent 95%)`,
-          ].join(', '),
-          WebkitMaskImage: [
-            'linear-gradient(to bottom, black, black)',
-            'radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%)',
-            'radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%)',
-            'radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%)',
-            'radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%)',
-            'radial-gradient(ellipse at 33% 66%, black 5%, transparent 40%)',
-            `conic-gradient(from ${angleDeg} at center, transparent 5%, black 15%, black 85%, transparent 95%)`,
-          ].join(', '),
-          maskComposite: 'subtract, add, add, add, add, add',
-          WebkitMaskComposite: 'source-out, source-over, source-over, source-over, source-over, source-over',
-          opacity: borderOpacity * fillOpacity,
-          mixBlendMode: 'soft-light',
-        } as CSSProperties}
+        className="abg-spin absolute inset-0 -z-[1] rounded-[inherit]"
+        style={
+          {
+            ...spinStyle,
+            border: "1px solid transparent",
+            background: fillBg.join(", "),
+            maskImage: [
+              "linear-gradient(to bottom, black, black)",
+              "radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%)",
+              "radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%)",
+              "radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%)",
+              "radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%)",
+              "radial-gradient(ellipse at 33% 66%, black 5%, transparent 40%)",
+              `conic-gradient(from var(--abg-angle) at center, transparent 5%, black 15%, black 85%, transparent 95%)`,
+            ].join(", "),
+            WebkitMaskImage: [
+              "linear-gradient(to bottom, black, black)",
+              "radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%)",
+              "radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%)",
+              "radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%)",
+              "radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%)",
+              "radial-gradient(ellipse at 33% 66%, black 5%, transparent 40%)",
+              `conic-gradient(from var(--abg-angle) at center, transparent 5%, black 15%, black 85%, transparent 95%)`,
+            ].join(", "),
+            maskComposite: "subtract, add, add, add, add, add",
+            WebkitMaskComposite:
+              "source-out, source-over, source-over, source-over, source-over, source-over",
+            opacity: borderOpacity * fillOpacity,
+            mixBlendMode: "soft-light",
+          } as CSSProperties
+        }
       />
 
       <span
-        className="absolute pointer-events-none z-[1] rounded-[inherit]"
-        style={{
-          inset: `${-glowRadius}px`,
-          maskImage: `conic-gradient(from ${angleDeg} at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%)`,
-          WebkitMaskImage: `conic-gradient(from ${angleDeg} at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%)`,
-          opacity: glowOpacity,
-          mixBlendMode: 'plus-lighter',
-        } as CSSProperties}
+        className="abg-spin pointer-events-none absolute z-[1] rounded-[inherit]"
+        style={
+          {
+            ...spinStyle,
+            inset: `${-glowRadius}px`,
+            maskImage: `conic-gradient(from var(--abg-angle) at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%)`,
+            WebkitMaskImage: `conic-gradient(from var(--abg-angle) at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%)`,
+            opacity: glowOpacity,
+            mixBlendMode: "plus-lighter",
+          } as CSSProperties
+        }
       >
         <span
           className="absolute rounded-[inherit]"

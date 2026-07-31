@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, useState } from "react";
+import { useSyncExternalStore, useState, useEffect, useRef } from "react";
 import { ArrowLeft, Sparkles, Users2, Activity } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -12,6 +12,7 @@ import { CountUp } from "../ui/count-up";
 import ClickSpark from "@/components/animations/ClickSpark";
 import TextType from "@/components/animations/TextType";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 const ORBITS = [
   { size: 76, delay: "0s", dashed: false },
@@ -65,6 +66,19 @@ export function Hero() {
   });
   const fullTexts = phrases.map((p) => p.full);
   const [phraseIndex, setPhraseIndex] = useState(0);
+  const visualRef = useRef<HTMLDivElement>(null);
+  const [orbitsActive, setOrbitsActive] = useState(true);
+
+  useEffect(() => {
+    const el = visualRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setOrbitsActive(entry.isIntersecting),
+      { rootMargin: "120px", threshold: 0 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const renderHeroText = (displayed: string, _full: string, index: number) => {
     const { pre, mid } = phrases[index] ?? phrases[0];
@@ -130,9 +144,9 @@ export function Hero() {
                 <TextType
                   as="span"
                   text={fullTexts}
-                  typingSpeed={32}
-                  deletingSpeed={14}
-                  pauseDuration={1800}
+                  typingSpeed={60}
+                  deletingSpeed={35}
+                  pauseDuration={3200}
                   initialDelay={200}
                   loop={true}
                   showCursor
@@ -197,12 +211,19 @@ export function Hero() {
           </div>
         </Reveal>
 
+        <div
+          ref={visualRef}
+          className={cn(
+            "relative mx-auto aspect-square w-full max-w-[340px] sm:max-w-[460px] lg:max-w-[540px]",
+            !orbitsActive && "hero-visual--paused"
+          )}
+        >
         <Reveal
           direction="left"
           delay={0.15}
-          className="relative mx-auto aspect-square w-full max-w-[340px] sm:max-w-[460px] lg:max-w-[540px]"
+          className="relative h-full w-full"
         >
-          <div className="pointer-events-none absolute inset-[8%] animate-pulse-glow rounded-full bg-gradient-to-br from-primary-500/20 via-glow-2/10 to-transparent blur-3xl" />
+          <div className="pointer-events-none absolute inset-[8%] animate-pulse-glow rounded-full bg-gradient-to-br from-primary-500/20 via-glow-2/10 to-transparent blur-3xl max-md:blur-2xl" />
 
           {/* Mobile: pull orbits slightly inward so chips stay on-screen */}
           <div className="pointer-events-none absolute inset-[6%] sm:inset-0">
@@ -293,6 +314,7 @@ export function Hero() {
             })}
           </div>
         </Reveal>
+        </div>
       </div>
     </section>
   );

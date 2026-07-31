@@ -4,6 +4,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
+import { iranYekan } from "@/app/fonts";
 import "../globals.css";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { ThemeInitScript } from "@/components/layout/ThemeInitScript";
@@ -12,6 +13,7 @@ import { Footer } from "@/components/layout/Footer";
 import { AnimatedBackground } from "@/components/animations/AnimatedBackground";
 import { ThemeAwareParticles } from "@/components/animations/ThemeAwareParticles";
 import { ExperienceSplash } from "@/components/animations/ExperienceSplash";
+import { cn } from "@/lib/utils";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -53,7 +55,10 @@ export default async function LocaleLayout({
       dir={dir}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={dir === "rtl" ? "font-fa" : "font-en"}
+      className={cn(
+        iranYekan.variable,
+        dir === "rtl" ? "font-fa" : "font-en"
+      )}
     >
       <head>
         <ThemeInitScript />
@@ -64,7 +69,6 @@ export default async function LocaleLayout({
 
           <div className="pointer-events-none fixed inset-0 -z-10">
             <ThemeAwareParticles
-              particleCount={600}
               particleSpread={20}
               speed={0.2}
               particleBaseSize={100}
