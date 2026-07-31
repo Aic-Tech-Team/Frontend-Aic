@@ -1,21 +1,18 @@
 "use client";
 import Image from "next/image";
 
-import { useRef } from "react";
 import { Mail, MapPin, Clock } from "lucide-react";
 import { SiInstagram, SiTelegram } from "@icons-pack/react-simple-icons";
 import { LinkedinIcon } from "@/components/icons/linkedin";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { RevealGroup, RevealItem } from "@/components/animations/Reveal";
-import SplashCursor from "@/components/animations/SplashCursor";
 import { getCopyrightYears } from "@/lib/utils";
 
 export function Footer() {
   const tCommon = useTranslations("Common");
   const tFooter = useTranslations("Footer");
   const locale = useLocale();
-  const footerRef = useRef<HTMLElement>(null);
   const copyrightYears = getCopyrightYears(locale);
 
   const quickLinks = [
@@ -53,43 +50,23 @@ export function Footer() {
   ];
 
   return (
-    <footer
-      ref={footerRef}
-      className="glass-footer relative w-full overflow-hidden px-4 pb-8 pt-14 sm:px-6 lg:px-10"
-    >
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-50">
-        <SplashCursor
-          containerRef={footerRef}
-          DENSITY_DISSIPATION={2}
-          VELOCITY_DISSIPATION={4}
-          PRESSURE={0.1}
-          CURL={14}
-          SPLAT_RADIUS={0.9}
-          SPLAT_FORCE={5500}
-          COLOR_UPDATE_SPEED={11}
-          COLOR_INTENSITY={0.15}
-          SHADING
-          RAINBOW_MODE={false}
-          COLOR="#5f1f99"
-        />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-7xl">
-        <RevealGroup className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <RevealItem direction="up">
+    <footer className="glass-footer relative w-full overflow-hidden pb-6 pt-10 sm:pb-8 sm:pt-14">
+      <div className="container relative z-10">
+        <RevealGroup className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-16 xl:gap-24">
+          <RevealItem direction="up" className="lg:max-w-[18rem] lg:shrink-0 xl:max-w-[20rem]">
             <div className="flex items-center gap-2.5">
               <Image
                 src="/logo/AIC_logo_notext.svg"
                 alt={tCommon("brandTitle")}
-                width={65}
-                height={65}
-                className="object-contain"
+                width={52}
+                height={52}
+                className="h-12 w-12 object-contain sm:h-16 sm:w-16"
               />
-              <span>
-                <span className="block text-lg font-bold text-foreground">
+              <span className="min-w-0">
+                <span className="block text-base font-bold text-foreground sm:text-lg">
                   {tCommon("brandTitle")}
                 </span>
-                <span className="block text-base text-muted-foreground">
+                <span className="block text-sm text-muted-foreground sm:text-base">
                   {tCommon("brandSubtitle")}
                 </span>
               </span>
@@ -111,66 +88,71 @@ export function Footer() {
             </div>
           </RevealItem>
 
-          <RevealItem direction="up">
-            <h4 className="text-sm font-bold text-foreground">
-              {tFooter("quickTitle")}
-            </h4>
-            <ul className="mt-4 space-y-3">
-              {quickLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="group relative inline-block pb-1.5 pt-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {link.label}
-                    <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </RevealItem>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-8 border-t border-border/40 pt-8 sm:grid-cols-3 sm:gap-x-6 lg:min-w-0 lg:flex-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1.45fr)] lg:gap-x-3 xl:gap-x-4 lg:border-t-0 lg:pt-0">
+            <RevealItem direction="up">
+              <h4 className="text-sm font-bold text-foreground">
+                {tFooter("quickTitle")}
+              </h4>
+              <ul className="mt-4 space-y-3">
+                {quickLinks.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="group relative inline-block pb-1.5 pt-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {link.label}
+                      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </RevealItem>
 
-          <RevealItem direction="up">
-            <h4 className="text-sm font-bold text-foreground">
-              {tFooter("activitiesTitle")}
-            </h4>
-            <ul className="mt-4 space-y-3">
-              {activityLinks.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="group relative inline-block pb-1.5 pt-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    {link.label}
-                    <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </RevealItem>
+            <RevealItem direction="up">
+              <h4 className="text-sm font-bold text-foreground">
+                {tFooter("activitiesTitle")}
+              </h4>
+              <ul className="mt-4 space-y-3">
+                {activityLinks.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="group relative inline-block pb-1.5 pt-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {link.label}
+                      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </RevealItem>
 
-          <RevealItem direction="up">
-            <h4 className="text-sm font-bold text-foreground">
-              {tFooter("contactTitle")}
-            </h4>
-            <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2.5">
-                <Mail className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary-300" />
-                {tFooter("email")}
-              </li>
-              <li className="flex items-start gap-2.5">
-                <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary-300" />
-                {tFooter("address")}
-              </li>
-              <li className="flex items-start gap-2.5">
-                <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary-300" />
-                {tFooter("hours")}
-              </li>
-            </ul>
-          </RevealItem>
+            <RevealItem
+              direction="up"
+              className="col-span-2 sm:col-span-1"
+            >
+              <h4 className="text-sm font-bold text-foreground">
+                {tFooter("contactTitle")}
+              </h4>
+              <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2.5">
+                  <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary-300" />
+                  <span className="min-w-0 break-words">{tFooter("email")}</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary-300" />
+                  <span className="min-w-0 break-words">{tFooter("address")}</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary-300" />
+                  <span className="min-w-0">{tFooter("hours")}</span>
+                </li>
+              </ul>
+            </RevealItem>
+          </div>
         </RevealGroup>
 
-        <div className="relative mt-6 flex flex-col items-center justify-between gap-3 border-t border-border/50 pt-4 text-xs text-muted-foreground sm:flex-row">
+        <div className="relative mt-6 flex flex-col items-center justify-between gap-3 border-t border-border/50 pt-4 text-center text-xs text-muted-foreground sm:flex-row sm:text-start">
           <p>{tFooter("copyright", { years: copyrightYears })}</p>
 
           <div className="flex items-center gap-5">
@@ -182,7 +164,7 @@ export function Footer() {
             </a>
           </div>
 
-          <figure className="absolute inset-e-0 top-0 z-20 -translate-y-[75%]">
+          <figure className="pointer-events-none absolute inset-e-0 top-0 z-20 hidden -translate-y-[75%] sm:block">
             <Image
               src="/images/CatTyping.svg"
               alt="typing cat"

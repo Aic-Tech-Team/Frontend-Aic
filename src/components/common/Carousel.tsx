@@ -126,7 +126,7 @@ export function Carousel({
   return (
     <div className={cn("relative", className)}>
       <div
-        className="-mx-4 -my-10 overflow-hidden px-4 py-10 sm:-mx-6 sm:px-6"
+        className="-mx-5 -my-10 overflow-hidden px-5 py-10 sm:-mx-6 sm:px-6 lg:-mx-10 lg:px-10"
         ref={emblaRef}
       >
         <div className="flex touch-pan-y gap-4 sm:gap-5">

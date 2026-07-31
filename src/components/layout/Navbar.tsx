@@ -31,16 +31,16 @@ export function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
 
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflowY = "hidden";
       document.body.style.touchAction = "none";
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflowY = "";
       document.body.style.touchAction = "";
     }
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      document.body.style.overflow = "";
+      document.body.style.overflowY = "";
       document.body.style.touchAction = "";
     };
   }, [isOpen]);
@@ -57,25 +57,25 @@ export function Navbar() {
               : "border-b border-transparent bg-transparent"),
         )}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-10">
+        <div className="container flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4">
           <Link
             href="/"
             onClick={closeMenu}
-            className="group flex items-center gap-2.5 text-lg font-bold tracking-tight text-foreground"
+            className="group flex min-w-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:gap-2.5"
           >
             <Image
               src="/logo/AIC_logo_notext.svg"
               alt={tCommon("brandTitle")}
-              width={45}
-              height={45}
-              className="object-contain"
+              width={40}
+              height={40}
+              className="h-9 w-9 shrink-0 object-contain sm:h-11 sm:w-11"
             />
 
-            <span>
-              <span className="block text-sm font-bold text-foreground">
+            <span className="min-w-0">
+              <span className="block truncate text-xs font-bold leading-tight text-foreground sm:text-sm">
                 {tCommon("brandTitle")}
               </span>
-              <span className="block text-xs text-muted-foreground">
+              <span className="block truncate text-[10px] leading-tight text-muted-foreground sm:text-xs">
                 {tCommon("brandSubtitle")}
               </span>
             </span>
@@ -137,8 +137,10 @@ export function Navbar() {
 
       <nav
         className={cn(
-          "fixed inset-y-0 right-0 z-50 flex h-screen w-[min(24rem,90vw)] flex-col border-s border-border/50 bg-background/65 shadow-2xl backdrop-blur-2xl transition-transform duration-300 ease-out lg:hidden",
-          isOpen ? "translate-x-0" : "translate-x-full",
+          "fixed inset-y-0 end-0 z-50 flex h-dvh w-[min(24rem,90vw)] max-w-full flex-col border-s border-border/50 bg-background/65 shadow-2xl backdrop-blur-2xl transition-transform duration-300 ease-out lg:hidden",
+          isOpen
+            ? "translate-x-0"
+            : "pointer-events-none ltr:translate-x-full rtl:-translate-x-full",
         )}
       >
         <div className="flex items-center justify-between border-b border-border/50 px-5 py-4">

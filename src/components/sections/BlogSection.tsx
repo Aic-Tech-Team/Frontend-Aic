@@ -27,8 +27,8 @@ export async function BlogSection() {
   }[];
 
   return (
-    <section id="blog" className="px-4 py-20 sm:px-6">
-      <div className="mx-auto max-w-6xl">
+    <section id="blog" className="py-14 sm:py-20">
+      <div className="container">
         <SectionHeading
           badge={t("badge")}
           icon={BookOpen}
@@ -64,7 +64,7 @@ export async function BlogSection() {
                 playOnce={false}
                 className="h-full"
               >
-                <article className="surface group flex h-full flex-col overflow-hidden rounded-3xl">
+                <article className="surface group flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl">
                   <div className="relative aspect-16/10 w-full overflow-hidden">
                     <Image
                       src={postImages[index] ?? postImages[0]}
@@ -73,27 +73,29 @@ export async function BlogSection() {
                       sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw"
                       className="object-cover"
                     />
-                    <span className="surface absolute end-4 top-4 rounded-full px-3 py-1 text-[11px] font-medium text-primary-300">
+                    <span className="surface absolute end-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-medium text-primary-300 sm:end-4 sm:top-4 sm:px-3 dark:text-white">
                       {post.tag}
                     </span>
                   </div>
 
-                  <div className="flex flex-1 flex-col p-6">
-                    <h3 className="text-base font-bold leading-7 text-foreground transition-colors group-hover:text-primary-300">
+                  <div className="flex flex-1 flex-col p-4 sm:p-6">
+                    <h3 className="text-sm font-bold leading-6 text-foreground transition-colors group-hover:text-primary-300 sm:text-base sm:leading-7">
                       {post.title}
                     </h3>
                     <p className="mt-2 flex-1 text-sm leading-7 text-muted-foreground">
                       {post.desc}
                     </p>
-                    <div className="mt-5 flex items-center justify-between border-t border-border/50 pt-4 text-xs text-muted-foreground">
-                      <span>{post.author}</span>
-                      <span className="flex items-center gap-3">
+                    <div className="mt-4 flex flex-col gap-2 border-t border-border/50 pt-3 text-xs text-muted-foreground sm:mt-5 sm:flex-row sm:items-center sm:justify-between sm:pt-4">
+                      <span className="min-w-0 truncate font-medium text-foreground/70">
+                        {post.author}
+                      </span>
+                      <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
                         <span className="flex items-center gap-1">
-                          <CalendarDays className="h-3.5 w-3.5" />
+                          <CalendarDays className="h-3.5 w-3.5 shrink-0" />
                           {post.date}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" />
+                          <Clock className="h-3.5 w-3.5 shrink-0" />
                           {post.readTime}
                         </span>
                       </span>

@@ -13,9 +13,9 @@ export async function AboutSection() {
   const t = await getTranslations("AboutSection");
 
   return (
-    <section id="about" className="px-4 py-8 sm:px-6 sm:py-16">
-      <div className="mx-auto grid max-w-6xl items-center gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-16">
-        <RevealGroup className="flex flex-col items-center text-center lg:order-2 lg:items-start lg:text-start">
+    <section id="about" className="py-8 sm:py-16">
+      <div className="container grid min-w-0 items-center gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-16">
+        <RevealGroup className="flex min-w-0 flex-col items-center text-center lg:order-2 lg:items-start lg:text-start">
           <SectionHeading
             icon={HouseHeart}
             badge={t("badge")}
@@ -24,29 +24,29 @@ export async function AboutSection() {
           />
 
           <RevealItem direction="right" className="mt-4">
-            <p className="text-center text-sm leading-8 text-muted-foreground sm:text-base md:text-center lg:text-start">
+            <p className="text-center text-sm leading-7 text-muted-foreground sm:text-base sm:leading-8 md:text-center lg:text-start">
               {t("body")}
             </p>
           </RevealItem>
 
           <RevealItem
             direction="right"
-            className="mt-8 flex justify-center md:justify-center lg:justify-start"
+            className="mt-8 flex w-full justify-center md:justify-center lg:justify-start"
           >
-            <Button size="lg" className="rounded-xl shadow-glow">
+            <Button size="lg" className="w-full rounded-2xl shadow-glow sm:w-auto sm:rounded-xl">
               {t("cta")}
               <ChevronLeft className="h-4 w-4 ltr:rotate-180" />
             </Button>
           </RevealItem>
         </RevealGroup>
 
-        <Reveal direction="left" className="lg:order-1">
+        <Reveal direction="left" className="min-w-0 lg:order-1">
           <Image
             src="/images/Robot.svg"
             alt={t("imageAlt")}
             width={900}
             height={700}
-            className="relative z-0 h-[420px] w-full object-cover sm:h-[520px]"
+            className="relative z-0 h-[280px] w-full object-contain sm:h-[420px] sm:object-cover md:h-[520px]"
           />
         </Reveal>
       </div>
