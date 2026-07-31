@@ -1,10 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
-import Particles from "./Particles";
+import { useMotionCapability } from "@/hooks/useMotionCapability";
+
+const Particles = dynamic(() => import("./Particles"), { ssr: false });
+
+const COLORS_LIGHT = ["#3f0861"] as const;
+const COLORS_DARK = ["#ffffff"] as const;
 
 interface ThemeAwareParticlesProps {
-  particleCount?: number;
   particleSpread?: number;
   speed?: number;
   moveParticlesOnHover?: boolean;
@@ -16,22 +21,20 @@ interface ThemeAwareParticlesProps {
 
 export function ThemeAwareParticles(props: ThemeAwareParticlesProps) {
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const { mounted, prefersReducedMotion, isVisible, particleCount } =
+    useMotionCapability();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
+  if (!mounted || prefersReducedMotion || particleCount <= 0) return null;
 
   const particleColors =
-    resolvedTheme === "light" ? ["#3f0861"] : ["#ffffff"];
+    resolvedTheme === "light" ? COLORS_LIGHT : COLORS_DARK;
 
   return (
     <Particles
-      key={resolvedTheme}
       {...props}
-      particleColors={particleColors}
+      particleCount={particleCount}
+      particleColors={particleColors as unknown as string[]}
+      paused={!isVisible}
     />
   );
 }

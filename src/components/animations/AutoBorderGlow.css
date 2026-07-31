@@ -1,0 +1,24 @@
+@property --abg-angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+.abg-spin {
+  --abg-angle: 0deg;
+  animation: abg-rotate-angle var(--abg-duration, 6s) linear infinite
+    var(--abg-direction, normal);
+}
+
+@keyframes abg-rotate-angle {
+  to {
+    --abg-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abg-spin {
+    animation: none !important;
+    --abg-angle: 40deg;
+  }
+}

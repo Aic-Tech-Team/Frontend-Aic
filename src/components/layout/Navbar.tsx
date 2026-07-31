@@ -26,7 +26,10 @@ export function Navbar() {
   ] as const;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      const next = window.scrollY > 8;
+      setScrolled((prev) => (prev === next ? prev : next));
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
 
@@ -53,7 +56,7 @@ export function Navbar() {
           isOpen && "opacity-0 pointer-events-none",
           !isOpen &&
             (scrolled
-              ? "border-b border-border/60 bg-background/85 shadow-sm backdrop-blur-xl"
+              ? "border-b border-border/60 bg-background/90 shadow-sm backdrop-blur-md max-md:bg-background/95 max-md:backdrop-blur-sm"
               : "border-b border-transparent bg-transparent"),
         )}
       >

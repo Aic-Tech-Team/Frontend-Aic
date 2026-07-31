@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "./font-face.css";
 @custom-variant hover (&:hover);
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
@@ -37,7 +36,7 @@
   --font-weight-extrablack: 950;
 
   /* -------------------- font families -------------------- */
-  --font-iranYekan: IranYekan, sans-serif;
+  --font-iranYekan: var(--font-iran-yekan), sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -168,6 +167,9 @@
   --blob-opacity: 0.45;
   --blob-blur: 110px;
   --blob-blend: screen;
+
+  --glow-7: rgba(103, 232, 249, 0.4);
+  --glow-8: rgba(192, 132, 252, 0.4);
 }
 
 [data-theme="light"] {
@@ -216,6 +218,9 @@
   --blob-opacity: 1;
   --blob-blur: 90px;
   --blob-blend: multiply;
+
+  --glow-7: rgba(103, 232, 249, 0.35);
+  --glow-8: rgba(192, 132, 252, 0.35);
 }
 
 @layer base {
@@ -242,7 +247,7 @@
   }
 
   html.font-fa {
-    font-family: var(--font-iranYekan);
+    font-family: var(--font-iran-yekan), sans-serif;
   }
 
   /* IranYekan descenders get clipped by -webkit-line-clamp without extra end padding */
@@ -417,6 +422,34 @@
     box-shadow: inset 0 1px 0 0 color-mix(in srgb, white 60%, transparent);
   }
 
+  /* Lighter glass on narrow viewports — keep translucency, cut blur cost */
+  @media (max-width: 768px) {
+    .surface {
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      backdrop-filter: blur(14px) saturate(140%);
+      background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--card) 72%, transparent) 0%,
+        color-mix(in srgb, var(--card) 48%, transparent) 100%
+      );
+    }
+
+    [data-theme="light"] .surface {
+      -webkit-backdrop-filter: blur(12px) saturate(130%);
+      backdrop-filter: blur(12px) saturate(130%);
+      background: linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--card) 82%, transparent) 0%,
+        color-mix(in srgb, var(--card) 62%, transparent) 100%
+      );
+    }
+
+    .glass-footer {
+      -webkit-backdrop-filter: blur(16px) saturate(145%);
+      backdrop-filter: blur(16px) saturate(145%);
+    }
+  }
+
   .text-gradient {
     background: linear-gradient(
       120deg,
@@ -444,7 +477,6 @@
 
   .blob-wrapper {
     position: absolute;
-    will-change: transform;
   }
 
   .blob {
@@ -453,7 +485,14 @@
     opacity: var(--blob-opacity);
     mix-blend-mode: var(--blob-blend);
     animation: blob-float 18s ease-in-out infinite;
-    will-change: transform;
+  }
+
+  .blob-bg--lite {
+    --blob-blur: 55px;
+  }
+
+  .blob-bg--lite .blob {
+    animation-duration: 28s;
   }
 
   .blob-1 {
@@ -617,6 +656,13 @@
 
   .orbit-spin-rev {
     animation: orbit-spin-rev var(--orbit-duration, 32s) linear infinite;
+  }
+
+  .hero-visual--paused .orbit-ring,
+  .hero-visual--paused .orbit-spin,
+  .hero-visual--paused .orbit-spin-rev,
+  .hero-visual--paused .animate-pulse-glow {
+    animation-play-state: paused !important;
   }
 
   .hero-globe {

@@ -11,8 +11,27 @@
   display: inline;
   margin-inline-start: 0;
   vertical-align: baseline;
+  animation: text-type-blink 1s ease-in-out infinite;
 }
 
 .text-type__cursor--hidden {
   visibility: hidden;
+  animation: none;
+}
+
+@keyframes text-type-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-type__cursor {
+    animation: none;
+    opacity: 1;
+  }
 }

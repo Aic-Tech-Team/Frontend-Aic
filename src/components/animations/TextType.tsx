@@ -5,12 +5,11 @@ import {
   useEffect,
   useRef,
   useState,
-  createElement,
   useMemo,
   useCallback,
   type ReactNode,
+  type HTMLAttributes,
 } from 'react';
-import { gsap } from 'gsap';
 import './TextType.css';
 
 interface TextTypeProps {
@@ -58,15 +57,14 @@ const TextType = ({
   reverseMode = false,
   renderText,
   ...props
-}: TextTypeProps & React.HTMLAttributes<HTMLElement>) => {
+}: TextTypeProps & HTMLAttributes<HTMLElement>) => {
   const [displayedText, setDisplayedText] = useState('');
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(!startOnVisible);
+  const [containerEl, setContainerEl] = useState<HTMLElement | null>(null);
   const hasStartedRef = useRef(false);
-  const cursorRef = useRef<HTMLSpanElement>(null);
-  const containerRef = useRef<HTMLElement>(null);
 
   const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text]);
 
@@ -82,7 +80,7 @@ const TextType = ({
   };
 
   useEffect(() => {
-    if (!startOnVisible || !containerRef.current) return;
+    if (!startOnVisible || !containerEl) return;
 
     const observer = new IntersectionObserver(
       entries => {
@@ -93,26 +91,9 @@ const TextType = ({
       { threshold: 0.1 }
     );
 
-    observer.observe(containerRef.current);
+    observer.observe(containerEl);
     return () => observer.disconnect();
-  }, [startOnVisible]);
-
-  useEffect(() => {
-    if (!showCursor || !cursorRef.current) return;
-
-    gsap.set(cursorRef.current, { opacity: 1 });
-    const tween = gsap.to(cursorRef.current, {
-      opacity: 0,
-      duration: cursorBlinkDuration,
-      repeat: -1,
-      yoyo: true,
-      ease: 'power2.inOut',
-    });
-
-    return () => {
-      tween.kill();
-    };
-  }, [showCursor, cursorBlinkDuration]);
+  }, [startOnVisible, containerEl]);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -127,14 +108,13 @@ const TextType = ({
       if (displayedText.length === 0) {
         if (currentTextIndex === textArray.length - 1 && !loop) return;
 
-        // Short beat after erase, then type next sentence
         timeout = setTimeout(() => {
           const next = (currentTextIndex + 1) % textArray.length;
           setIsDeleting(false);
           setCurrentTextIndex(next);
           setCurrentCharIndex(0);
           onTextIndexChange?.(next);
-        }, 350);
+        }, 700);
       } else {
         timeout = setTimeout(() => {
           setDisplayedText(prev => prev.slice(0, -1));
@@ -153,7 +133,6 @@ const TextType = ({
     } else {
       if (!loop && currentTextIndex === textArray.length - 1) return;
 
-      // Full sentence shown → pause → delete
       timeout = setTimeout(() => {
         onSentenceComplete?.(textArray[currentTextIndex], currentTextIndex);
         setIsDeleting(true);
@@ -188,24 +167,27 @@ const TextType = ({
     renderText?.(displayedText, textArray[currentTextIndex], currentTextIndex) ??
     displayedText;
 
-  return createElement(
-    Component,
-    {
-      ref: containerRef,
-      className: `text-type ${className}`,
-      ...props,
-    },
-    <span className="text-type__content" style={{ color: getCurrentTextColor() || 'inherit' }}>
-      {content}
-    </span>,
-    showCursor && (
+  return (
+    <Component
+      ref={setContainerEl}
+      className={`text-type ${className}`}
+      {...props}
+    >
       <span
-        ref={cursorRef}
-        className={`text-type__cursor ${cursorClassName} ${shouldHideCursor ? 'text-type__cursor--hidden' : ''}`}
+        className="text-type__content"
+        style={{ color: getCurrentTextColor() || 'inherit' }}
       >
-        {cursorCharacter}
+        {content}
       </span>
-    )
+      {showCursor ? (
+        <span
+          className={`text-type__cursor ${cursorClassName} ${shouldHideCursor ? 'text-type__cursor--hidden' : ''}`}
+          style={{ animationDuration: `${cursorBlinkDuration * 2}s` }}
+        >
+          {cursorCharacter}
+        </span>
+      ) : null}
+    </Component>
   );
 };
 

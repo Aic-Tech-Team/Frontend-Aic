@@ -1,8 +1,15 @@
 "use client";
 
-
-import React, { useEffect, useRef, useCallback, CSSProperties, ReactNode } from 'react';
-import './ElectricBorder.css';
+import React, {
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import { useMotionCapability } from "@/hooks/useMotionCapability";
+import "./ElectricBorder.css";
 
 interface ElectricBorderProps {
   children?: ReactNode;
@@ -16,18 +23,21 @@ interface ElectricBorderProps {
 
 const ElectricBorder: React.FC<ElectricBorderProps> = ({
   children,
-  color = '#5227FF',
+  color = "#5227FF",
   speed = 1,
   chaos = 0.12,
   borderRadius = 24,
   className,
-  style
+  style,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
   const timeRef = useRef(0);
   const lastFrameTimeRef = useRef(0);
+  const inViewRef = useRef(true);
+  const [inView, setInView] = useState(true);
+  const { prefersReducedMotion, borderQuality, fxActive } = useMotionCapability();
 
   const random = useCallback((x: number): number => {
     return (Math.sin(x * 12.9898) * 43758.5453) % 1;
@@ -48,7 +58,12 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
       const ux = fx * fx * (3.0 - 2.0 * fx);
       const uy = fy * fy * (3.0 - 2.0 * fy);
 
-      return a * (1 - ux) * (1 - uy) + b * ux * (1 - uy) + c * (1 - ux) * uy + d * ux * uy;
+      return (
+        a * (1 - ux) * (1 - uy) +
+        b * ux * (1 - uy) +
+        c * (1 - ux) * uy +
+        d * ux * uy
+      );
     },
     [random]
   );
@@ -74,7 +89,9 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
         if (i === 0) {
           octaveAmplitude *= baseFlatness;
         }
-        y += octaveAmplitude * noise2D(frequency * x + seed * 100, time * frequency * 0.3);
+        y +=
+          octaveAmplitude *
+          noise2D(frequency * x + seed * 100, time * frequency * 0.3);
         frequency *= lacunarity;
         amplitude *= gain;
       }
@@ -96,18 +113,26 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
       const angle = startAngle + progress * arcLength;
       return {
         x: centerX + radius * Math.cos(angle),
-        y: centerY + radius * Math.sin(angle)
+        y: centerY + radius * Math.sin(angle),
       };
     },
     []
   );
 
   const getRoundedRectPoint = useCallback(
-    (t: number, left: number, top: number, width: number, height: number, radius: number): { x: number; y: number } => {
+    (
+      t: number,
+      left: number,
+      top: number,
+      width: number,
+      height: number,
+      radius: number
+    ): { x: number; y: number } => {
       const straightWidth = width - 2 * radius;
       const straightHeight = height - 2 * radius;
       const cornerArc = (Math.PI * radius) / 2;
-      const totalPerimeter = 2 * straightWidth + 2 * straightHeight + 4 * cornerArc;
+      const totalPerimeter =
+        2 * straightWidth + 2 * straightHeight + 4 * cornerArc;
       const distance = t * totalPerimeter;
 
       let accumulated = 0;
@@ -120,85 +145,148 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
 
       if (distance <= accumulated + cornerArc) {
         const progress = (distance - accumulated) / cornerArc;
-        return getCornerPoint(left + width - radius, top + radius, radius, -Math.PI / 2, Math.PI / 2, progress);
+        return getCornerPoint(
+          left + width - radius,
+          top + radius,
+          radius,
+          -Math.PI / 2,
+          Math.PI / 2,
+          progress
+        );
       }
       accumulated += cornerArc;
 
       if (distance <= accumulated + straightHeight) {
         const progress = (distance - accumulated) / straightHeight;
-        return { x: left + width, y: top + radius + progress * straightHeight };
+        return {
+          x: left + width,
+          y: top + radius + progress * straightHeight,
+        };
       }
       accumulated += straightHeight;
 
       if (distance <= accumulated + cornerArc) {
         const progress = (distance - accumulated) / cornerArc;
-        return getCornerPoint(left + width - radius, top + height - radius, radius, 0, Math.PI / 2, progress);
+        return getCornerPoint(
+          left + width - radius,
+          top + height - radius,
+          radius,
+          0,
+          Math.PI / 2,
+          progress
+        );
       }
       accumulated += cornerArc;
 
       if (distance <= accumulated + straightWidth) {
         const progress = (distance - accumulated) / straightWidth;
-        return { x: left + width - radius - progress * straightWidth, y: top + height };
+        return {
+          x: left + width - radius - progress * straightWidth,
+          y: top + height,
+        };
       }
       accumulated += straightWidth;
 
       if (distance <= accumulated + cornerArc) {
         const progress = (distance - accumulated) / cornerArc;
-        return getCornerPoint(left + radius, top + height - radius, radius, Math.PI / 2, Math.PI / 2, progress);
+        return getCornerPoint(
+          left + radius,
+          top + height - radius,
+          radius,
+          Math.PI / 2,
+          Math.PI / 2,
+          progress
+        );
       }
       accumulated += cornerArc;
 
       if (distance <= accumulated + straightHeight) {
         const progress = (distance - accumulated) / straightHeight;
-        return { x: left, y: top + height - radius - progress * straightHeight };
+        return {
+          x: left,
+          y: top + height - radius - progress * straightHeight,
+        };
       }
       accumulated += straightHeight;
 
       const progress = (distance - accumulated) / cornerArc;
-      return getCornerPoint(left + radius, top + radius, radius, Math.PI, Math.PI / 2, progress);
+      return getCornerPoint(
+        left + radius,
+        top + radius,
+        radius,
+        Math.PI,
+        Math.PI / 2,
+        progress
+      );
     },
     [getCornerPoint]
   );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        const visible = entry.isIntersecting;
+        inViewRef.current = visible;
+        setInView(visible);
+      },
+      { rootMargin: "80px", threshold: 0 }
+    );
+    io.observe(container);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const ctx = canvas.getContext('2d');
+    if (prefersReducedMotion) return;
+
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const octaves = 10;
+    const lite = borderQuality === "lite";
+    const octaves = lite ? 5 : 10;
     const lacunarity = 1.6;
     const gain = 0.7;
     const amplitude = chaos;
-    const frequency = 10;
+    const frequency = lite ? 6 : 10;
     const baseFlatness = 0;
-    const displacement = 60;
-    const borderOffset = 60;
+    const displacement = lite ? 40 : 60;
+    const borderOffset = lite ? 40 : 60;
+    const sampleStep = lite ? 4 : 2;
+    const maxDpr = lite ? 1.25 : 2;
 
     const updateSize = () => {
       const rect = container.getBoundingClientRect();
       const width = rect.width + borderOffset * 2;
       const height = rect.height + borderOffset * 2;
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
 
-      return { width, height };
+      return { width, height, dpr };
     };
 
-    let { width, height } = updateSize();
-    let lastDpr = Math.min(window.devicePixelRatio || 1, 2);
+    let { width, height, dpr: lastDpr } = updateSize();
 
     const drawElectricBorder = (currentTime: number) => {
       if (!canvas || !ctx) return;
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (!inViewRef.current || !fxActive) {
+        animationRef.current = null;
+        return;
+      }
+
+      const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
       if (dpr !== lastDpr) {
         lastDpr = dpr;
         const newSize = updateSize();
@@ -216,8 +304,8 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
 
       ctx.strokeStyle = color;
       ctx.lineWidth = 1;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
 
       const scale = displacement;
       const left = borderOffset;
@@ -227,15 +315,25 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
       const maxRadius = Math.min(borderWidth, borderHeight) / 2;
       const radius = Math.min(borderRadius, maxRadius);
 
-      const approximatePerimeter = 2 * (borderWidth + borderHeight) + 2 * Math.PI * radius;
-      const sampleCount = Math.floor(approximatePerimeter / 2);
+      const approximatePerimeter =
+        2 * (borderWidth + borderHeight) + 2 * Math.PI * radius;
+      const sampleCount = Math.max(
+        24,
+        Math.floor(approximatePerimeter / sampleStep)
+      );
 
       ctx.beginPath();
 
       for (let i = 0; i <= sampleCount; i++) {
         const progress = i / sampleCount;
-
-        const point = getRoundedRectPoint(progress, left, top, borderWidth, borderHeight, radius);
+        const point = getRoundedRectPoint(
+          progress,
+          left,
+          top,
+          borderWidth,
+          borderHeight,
+          radius
+        );
 
         const xNoise = octavedNoise(
           progress * 8,
@@ -283,23 +381,58 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
     });
     resizeObserver.observe(container);
 
-    animationRef.current = requestAnimationFrame(drawElectricBorder);
+    if (inView && fxActive) {
+      lastFrameTimeRef.current = performance.now();
+      animationRef.current = requestAnimationFrame(drawElectricBorder);
+    }
 
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
       resizeObserver.disconnect();
     };
-  }, [color, speed, chaos, borderRadius, octavedNoise, getRoundedRectPoint]);
+  }, [
+    color,
+    speed,
+    chaos,
+    borderRadius,
+    octavedNoise,
+    getRoundedRectPoint,
+    prefersReducedMotion,
+    borderQuality,
+    fxActive,
+    inView,
+  ]);
 
   const vars = {
-    '--electric-border-color': color,
-    borderRadius
+    "--electric-border-color": color,
+    borderRadius,
   } as CSSProperties;
 
+  if (prefersReducedMotion) {
+    return (
+      <div
+        ref={containerRef}
+        className={`electric-border electric-border--static ${className ?? ""}`}
+        style={{
+          ...vars,
+          ...style,
+          boxShadow: `inset 0 0 0 1.5px ${color}`,
+        }}
+      >
+        <div className="eb-content">{children}</div>
+      </div>
+    );
+  }
+
   return (
-    <div ref={containerRef} className={`electric-border ${className ?? ''}`} style={{ ...vars, ...style }}>
+    <div
+      ref={containerRef}
+      className={`electric-border ${className ?? ""}`}
+      style={{ ...vars, ...style }}
+    >
       <div className="eb-canvas-container">
         <canvas ref={canvasRef} className="eb-canvas" />
       </div>
