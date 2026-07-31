@@ -140,10 +140,10 @@ export function Navbar() {
 
       <nav
         className={cn(
-          "fixed inset-y-0 end-0 z-50 flex h-dvh w-[min(24rem,90vw)] max-w-full flex-col border-s border-border/50 bg-background/65 shadow-2xl backdrop-blur-2xl transition-transform duration-300 ease-out lg:hidden",
+          "fixed inset-y-0 start-0 z-50 flex h-dvh w-[min(24rem,90vw)] max-w-full flex-col border-e border-border/50 bg-background/65 shadow-2xl backdrop-blur-2xl transition-transform duration-300 ease-out lg:hidden",
           isOpen
             ? "translate-x-0"
-            : "pointer-events-none ltr:translate-x-full rtl:-translate-x-full",
+            : "pointer-events-none ltr:-translate-x-full rtl:translate-x-full",
         )}
       >
         <div className="flex items-center justify-between border-b border-border/50 px-5 py-4">

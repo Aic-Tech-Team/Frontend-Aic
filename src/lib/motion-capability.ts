@@ -18,8 +18,8 @@ export const NARROW_MQ = "(max-width: 768px)";
 export const FINE_POINTER_MQ = "(pointer: fine)";
 export const REDUCED_MOTION_MQ = "(prefers-reduced-motion: reduce)";
 
-export const PARTICLE_COUNT_DESKTOP = 220;
-export const PARTICLE_COUNT_MOBILE = 100;
+export const PARTICLE_COUNT_DESKTOP = 350;
+export const PARTICLE_COUNT_MOBILE = 300;
 
 export function readMotionCapability(): Omit<MotionCapability, "mounted"> {
   if (typeof window === "undefined") {

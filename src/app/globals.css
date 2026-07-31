@@ -658,6 +658,12 @@
     animation: orbit-spin-rev var(--orbit-duration, 32s) linear infinite;
   }
 
+  .hero-orbit-chip {
+    border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--foreground) 6%, transparent);
+  }
+
   .hero-visual--paused .orbit-ring,
   .hero-visual--paused .orbit-spin,
   .hero-visual--paused .orbit-spin-rev,
@@ -676,6 +682,15 @@
       drop-shadow(
         0 10px 26px color-mix(in srgb, var(--primary) 16%, transparent)
       );
+  }
+
+  /* Mobile: skip expensive drop-shadow blur on SVG */
+  .hero-visual--lite .hero-globe {
+    filter: brightness(1.05) saturate(1.06);
+  }
+
+  [data-theme="light"] .hero-visual--lite .hero-globe {
+    filter: brightness(1.03) saturate(1.08);
   }
 }
 

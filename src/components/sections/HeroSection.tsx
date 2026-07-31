@@ -13,6 +13,7 @@ import ClickSpark from "@/components/animations/ClickSpark";
 import TextType from "@/components/animations/TextType";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useMotionCapability } from "@/hooks/useMotionCapability";
 
 const ORBITS = [
   { size: 76, delay: "0s", dashed: false },
@@ -30,6 +31,8 @@ type FloatStat = {
 };
 
 const ORBIT_DURATION = "36s";
+/** Mobile: slower orbit = less perceived jank while keeping motion */
+const ORBIT_DURATION_LITE = "56s";
 
 export function Hero() {
   const t = useTranslations("Hero");
@@ -68,6 +71,9 @@ export function Hero() {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const visualRef = useRef<HTMLDivElement>(null);
   const [orbitsActive, setOrbitsActive] = useState(true);
+  const { isNarrow } = useMotionCapability();
+  /** Narrow viewport: softer blur / slower orbits — same visual, cheaper paint */
+  const heroLite = isNarrow;
 
   useEffect(() => {
     const el = visualRef.current;
@@ -129,7 +135,7 @@ export function Hero() {
   ];
 
   return (
-    <section className="relative overflow-hidden pb-12 pt-6 sm:pb-20 sm:pt-12 lg:pt-16">
+    <section className="relative overflow-x-clip pb-12 pt-6 sm:pb-20 sm:pt-12 lg:pt-16">
       <div className="container grid min-w-0 items-center gap-10 sm:gap-14 lg:grid-cols-2 lg:gap-16">
         <Reveal direction="up" className="min-w-0 text-center lg:text-start">
           <h1 className="mt-2 max-w-full text-3xl font-extrabold leading-snug tracking-tight break-words text-foreground sm:text-4xl md:text-5xl lg:text-[3rem]">
@@ -144,9 +150,9 @@ export function Hero() {
                 <TextType
                   as="span"
                   text={fullTexts}
-                  typingSpeed={60}
-                  deletingSpeed={35}
-                  pauseDuration={3200}
+                  typingSpeed={heroLite ? 100 : 95}
+                  deletingSpeed={heroLite ? 65 : 55}
+                  pauseDuration={heroLite ? 3700 : 3500}
                   initialDelay={200}
                   loop={true}
                   showCursor
@@ -214,27 +220,39 @@ export function Hero() {
         <div
           ref={visualRef}
           className={cn(
-            "relative mx-auto aspect-square w-full max-w-[340px] sm:max-w-[460px] lg:max-w-[540px]",
-            !orbitsActive && "hero-visual--paused"
+            "relative mx-auto aspect-square w-full max-w-[340px] overflow-visible sm:max-w-[460px] lg:max-w-[540px]",
+            !orbitsActive && "hero-visual--paused",
+            heroLite && "hero-visual--lite"
           )}
         >
         <Reveal
           direction="left"
           delay={0.15}
-          className="relative h-full w-full"
+          className="relative h-full w-full overflow-visible"
         >
-          <div className="pointer-events-none absolute inset-[8%] animate-pulse-glow rounded-full bg-gradient-to-br from-primary-500/20 via-glow-2/10 to-transparent blur-3xl max-md:blur-2xl" />
+          <div
+            className={cn(
+              "pointer-events-none absolute inset-[8%] rounded-full bg-gradient-to-br from-primary-500/20 via-glow-2/10 to-transparent",
+              heroLite
+                ? "opacity-70 blur-xl"
+                : "animate-pulse-glow blur-3xl"
+            )}
+          />
 
-          {/* Mobile: pull orbits slightly inward so chips stay on-screen */}
           <div className="pointer-events-none absolute inset-[6%] sm:inset-0">
             {ORBITS.map((orbit) => (
               <div
                 key={orbit.size}
-                className="orbit-ring absolute left-1/2 top-1/2 rounded-full border border-primary/40"
+                className={cn(
+                  "absolute left-1/2 top-1/2 rounded-full border",
+                  heroLite ? "border-primary/30" : "border-primary/40",
+                  !heroLite && "orbit-ring"
+                )}
                 style={{
                   width: `${orbit.size}%`,
                   height: `${orbit.size}%`,
-                  animationDelay: orbit.delay,
+                  translate: "-50% -50%",
+                  animationDelay: heroLite ? undefined : orbit.delay,
                   borderStyle: orbit.dashed ? "dashed" : "solid",
                   borderWidth: orbit.dashed ? 1.5 : 1.25,
                 }}
@@ -268,7 +286,9 @@ export function Hero() {
                     className="orbit-spin absolute inset-0"
                     style={
                       {
-                        "--orbit-duration": ORBIT_DURATION,
+                        "--orbit-duration": heroLite
+                          ? ORBIT_DURATION_LITE
+                          : ORBIT_DURATION,
                       } as React.CSSProperties
                     }
                   >
@@ -287,11 +307,18 @@ export function Hero() {
                             className="orbit-spin-rev pointer-events-auto"
                             style={
                               {
-                                "--orbit-duration": ORBIT_DURATION,
+                                "--orbit-duration": heroLite
+                                  ? ORBIT_DURATION_LITE
+                                  : ORBIT_DURATION,
                               } as React.CSSProperties
                             }
                           >
-                            <div className="surface flex scale-90 flex-row items-center gap-2 rounded-2xl px-2.5 py-2 sm:scale-100 sm:gap-2.5 sm:px-3.5 sm:py-2.5">
+                            <div
+                              className={cn(
+                                "flex scale-90 flex-row items-center gap-2 rounded-2xl px-2.5 py-2 sm:scale-100 sm:gap-2.5 sm:px-3.5 sm:py-2.5",
+                                heroLite ? "hero-orbit-chip" : "surface"
+                              )}
+                            >
                               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary sm:h-9 sm:w-9">
                                 <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                               </span>
