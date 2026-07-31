@@ -164,12 +164,13 @@ export function Footer() {
             </a>
           </div>
 
-          <figure className="pointer-events-none absolute inset-e-0 top-0 z-20 hidden -translate-y-[75%] sm:block">
+          <figure className="pointer-events-none absolute inset-e-0 top-0 z-20 -translate-y-[75%]">
             <Image
               src="/images/CatTyping.svg"
               alt="typing cat"
               width={75}
               height={75}
+              className="h-14 w-14 sm:h-[75px] sm:w-[75px]"
             />
           </figure>
         </div>
