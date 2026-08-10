@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/animations/Reveal";
+import { Link } from "@/i18n/navigation";
 
 export function SectionBadge({
   icon: Icon,
@@ -36,7 +37,7 @@ export function SectionMoreLink({
   className?: string;
 }) {
   return (
-    <a
+    <Link
       href={href}
       className={cn(
         "surface inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:text-primary-300",
@@ -45,7 +46,7 @@ export function SectionMoreLink({
     >
       {label}
       <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
-    </a>
+    </Link>
   );
 }
 
@@ -84,7 +85,7 @@ export function SectionHeading({
         )}
       >
         <SectionBadge icon={icon}>{badge}</SectionBadge>
-        <h2 className="mt-4 max-w-full text-xl font-extrabold break-words text-foreground sm:mt-5 sm:text-2xl md:text-3xl">
+        <h2 className="mt-4 max-w-full text-xl font-extrabold wrap-break-words text-foreground sm:mt-5 sm:text-2xl md:text-3xl">
           {title}
         </h2>
         {description ? (
