@@ -46,7 +46,7 @@ export async function AboutSection() {
             alt={t("imageAlt")}
             width={900}
             height={700}
-            className="relative z-0 h-[280px] w-full object-contain sm:h-[420px] sm:object-cover md:h-[520px]"
+            className="relative z-0 h-70 w-full object-contain sm:h-105 sm:object-cover md:h-130"
           />
         </Reveal>
       </div>

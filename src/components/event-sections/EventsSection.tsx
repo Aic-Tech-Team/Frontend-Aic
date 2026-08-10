@@ -48,8 +48,8 @@ export async function EventsSection() {
         >
           {items.map((event, index) => (
             <RevealItem key={event.title} direction="up" delay={index * 0.06}>
-              <div className="group aspect-square w-full perspective-[1400px]">
-                <div className="relative h-full w-full transition-transform duration-700 transform-3d group-hover:transform-[rotateY(180deg)] group-focus-within:transform-[rotateY(180deg)]">
+              <div className="group aspect-square w-full perspective[1400px]">
+                <div className="relative h-full w-full transition-transform duration-700 transform-style-3d group-hover:transform-[rotateY(180deg)] group-focus-within:transform-[rotateY(180deg)]">
                   {/* Single border inside the rotating layer — flips with the card */}
                   <div className="pointer-events-none absolute inset-0 z-10">
                     <ElectricBorder
@@ -80,7 +80,7 @@ export async function EventsSection() {
                     </div>
                   </div>
 
-                  <div className="surface absolute inset-0 flex flex-col rounded-3xl p-4 backface-hidden transform:rotateY(180deg)">
+                  <div className="surface absolute inset-0 flex flex-col rounded-3xl p-4 backface-hidden transform-[rotateY(180deg)]">
                     <div className="min-h-0 flex-1">
                       <h3 className="line-clamp-2 wrap-break-words text-base font-bold leading-7 text-foreground">
                         {event.title}

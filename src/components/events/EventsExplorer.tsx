@@ -1,17 +1,17 @@
 "use client";
 
-
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Search, X, CalendarSearch, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Carousel } from "@/components/common/Carousel";
+import { RevealItem } from "@/components/animations/Reveal";
 import { SectionBadge } from "@/components/common/SectionHeading";
+import { EventTicketCard } from "@/components/events/EventTicketCard";
 import { cn } from "@/lib/utils";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
 
-
-// need help to study !
 type FilterKey = "all" | EventStatus;
 
 const FILTER_KEYS: FilterKey[] = ["all", "ongoing", "upcoming", "past"];
@@ -85,6 +85,17 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
               {t("spotlightDescription")}
             </p>
           </div>
+
+          <Carousel
+            ariaLabel={t("spotlightTitle")}
+            slideClassName="flex-[0_0_100%] lg:flex-[0_0_calc((100%-1.25rem)/2)]"
+          >
+            {spotlight.map((event, index) => (
+              <RevealItem key={event.id} direction="up" hoverLift delay={index * 0.06} className="h-full">
+                <EventTicketCard event={event} index={index} />
+              </RevealItem>
+            ))}
+          </Carousel>
         </section>
       ) : null}
 
@@ -136,7 +147,15 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
         {t("resultsCount", { count: results.length })}
       </p>
 
-
+      {results.length > 0 ? (
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+          {results.map((event, index) => (
+            <RevealItem key={event.id} direction="up" delay={(index % 4) * 0.05} className="h-full">
+              <EventTicketCard event={event} index={index} />
+            </RevealItem>
+          ))}
+        </div>
+      ) : (
         <div className="surface flex flex-col items-center gap-4 rounded-3xl px-6 py-16 text-center">
           <CalendarSearch className="h-10 w-10 text-primary-300" />
           <div>
@@ -157,6 +176,7 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
             </Button>
           ) : null}
         </div>
+      )}
     </div>
   );
 }
