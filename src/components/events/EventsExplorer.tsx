@@ -5,14 +5,12 @@ import { useTranslations } from "next-intl";
 import { Search, X, CalendarSearch, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Reveal, RevealItem } from "@/components/animations/Reveal";
+import { Carousel } from "@/components/common/Carousel";
+import { RevealItem } from "@/components/animations/Reveal";
 import { SectionBadge } from "@/components/common/SectionHeading";
 import { EventTicketCard } from "@/components/events/EventTicketCard";
 import { cn } from "@/lib/utils";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
-import { sanitizeSearchInput } from "@/lib/sanitize";
-
-const SEARCH_MAX_LENGTH = 100;
 
 type FilterKey = "all" | EventStatus;
 
@@ -80,13 +78,24 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
   return (
     <div>
       {spotlight.length > 0 ? (
-        <section className="mb-16 sm:mb-24">
-          <div className="mb-8 flex flex-col items-center gap-3 text-center sm:mb-10">
+        <section className="mb-14 sm:mb-20">
+          <div className="mb-6 flex flex-col items-center gap-3 text-center sm:mb-8">
             <SectionBadge icon={Sparkles}>{t("spotlightTitle")}</SectionBadge>
             <p className="max-w-xl text-sm text-muted-foreground sm:text-base">
               {t("spotlightDescription")}
             </p>
           </div>
+
+          <Carousel
+            ariaLabel={t("spotlightTitle")}
+            slideClassName="flex-[0_0_100%] lg:flex-[0_0_calc((100%-1.25rem)/2)]"
+          >
+            {spotlight.map((event, index) => (
+              <RevealItem key={event.id} direction="up" hoverLift delay={index * 0.06} className="h-full">
+                <EventTicketCard event={event} index={index} />
+              </RevealItem>
+            ))}
+          </Carousel>
         </section>
       ) : null}
 
@@ -96,10 +105,7 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
           <Input
             type="text"
             value={query}
-            onChange={(event) =>
-              setQuery(sanitizeSearchInput(event.target.value, SEARCH_MAX_LENGTH))
-            }
-            maxLength={SEARCH_MAX_LENGTH}
+            onChange={(event) => setQuery(event.target.value)}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchLabel")}
             className="ps-10 pe-9"
@@ -142,7 +148,7 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
       </p>
 
       {results.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
+        <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
           {results.map((event, index) => (
             <RevealItem key={event.id} direction="up" delay={(index % 4) * 0.05} className="h-full">
               <EventTicketCard event={event} index={index} />
