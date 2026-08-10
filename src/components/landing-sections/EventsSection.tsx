@@ -48,8 +48,8 @@ export async function EventsSection() {
         >
           {items.map((event, index) => (
             <RevealItem key={event.title} direction="up" delay={index * 0.06}>
-              <div className="group aspect-square w-full perspective-[1400px]">
-                <div className="relative h-full w-full transition-transform duration-700 transform-style-3d group-hover:transform[rotateY(180deg)] group-focus-within:transform[rotateY(180deg)]">
+              <div className="group aspect-square w-full [perspective:1400px]">
+                <div className="relative h-full w-full transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] group-focus-within:[transform:rotateY(180deg)]">
                   {/* Single border inside the rotating layer — flips with the card */}
                   <div className="pointer-events-none absolute inset-0 z-10">
                     <ElectricBorder
@@ -61,7 +61,7 @@ export async function EventsSection() {
                     />
                   </div>
 
-                  <div className="absolute inset-0 flex flex-col overflow-hidden rounded-3xl backface-hidden">
+                  <div className="absolute inset-0 flex flex-col overflow-hidden rounded-3xl [backface-visibility:hidden]">
                     <div className="relative aspect-square w-full shrink-0 overflow-hidden">
                       <Image
                         src={eventImages[index] ?? eventImages[0]}
@@ -70,7 +70,7 @@ export async function EventsSection() {
                         sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                         className="object-cover"
                       />
-                      <div className="absolute inset-0 bg-linear-0-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-6">
                         <h3 className="text-lg font-bold leading-7 text-white">
                           {event.title}
@@ -80,12 +80,12 @@ export async function EventsSection() {
                     </div>
                   </div>
 
-                  <div className="surface absolute inset-0 flex flex-col rounded-3xl p-4 backface-visibility-hidden transform-[rotateY(180deg)]">
+                  <div className="surface absolute inset-0 flex flex-col rounded-3xl p-4 [backface-visibility:hidden] [transform:rotateY(180deg)]">
                     <div className="min-h-0 flex-1">
-                      <h3 className="line-clamp-2 wrap-break-words text-base font-bold leading-7 text-foreground">
+                      <h3 className="line-clamp-2 break-words text-base font-bold leading-7 text-foreground">
                         {event.title}
                       </h3>
-                      <p className="mt-2 line-clamp-5 wrap-break-words text-sm leading-7 text-muted-foreground">
+                      <p className="mt-2 line-clamp-5 break-words text-sm leading-7 text-muted-foreground">
                         {event.desc}
                       </p>
                     </div>
