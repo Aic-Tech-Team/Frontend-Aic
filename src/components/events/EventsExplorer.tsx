@@ -6,6 +6,7 @@ import { Search, X, CalendarSearch } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RevealItem } from "@/components/animations/Reveal";
+import { Carousel } from "@/components/common/Carousel";
 import { EventTicketCard } from "@/components/events/EventTicketCard";
 import { sanitizeSearchInput } from "@/lib/sanitize";
 import { cn } from "@/lib/utils";
@@ -48,7 +49,13 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
       if (filter !== "all" && event.status !== filter) return false;
       if (!term) return true;
 
-      const haystack = [event.title, event.speaker, event.desc, event.location, event.category]
+      const haystack = [
+        event.title,
+        event.speaker,
+        event.desc,
+        event.location,
+        event.category,
+      ]
         .filter(Boolean)
         .join(" ")
         .toLocaleLowerCase();
@@ -59,9 +66,15 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
     if (filter === "past") return filtered.sort(sortByStartDesc);
     if (filter !== "all") return filtered.sort(sortByStartAsc);
 
-    const ongoing = filtered.filter((e) => e.status === "ongoing").sort(sortByStartAsc);
-    const upcoming = filtered.filter((e) => e.status === "upcoming").sort(sortByStartAsc);
-    const past = filtered.filter((e) => e.status === "past").sort(sortByStartDesc);
+    const ongoing = filtered
+      .filter((e) => e.status === "ongoing")
+      .sort(sortByStartAsc);
+    const upcoming = filtered
+      .filter((e) => e.status === "upcoming")
+      .sort(sortByStartAsc);
+    const past = filtered
+      .filter((e) => e.status === "past")
+      .sort(sortByStartDesc);
     return [...ongoing, ...upcoming, ...past];
   }, [events, filter, query]);
 
@@ -69,6 +82,55 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
 
   return (
     <div>
+      <div className="mb-6">
+        <Carousel
+          ariaLabel={t("title")}
+          slideClassName="flex-[0_0_100%] sm:flex-[0_0_calc((100%-1rem)/2)] lg:flex-[0_0_calc((100%-2rem)/3)]"
+          options={{
+            loop: false,
+            slidesToScroll: 1,
+          }}
+        >
+          {events.slice(0, 5).map((event, index) => (
+            <div
+              key={event.id}
+              className="group relative h-52 overflow-hidden rounded-3xl"
+            >
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{
+                  backgroundImage: `linear-gradient(135deg, rgba(10,10,20,0.18), rgba(10,10,20,0.75)), url(${event.image})`,
+                }}
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+              <div className="relative flex h-full flex-col justify-end p-4 text-white sm:p-5">
+                <span className="mb-2 w-fit rounded-full border border-white/20 bg-black/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider backdrop-blur-sm">
+                  {t(`status.${event.status}`)}
+                </span>
+                <h3 className="line-clamp-2 text-base font-bold leading-snug sm:text-lg">
+                  {event.title}
+                </h3>
+                <p className="mt-1 text-xs text-white/70 sm:text-sm">
+                  {event.dateLabel}
+                </p>
+                <div className="mt-3 flex items-center gap-2 text-[11px] text-white/80">
+                  <span className="rounded-full bg-white/10 px-2 py-1">
+                    {event.category}
+                  </span>
+                  {index % 2 === 0 ? (
+                    <span className="rounded-full bg-white/10 px-2 py-1">
+                      {event.location}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ))}
+        </Carousel>
+      </div>
+
       <div className="surface flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="relative w-full sm:max-w-sm">
           <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -76,7 +138,9 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
             type="text"
             value={query}
             onChange={(event) =>
-              setQuery(sanitizeSearchInput(event.target.value, SEARCH_MAX_LENGTH))
+              setQuery(
+                sanitizeSearchInput(event.target.value, SEARCH_MAX_LENGTH),
+              )
             }
             maxLength={SEARCH_MAX_LENGTH}
             placeholder={t("searchPlaceholder")}
@@ -123,7 +187,12 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
       {results.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
           {results.map((event, index) => (
-            <RevealItem key={event.id} direction="up" delay={(index % 4) * 0.05} className="h-full">
+            <RevealItem
+              key={event.id}
+              direction="up"
+              delay={(index % 4) * 0.05}
+              className="h-full"
+            >
               <EventTicketCard event={event} index={index} />
             </RevealItem>
           ))}
@@ -132,8 +201,12 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
         <div className="surface flex flex-col items-center gap-4 rounded-3xl px-6 py-16 text-center">
           <CalendarSearch className="h-10 w-10 text-primary-300" />
           <div>
-            <h3 className="text-lg font-bold text-foreground">{t("noResultsTitle")}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">{t("noResultsDesc")}</p>
+            <h3 className="text-lg font-bold text-foreground">
+              {t("noResultsTitle")}
+            </h3>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {t("noResultsDesc")}
+            </p>
           </div>
           {hasSearchOrFilter ? (
             <Button
