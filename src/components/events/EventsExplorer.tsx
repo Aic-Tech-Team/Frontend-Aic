@@ -2,15 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Search, X, CalendarSearch, Sparkles } from "lucide-react";
+import { Search, X, CalendarSearch } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Carousel } from "@/components/common/Carousel";
 import { RevealItem } from "@/components/animations/Reveal";
-import { SectionBadge } from "@/components/common/SectionHeading";
 import { EventTicketCard } from "@/components/events/EventTicketCard";
+import { sanitizeSearchInput } from "@/lib/sanitize";
 import { cn } from "@/lib/utils";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
+
+const SEARCH_MAX_LENGTH = 100;
 
 type FilterKey = "all" | EventStatus;
 
@@ -40,15 +41,6 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
     return base;
   }, [events]);
 
-  const spotlight = useMemo(
-    () =>
-      events
-        .filter((event) => event.status === "ongoing" || event.status === "upcoming")
-        .sort(sortByStartAsc)
-        .slice(0, 4),
-    [events],
-  );
-
   const results = useMemo(() => {
     const term = query.trim().toLocaleLowerCase();
 
@@ -77,35 +69,16 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
 
   return (
     <div>
-      {spotlight.length > 0 ? (
-        <section className="mb-14 sm:mb-20">
-          <div className="mb-6 flex flex-col items-center gap-3 text-center sm:mb-8">
-            <SectionBadge icon={Sparkles}>{t("spotlightTitle")}</SectionBadge>
-            <p className="max-w-xl text-sm text-muted-foreground sm:text-base">
-              {t("spotlightDescription")}
-            </p>
-          </div>
-
-          <Carousel
-            ariaLabel={t("spotlightTitle")}
-            slideClassName="flex-[0_0_100%] lg:flex-[0_0_calc((100%-1.25rem)/2)]"
-          >
-            {spotlight.map((event, index) => (
-              <RevealItem key={event.id} direction="up" hoverLift delay={index * 0.06} className="h-full">
-                <EventTicketCard event={event} index={index} />
-              </RevealItem>
-            ))}
-          </Carousel>
-        </section>
-      ) : null}
-
       <div className="surface flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="relative w-full sm:max-w-sm">
-          <Search className="pointer-events-none absolute inset-s-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) =>
+              setQuery(sanitizeSearchInput(event.target.value, SEARCH_MAX_LENGTH))
+            }
+            maxLength={SEARCH_MAX_LENGTH}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchLabel")}
             className="ps-10 pe-9"
@@ -115,7 +88,7 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
               type="button"
               onClick={() => setQuery("")}
               aria-label={t("clearFilters")}
-              className="absolute inset-e-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+              className="absolute end-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -148,7 +121,7 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
       </p>
 
       {results.length > 0 ? (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
           {results.map((event, index) => (
             <RevealItem key={event.id} direction="up" delay={(index % 4) * 0.05} className="h-full">
               <EventTicketCard event={event} index={index} />
