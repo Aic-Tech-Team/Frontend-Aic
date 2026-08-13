@@ -17,7 +17,7 @@ export function Footer() {
 
   const quickLinks = [
     { label: tFooter("home"), href: "/" },
-    { label: tFooter("events"), href: "/#events" },
+    { label: tFooter("events"), href: "/events" },
     { label: tFooter("activities"), href: "/#activities" },
     { label: tFooter("blog"), href: "/#blog" },
     { label: tFooter("about"), href: "/about" },
@@ -25,9 +25,9 @@ export function Footer() {
 
   const activityLinks = [
     { label: tFooter("workshops"), href: "/#activities" },
-    { label: tFooter("conferences"), href: "/#events" },
+    { label: tFooter("conferences"), href: "/events" },
     { label: tFooter("visits"), href: "/#activities" },
-    { label: tFooter("contests"), href: "/#events" },
+    { label: tFooter("contests"), href: "/events" },
     { label: tFooter("research"), href: "/#teams" },
   ];
 
@@ -101,7 +101,7 @@ export function Footer() {
                       className="group relative inline-block pb-1.5 pt-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {link.label}
-                      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
                     </Link>
                   </li>
                 ))}
@@ -120,7 +120,7 @@ export function Footer() {
                       className="group relative inline-block pb-1.5 pt-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {link.label}
-                      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
                     </Link>
                   </li>
                 ))}
@@ -137,11 +137,11 @@ export function Footer() {
               <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2.5">
                   <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary-300" />
-                  <span className="min-w-0 break-words">{tFooter("email")}</span>
+                  <span className="min-w-0 wrap-break-words">{tFooter("email")}</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary-300" />
-                  <span className="min-w-0 break-words">{tFooter("address")}</span>
+                  <span className="min-w-0 wrap-break-words">{tFooter("address")}</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary-300" />
@@ -164,13 +164,13 @@ export function Footer() {
             </a>
           </div>
 
-          <figure className="pointer-events-none absolute inset-e-0 top-0 z-20 -translate-y-[75%]">
+          <figure className="pointer-events-none absolute inset-e-0 top-0 z-20 translate-y-[-75%]">
             <Image
               src="/images/CatTyping.svg"
               alt="typing cat"
               width={75}
               height={75}
-              className="h-14 w-14 sm:h-[75px] sm:w-[75px]"
+              className="h-14 w-14 sm:h-18.75 sm:w-18.75"
             />
           </figure>
         </div>

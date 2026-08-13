@@ -19,7 +19,7 @@ export function Navbar() {
 
   const navLinks = [
     { href: "/", label: tNav("home"), icon: Ticket },
-    { href: "/#events", label: tNav("events"), icon: Ticket },
+    { href: "/events", label: tNav("events"), icon: Ticket },
     { href: "/#activities", label: tNav("activities"), icon: CalendarClock },
     { href: "/#teams", label: tNav("teams"), icon: Layers },
     { href: "/#blog", label: tNav("blog"), icon: BookOpen },
@@ -92,7 +92,7 @@ export function Navbar() {
                 className="group relative px-3.5 py-2 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
               >
                 {link.label}
-                <span className="pointer-events-none absolute inset-x-1 bottom-1 h-[2px] origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                <span className="pointer-events-none absolute inset-x-1 bottom-1 h-0.5 origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
               </Link>
             ))}
           </nav>
@@ -140,7 +140,7 @@ export function Navbar() {
 
       <nav
         className={cn(
-          "fixed inset-y-0 start-0 z-50 flex h-dvh w-[min(24rem,90vw)] max-w-full flex-col border-e border-border/50 bg-background/65 shadow-2xl backdrop-blur-2xl transition-transform duration-300 ease-out lg:hidden",
+          "fixed inset-y-0 inset-s-0 z-50 flex h-dvh w-[min(24rem,90vw)] max-w-full flex-col border-e border-border/50 bg-background/65 shadow-2xl backdrop-blur-2xl transition-transform duration-300 ease-out lg:hidden",
           isOpen
             ? "translate-x-0"
             : "pointer-events-none ltr:-translate-x-full rtl:translate-x-full",
