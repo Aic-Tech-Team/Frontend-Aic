@@ -1,10 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Search, X, CalendarSearch } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { RevealItem } from "@/components/animations/Reveal";
 import { Carousel } from "@/components/common/Carousel";
 import { EventTicketCard } from "@/components/events/EventTicketCard";
@@ -13,10 +22,28 @@ import { cn } from "@/lib/utils";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
 
 const SEARCH_MAX_LENGTH = 100;
+const PAGE_SIZE = 6;
 
 type FilterKey = "all" | EventStatus;
 
 const FILTER_KEYS: FilterKey[] = ["all", "ongoing", "upcoming", "past"];
+
+/** Builds a compact page list with `null` standing in for an ellipsis. */
+function getPaginationRange(current: number, total: number): (number | null)[] {
+  const siblings = 1;
+  const range: (number | null)[] = [];
+
+  const start = Math.max(2, current - siblings);
+  const end = Math.min(total - 1, current + siblings);
+
+  range.push(1);
+  if (start > 2) range.push(null);
+  for (let page = start; page <= end; page += 1) range.push(page);
+  if (end < total - 1) range.push(null);
+  if (total > 1) range.push(total);
+
+  return range;
+}
 
 function sortByStartAsc(a: EventItemWithStatus, b: EventItemWithStatus) {
   return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
@@ -28,8 +55,11 @@ function sortByStartDesc(a: EventItemWithStatus, b: EventItemWithStatus) {
 
 export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
   const t = useTranslations("EventsPage");
+  const locale = useLocale();
+  const isFa = locale === "fa";
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [page, setPage] = useState(1);
 
   const counts = useMemo(() => {
     const base: Record<FilterKey, number> = {
@@ -80,12 +110,32 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
 
   const hasSearchOrFilter = query.trim().length > 0 || filter !== "all";
 
+  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, filter]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const paginatedResults = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return results.slice(start, start + PAGE_SIZE);
+  }, [results, page]);
+
+  const paginationRange = useMemo(
+    () => getPaginationRange(page, totalPages),
+    [page, totalPages],
+  );
+
   return (
     <div>
       <div className="mb-6">
         <Carousel
           ariaLabel={t("title")}
-          slideClassName="flex-[0_0_100%] sm:flex-[0_0_calc((100%-1rem)/2)] lg:flex-[0_0_calc((100%-2rem)/3)]"
+          slideClassName="flex-[0_0_100%] sm:flex-[0_0_calc((100%-1.25rem)/2)] lg:flex-[0_0_calc((100%-2.5rem)/3)]"
           options={{
             loop: false,
             slidesToScroll: 1,
@@ -185,18 +235,64 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
       </p>
 
       {results.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
-          {results.map((event, index) => (
-            <RevealItem
-              key={event.id}
-              direction="up"
-              delay={(index % 4) * 0.05}
-              className="h-full"
-            >
-              <EventTicketCard event={event} index={index} />
-            </RevealItem>
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
+            {paginatedResults.map((event, index) => (
+              <RevealItem
+                key={event.id}
+                direction="up"
+                delay={(index % 4) * 0.05}
+                className="h-full"
+              >
+                <EventTicketCard event={event} index={index} />
+              </RevealItem>
+            ))}
+          </div>
+
+          {totalPages > 1 ? (
+            <Pagination className="mt-8">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    label={isFa ? "صفحه قبلی" : "Previous page"}
+                    disabled={page === 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  />
+                </PaginationItem>
+
+                {paginationRange.map((pageNumber, index) =>
+                  pageNumber === null ? (
+                    <PaginationItem key={`ellipsis-${index}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={pageNumber}>
+                      <PaginationLink
+                        isActive={pageNumber === page}
+                        aria-label={
+                          isFa
+                            ? `رفتن به صفحه ${pageNumber}`
+                            : `Go to page ${pageNumber}`
+                        }
+                        onClick={() => setPage(pageNumber)}
+                      >
+                        {pageNumber.toLocaleString(isFa ? "fa-IR" : "en-US")}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ),
+                )}
+
+                <PaginationItem>
+                  <PaginationNext
+                    label={isFa ? "صفحه بعدی" : "Next page"}
+                    disabled={page === totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          ) : null}
+        </>
       ) : (
         <div className="surface flex flex-col items-center gap-4 rounded-3xl px-6 py-16 text-center">
           <CalendarSearch className="h-10 w-10 text-primary-300" />
