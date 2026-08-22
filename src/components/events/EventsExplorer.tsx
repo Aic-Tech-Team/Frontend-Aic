@@ -1,65 +1,90 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { Search, X, CalendarSearch } from "lucide-react";
+import { useCallback, useMemo, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { RevealItem } from "@/components/animations/Reveal";
 import { Carousel } from "@/components/common/Carousel";
-import { EventTicketCard } from "@/components/events/EventTicketCard";
 import { sanitizeSearchInput } from "@/lib/sanitize";
 import { cn } from "@/lib/utils";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
 
 const SEARCH_MAX_LENGTH = 100;
-const PAGE_SIZE = 6;
 
 type FilterKey = "all" | EventStatus;
 
 const FILTER_KEYS: FilterKey[] = ["all", "ongoing", "upcoming", "past"];
 
-/** Builds a compact page list with `null` standing in for an ellipsis. */
-function getPaginationRange(current: number, total: number): (number | null)[] {
-  const siblings = 1;
-  const range: (number | null)[] = [];
-
-  const start = Math.max(2, current - siblings);
-  const end = Math.min(total - 1, current + siblings);
-
-  range.push(1);
-  if (start > 2) range.push(null);
-  for (let page = start; page <= end; page += 1) range.push(page);
-  if (end < total - 1) range.push(null);
-  if (total > 1) range.push(total);
-
-  return range;
+interface EventsExplorerProps {
+  /** All events (unfiltered) — used only for the spotlight carousel and badge counts. */
+  events: EventItemWithStatus[];
+  /** Total events matching the current server-side filter/query (for the results label). */
+  totalCount: number;
+  /** Server-rendered grid + pagination passed in from the page. */
+  children: React.ReactNode;
 }
 
-function sortByStartAsc(a: EventItemWithStatus, b: EventItemWithStatus) {
-  return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
-}
-
-function sortByStartDesc(a: EventItemWithStatus, b: EventItemWithStatus) {
-  return new Date(b.startAt).getTime() - new Date(a.startAt).getTime();
-}
-
-export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
+export function EventsExplorer({
+  events,
+  totalCount,
+  children,
+}: EventsExplorerProps) {
   const t = useTranslations("EventsPage");
-  const locale = useLocale();
-  const isFa = locale === "fa";
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<FilterKey>("all");
-  const [page, setPage] = useState(1);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [, startTransition] = useTransition();
+
+  const currentQuery = searchParams.get("q") ?? "";
+  const currentFilter = (searchParams.get("filter") ?? "all") as FilterKey;
+
+  /** Build a new href preserving all current params, then overriding the given ones. */
+  const buildHref = useCallback(
+    (overrides: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const [key, value] of Object.entries(overrides)) {
+        if (value === null || value === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      }
+      // Always reset to page 1 when search/filter changes
+      params.delete("page");
+      const qs = params.toString();
+      return qs ? `${pathname}?${qs}` : pathname;
+    },
+    [pathname, searchParams],
+  );
+
+  const handleQueryChange = useCallback(
+    (value: string) => {
+      const sanitized = sanitizeSearchInput(value, SEARCH_MAX_LENGTH);
+      startTransition(() => {
+        router.push(buildHref({ q: sanitized || null }), { scroll: false });
+      });
+    },
+    [buildHref, router],
+  );
+
+  const handleFilterChange = useCallback(
+    (key: FilterKey) => {
+      startTransition(() => {
+        router.push(buildHref({ filter: key === "all" ? null : key }), {
+          scroll: false,
+        });
+      });
+    },
+    [buildHref, router],
+  );
+
+  const handleClearAll = useCallback(() => {
+    startTransition(() => {
+      router.push(pathname, { scroll: false });
+    });
+  }, [pathname, router]);
 
   const counts = useMemo(() => {
     const base: Record<FilterKey, number> = {
@@ -72,74 +97,17 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
     return base;
   }, [events]);
 
-  const results = useMemo(() => {
-    const term = query.trim().toLocaleLowerCase();
-
-    const filtered = events.filter((event) => {
-      if (filter !== "all" && event.status !== filter) return false;
-      if (!term) return true;
-
-      const haystack = [
-        event.title,
-        event.speaker,
-        event.desc,
-        event.location,
-        event.category,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLocaleLowerCase();
-
-      return haystack.includes(term);
-    });
-
-    if (filter === "past") return filtered.sort(sortByStartDesc);
-    if (filter !== "all") return filtered.sort(sortByStartAsc);
-
-    const ongoing = filtered
-      .filter((e) => e.status === "ongoing")
-      .sort(sortByStartAsc);
-    const upcoming = filtered
-      .filter((e) => e.status === "upcoming")
-      .sort(sortByStartAsc);
-    const past = filtered
-      .filter((e) => e.status === "past")
-      .sort(sortByStartDesc);
-    return [...ongoing, ...upcoming, ...past];
-  }, [events, filter, query]);
-
-  const hasSearchOrFilter = query.trim().length > 0 || filter !== "all";
-
-  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
-
-  useEffect(() => {
-    setPage(1);
-  }, [query, filter]);
-
-  useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [page, totalPages]);
-
-  const paginatedResults = useMemo(() => {
-    const start = (page - 1) * PAGE_SIZE;
-    return results.slice(start, start + PAGE_SIZE);
-  }, [results, page]);
-
-  const paginationRange = useMemo(
-    () => getPaginationRange(page, totalPages),
-    [page, totalPages],
-  );
+  const hasSearchOrFilter =
+    currentQuery.trim().length > 0 || currentFilter !== "all";
 
   return (
     <div>
+      {/* Spotlight carousel — always shows top 5 events regardless of filter */}
       <div className="mb-6">
         <Carousel
           ariaLabel={t("title")}
           slideClassName="flex-[0_0_100%] sm:flex-[0_0_calc((100%-1.25rem)/2)] lg:flex-[0_0_calc((100%-2.5rem)/3)]"
-          options={{
-            loop: false,
-            slidesToScroll: 1,
-          }}
+          options={{ loop: false, slidesToScroll: 1 }}
         >
           {events.slice(0, 5).map((event, index) => (
             <div
@@ -152,9 +120,7 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
                   backgroundImage: `linear-gradient(135deg, rgba(10,10,20,0.18), rgba(10,10,20,0.75)), url(${event.image})`,
                 }}
               />
-
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
               <div className="relative flex h-full flex-col justify-end p-4 text-white sm:p-5">
                 <span className="mb-2 w-fit rounded-full border border-white/20 bg-black/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider backdrop-blur-sm">
                   {t(`status.${event.status}`)}
@@ -181,26 +147,23 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
         </Carousel>
       </div>
 
+      {/* Search + filter bar */}
       <div className="surface flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="relative w-full sm:max-w-sm">
           <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
-            value={query}
-            onChange={(event) =>
-              setQuery(
-                sanitizeSearchInput(event.target.value, SEARCH_MAX_LENGTH),
-              )
-            }
+            value={currentQuery}
+            onChange={(e) => handleQueryChange(e.target.value)}
             maxLength={SEARCH_MAX_LENGTH}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchLabel")}
             className="ps-10 pe-9"
           />
-          {query ? (
+          {currentQuery ? (
             <button
               type="button"
-              onClick={() => setQuery("")}
+              onClick={() => handleQueryChange("")}
               aria-label={t("clearFilters")}
               className="absolute end-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
             >
@@ -214,11 +177,11 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
             <button
               key={key}
               type="button"
-              onClick={() => setFilter(key)}
-              aria-pressed={filter === key}
+              onClick={() => handleFilterChange(key)}
+              aria-pressed={currentFilter === key}
               className={cn(
                 "rounded-full px-3.5 py-2 text-xs font-medium transition-colors sm:text-sm",
-                filter === key
+                currentFilter === key
                   ? "bg-primary text-primary-foreground shadow-glow"
                   : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
@@ -230,72 +193,17 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
         </div>
       </div>
 
+      {/* Results count */}
       <p className="mb-6 mt-5 text-sm text-muted-foreground">
-        {t("resultsCount", { count: results.length })}
+        {t("resultsCount", { count: totalCount })}
       </p>
 
-      {results.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
-            {paginatedResults.map((event, index) => (
-              <RevealItem
-                key={event.id}
-                direction="up"
-                delay={(index % 4) * 0.05}
-                className="h-full"
-              >
-                <EventTicketCard event={event} index={index} />
-              </RevealItem>
-            ))}
-          </div>
-
-          {totalPages > 1 ? (
-            <Pagination className="mt-8">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    label={isFa ? "صفحه قبلی" : "Previous page"}
-                    disabled={page === 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  />
-                </PaginationItem>
-
-                {paginationRange.map((pageNumber, index) =>
-                  pageNumber === null ? (
-                    <PaginationItem key={`ellipsis-${index}`}>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  ) : (
-                    <PaginationItem key={pageNumber}>
-                      <PaginationLink
-                        isActive={pageNumber === page}
-                        aria-label={
-                          isFa
-                            ? `رفتن به صفحه ${pageNumber}`
-                            : `Go to page ${pageNumber}`
-                        }
-                        onClick={() => setPage(pageNumber)}
-                      >
-                        {pageNumber.toLocaleString(isFa ? "fa-IR" : "en-US")}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ),
-                )}
-
-                <PaginationItem>
-                  <PaginationNext
-                    label={isFa ? "صفحه بعدی" : "Next page"}
-                    disabled={page === totalPages}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          ) : null}
-        </>
+      {/* Server-rendered event grid + pagination (or empty state) */}
+      {totalCount > 0 ? (
+        children
       ) : (
         <div className="surface flex flex-col items-center gap-4 rounded-3xl px-6 py-16 text-center">
-          <CalendarSearch className="h-10 w-10 text-primary-300" />
+          <Search className="h-10 w-10 text-primary-300" />
           <div>
             <h3 className="text-lg font-bold text-foreground">
               {t("noResultsTitle")}
@@ -309,10 +217,7 @@ export function EventsExplorer({ events }: { events: EventItemWithStatus[] }) {
               variant="outline"
               size="sm"
               className="rounded-xl"
-              onClick={() => {
-                setQuery("");
-                setFilter("all");
-              }}
+              onClick={handleClearAll}
             >
               {t("clearFilters")}
             </Button>
