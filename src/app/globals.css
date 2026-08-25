@@ -224,6 +224,140 @@
 }
 
 @layer base {
+  /* Ticket-shaped card: true transparent scalloped bites cut into the
+     left/right edges via CSS masking (not painted circles), so whatever
+     sits behind the card — including the animated blob background —
+     shows through correctly in both themes and through hover states. */
+  .real-ticket-mask {
+    --ticket-notch: 8px; /* bite radius */
+    --ticket-gap: 24px; /* distance between bite centers (>= 2 * notch) */
+    /* the two large notches that sit on the perforation strip between the
+       image stub and the content (desktop only); x is measured from the
+       physical left edge and flipped for rtl below */
+    --ticket-divider-notch: 12px;
+    --ticket-divider-x: 14rem;
+
+    -webkit-mask-image: radial-gradient(
+        circle at 0 var(--ticket-notch),
+        transparent var(--ticket-notch),
+        #000 calc(var(--ticket-notch) + 0.5px)
+      ),
+      radial-gradient(
+        circle at 100% var(--ticket-notch),
+        transparent var(--ticket-notch),
+        #000 calc(var(--ticket-notch) + 0.5px)
+      ),
+      radial-gradient(
+        circle at var(--ticket-divider-x) 0,
+        transparent var(--ticket-divider-notch),
+        #000 calc(var(--ticket-divider-notch) + 0.5px)
+      ),
+      radial-gradient(
+        circle at var(--ticket-divider-x) 100%,
+        transparent var(--ticket-divider-notch),
+        #000 calc(var(--ticket-divider-notch) + 0.5px)
+      );
+    -webkit-mask-repeat: repeat-y, repeat-y, no-repeat, no-repeat;
+    -webkit-mask-size: 100% var(--ticket-gap), 100% var(--ticket-gap), 100% 100%,
+      100% 100%;
+    -webkit-mask-position: 0 calc(-1 * var(--ticket-notch)),
+      0 calc(-1 * var(--ticket-notch)), 0 0, 0 0;
+    -webkit-mask-composite: source-in, source-in, source-in;
+
+    mask-image: radial-gradient(
+        circle at 0 var(--ticket-notch),
+        transparent var(--ticket-notch),
+        #000 calc(var(--ticket-notch) + 0.5px)
+      ),
+      radial-gradient(
+        circle at 100% var(--ticket-notch),
+        transparent var(--ticket-notch),
+        #000 calc(var(--ticket-notch) + 0.5px)
+      ),
+      radial-gradient(
+        circle at var(--ticket-divider-x) 0,
+        transparent var(--ticket-divider-notch),
+        #000 calc(var(--ticket-divider-notch) + 0.5px)
+      ),
+      radial-gradient(
+        circle at var(--ticket-divider-x) 100%,
+        transparent var(--ticket-divider-notch),
+        #000 calc(var(--ticket-divider-notch) + 0.5px)
+      );
+    mask-repeat: repeat-y, repeat-y, no-repeat, no-repeat;
+    mask-size: 100% var(--ticket-gap), 100% var(--ticket-gap), 100% 100%, 100% 100%;
+    mask-position: 0 calc(-1 * var(--ticket-notch)), 0 calc(-1 * var(--ticket-notch)),
+      0 0, 0 0;
+    mask-composite: intersect, intersect, intersect;
+  }
+
+  /* mirror the divider notch x-position for rtl locales, since flex-row
+     places the image stub on the physical right side there */
+  html[dir="rtl"] .real-ticket-mask {
+    --ticket-divider-x: calc(100% - 14rem);
+  }
+
+  @media (max-width: 767px) {
+    .real-ticket-mask {
+      /* On the stacked (mobile) layout the card's long edges are top/bottom */
+      -webkit-mask-image: radial-gradient(
+          circle at var(--ticket-notch) 0,
+          transparent var(--ticket-notch),
+          #000 calc(var(--ticket-notch) + 0.5px)
+        ),
+        radial-gradient(
+          circle at var(--ticket-notch) 100%,
+          transparent var(--ticket-notch),
+          #000 calc(var(--ticket-notch) + 0.5px)
+        );
+      -webkit-mask-repeat: repeat-x, repeat-x;
+      -webkit-mask-size: var(--ticket-gap) 100%, var(--ticket-gap) 100%;
+      -webkit-mask-position: calc(-1 * var(--ticket-notch)) 0,
+        calc(-1 * var(--ticket-notch)) 0;
+      -webkit-mask-composite: source-in;
+
+      mask-image: radial-gradient(
+          circle at var(--ticket-notch) 0,
+          transparent var(--ticket-notch),
+          #000 calc(var(--ticket-notch) + 0.5px)
+        ),
+        radial-gradient(
+          circle at var(--ticket-notch) 100%,
+          transparent var(--ticket-notch),
+          #000 calc(var(--ticket-notch) + 0.5px)
+        );
+      mask-repeat: repeat-x, repeat-x;
+      mask-size: var(--ticket-gap) 100%, var(--ticket-gap) 100%;
+      mask-position: calc(-1 * var(--ticket-notch)) 0, calc(-1 * var(--ticket-notch)) 0;
+      mask-composite: intersect;
+    }
+  }
+
+  .ticket-connector-vertical {
+    --ticket-hole-size: 28px;
+    --ticket-hole-offset: calc(var(--ticket-hole-size) / 2);
+  }
+
+  .ticket-connector-vertical::before,
+  .ticket-connector-vertical::after {
+    content: "";
+    position: absolute;
+    left: calc(-1 * var(--ticket-hole-offset));
+    width: var(--ticket-hole-size);
+    height: var(--ticket-hole-size);
+    border-radius: 9999px;
+    background: var(--background);
+    pointer-events: none;
+  }
+
+  .ticket-connector-vertical::before {
+    top: calc(-1 * var(--ticket-hole-offset));
+  }
+
+  .ticket-connector-vertical::after {
+    bottom: calc(-1 * var(--ticket-hole-offset));
+  }
+
   html {
     scroll-behavior: smooth;
     overflow-x: clip;

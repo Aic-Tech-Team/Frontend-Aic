@@ -86,14 +86,14 @@ export async function ActivitiesSection() {
                             sizes="(min-width: 1536px) 176px, (min-width: 1280px) 160px, (min-width: 1024px) 128px, (min-width: 768px) 144px, (min-width: 640px) 128px, 112px"
                             className="object-cover"
                           />
-                          <Icon className="absolute bottom-2 start-2 h-4 w-4 text-white drop-shadow sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-4 lg:w-4 xl:h-5 xl:w-5" />
+                          <Icon className="absolute bottom-2 inset-s-2 h-4 w-4 text-white drop-shadow sm:h-4 sm:w-4 md:h-5 md:w-5 lg:h-4 lg:w-4 xl:h-5 xl:w-5" />
                         </div>
 
                         <div className="flex min-w-0 flex-1 flex-col py-0.5">
-                          <h3 className="line-clamp-2 break-words text-[12px] font-bold leading-6 text-foreground sm:text-[13px] sm:leading-7 lg:text-sm lg:leading-7">
+                          <h3 className="line-clamp-2 wrap-break-words text-[12px] font-bold leading-6 text-foreground sm:text-[13px] sm:leading-7 lg:text-sm lg:leading-7">
                             {item.title}
                           </h3>
-                          <p className="mt-1.5 line-clamp-2 break-words text-[10px] leading-5 text-muted-foreground sm:mt-2 sm:line-clamp-3 sm:text-[11px] sm:leading-6 lg:text-xs lg:leading-6">
+                          <p className="mt-1.5 line-clamp-2 wrap-break-words text-[10px] leading-5 text-muted-foreground sm:mt-2 sm:line-clamp-3 sm:text-[11px] sm:leading-6 lg:text-xs lg:leading-6">
                             {item.desc}
                           </p>
                           <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2.5 sm:mt-4 sm:pt-3">

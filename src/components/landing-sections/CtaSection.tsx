@@ -23,7 +23,7 @@ export async function CtaSection() {
           lightModeBoost={2.5}
         >
           <div className="surface relative w-full overflow-hidden rounded-[inherit] border-0 px-5 py-12 text-center sm:px-12 sm:py-16">
-            <div className="pointer-events-none absolute -top-24 start-1/2 z-0 h-64 w-64 -translate-x-1/2 rounded-full bg-primary-500/25 blur-[100px]" />
+            <div className="pointer-events-none absolute -top-24 inset-s-1/2 z-0 h-64 w-64 -translate-x-1/2 rounded-full bg-primary-500/25 blur-[100px]" />
             <div className="relative z-10">
               <div className="flex justify-center">
                 <SectionBadge icon={Handshake}>{t("badge")}</SectionBadge>

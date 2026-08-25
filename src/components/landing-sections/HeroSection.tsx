@@ -138,7 +138,7 @@ export function Hero() {
     <section className="relative overflow-x-clip pb-12 pt-6 sm:pb-20 sm:pt-12 lg:pt-16">
       <div className="container grid min-w-0 items-center gap-10 sm:gap-14 lg:grid-cols-2 lg:gap-16">
         <Reveal direction="up" className="min-w-0 text-center lg:text-start">
-          <h1 className="mt-2 max-w-full text-3xl font-extrabold leading-snug tracking-tight break-words text-foreground sm:text-4xl md:text-5xl lg:text-[3rem]">
+          <h1 className="mt-2 max-w-full text-3xl font-extrabold leading-snug tracking-tight wrap-break-words text-foreground sm:text-4xl md:text-5xl lg:text-[3rem]">
             <span className="sr-only">{t("titleStatic")}</span>
             <span aria-hidden="true" className="grid min-w-0">
               <span className="invisible col-start-1 row-start-1 whitespace-pre-wrap">
@@ -220,7 +220,7 @@ export function Hero() {
         <div
           ref={visualRef}
           className={cn(
-            "relative mx-auto aspect-square w-full max-w-[340px] overflow-visible sm:max-w-[460px] lg:max-w-[540px]",
+            "relative mx-auto aspect-square w-full max-w-85 overflow-visible sm:max-w-115 lg:max-w-135",
             !orbitsActive && "hero-visual--paused",
             heroLite && "hero-visual--lite"
           )}
@@ -232,7 +232,7 @@ export function Hero() {
         >
           <div
             className={cn(
-              "pointer-events-none absolute inset-[8%] rounded-full bg-gradient-to-br from-primary-500/20 via-glow-2/10 to-transparent",
+              "pointer-events-none absolute inset-[8%] rounded-full bg-linear-to-br from-primary-500/20 via-glow-2/10 to-transparent",
               heroLite
                 ? "opacity-70 blur-xl"
                 : "animate-pulse-glow blur-3xl"
@@ -271,7 +271,7 @@ export function Hero() {
             />
           </div>
 
-          <div className="absolute inset-[6%] z-[2] sm:inset-0">
+          <div className="absolute inset-[6%] z-2 sm:inset-0">
             {floats.map((item) => {
               const Icon = item.icon;
               const offset = (100 - item.orbit) / 2;

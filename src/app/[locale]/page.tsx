@@ -1,12 +1,12 @@
 import { setRequestLocale } from "next-intl/server";
-import { Hero } from "@/components/sections/HeroSection";
-import { EventsSection } from "@/components/sections/EventsSection";
-import { ActivitiesSection } from "@/components/sections/ActivitiesSection";
-import { BlogSection } from "@/components/sections/BlogSection";
-import { TeamsSection } from "@/components/sections/TeamsSection";
-import { CtaSection } from "@/components/sections/CtaSection";
-import { AboutSection } from "@/components/sections/AboutSection";
-import { WhatYouExperienceSection } from "@/components/sections/WhatYouExperienceSection";
+import { Hero } from "@/components/landing-sections/HeroSection";
+import { EventsSection } from "@/components/landing-sections/EventsSection";
+import { ActivitiesSection } from "@/components/landing-sections/ActivitiesSection";
+import { BlogSection } from "@/components/landing-sections/BlogSection";
+import { TeamsSection } from "@/components/landing-sections/TeamsSection";
+import { CtaSection } from "@/components/landing-sections/CtaSection";
+import { AboutSection } from "@/components/landing-sections/AboutSection";
+import { WhatYouExperienceSection } from "@/components/landing-sections/WhatYouExperienceSection";
 
 export default async function HomePage({
   params,
