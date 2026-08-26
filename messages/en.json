@@ -21,9 +21,18 @@
   },
   "Hero": {
     "titleStatic": "Build the future with artificial intelligence!",
-    "line1": ["Build the future with ", "Brighter future with "],
-    "line2": ["AI", "modern tech"],
-    "line3": ["together!", "forward!"],
+    "line1": [
+      "Build the future with ",
+      "Brighter future with "
+    ],
+    "line2": [
+      "AI",
+      "modern tech"
+    ],
+    "line3": [
+      "together!",
+      "forward!"
+    ],
     "subtitle": "A home for learning, research, and collaboration for students passionate about AI — from specialized workshops to national competitions.",
     "ctaEvents": "View events",
     "ctaAbout": "About AIC",
@@ -336,6 +345,17 @@
         "desc": "Programme a small robot's control loop and train a simple reinforcement-learning agent to guide it through a simulated course."
       }
     ]
+  },
+  "EventDetailPage": {
+    "aboutTitle": "About the event",
+    "detailsTitle": "Event details",
+    "organizerLabel": "Organizer",
+    "dateLabel": "Date",
+    "timeLabel": "Time",
+    "categoryLabel": "Category",
+    "galleryAlt": "Photos of {title}",
+    "notFoundTitle": "Event not found",
+    "notFoundDesc": "The link might be wrong, or this event may have been removed."
   },
   "Theme": {
     "dark": "Dark",

@@ -186,7 +186,7 @@ export function EventTicketCard({
                 size="sm"
                 className="rounded-xl text-xs gap-1.5 shadow-md hover:shadow-lg transition-all"
               >
-                <Link href="/#join">
+                <Link href={`/events/${event.id}`}>
                   <Ticket className="h-3.5 w-3.5" />
                   {t("register")}
                 </Link>
