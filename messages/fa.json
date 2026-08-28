@@ -347,6 +347,7 @@
     ]
   },
   "EventDetailPage": {
+    "backToEvents": "بازگشت به رویدادها",
     "aboutTitle": "درباره‌ی رویداد",
     "detailsTitle": "جزئیات رویداد",
     "organizerLabel": "برگزار کننده",
@@ -355,7 +356,8 @@
     "categoryLabel": "دسته‌بندی",
     "galleryAlt": "تصاویر رویداد {title}",
     "notFoundTitle": "این رویداد پیدا نشد",
-    "notFoundDesc": "ممکن است لینک اشتباه باشد یا رویداد حذف شده باشد."
+    "notFoundDesc": "ممکن است لینک اشتباه باشد یا رویداد حذف شده باشد.",
+    "otherEventsTitle": "رویدادهای دیگر"
   },
   "Theme": {
     "dark": "تیره",

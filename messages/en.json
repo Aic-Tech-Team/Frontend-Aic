@@ -347,6 +347,7 @@
     ]
   },
   "EventDetailPage": {
+    "backToEvents": "Back to events",
     "aboutTitle": "About the event",
     "detailsTitle": "Event details",
     "organizerLabel": "Organizer",
@@ -355,7 +356,8 @@
     "categoryLabel": "Category",
     "galleryAlt": "Photos of {title}",
     "notFoundTitle": "Event not found",
-    "notFoundDesc": "The link might be wrong, or this event may have been removed."
+    "notFoundDesc": "The link might be wrong, or this event may have been removed.",
+    "otherEventsTitle": "Other events"
   },
   "Theme": {
     "dark": "Dark",
