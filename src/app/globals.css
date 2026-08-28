@@ -605,6 +605,18 @@
     box-shadow: none;
   }
 
+  [data-theme="dark"] .detail-ticket-scrollbar {
+    scrollbar-color: var(--card) var(--card);
+  }
+
+  [data-theme="dark"] .detail-ticket-scrollbar::-webkit-scrollbar-track,
+  [data-theme="dark"] .detail-ticket-scrollbar::-webkit-scrollbar-thumb,
+  [data-theme="dark"] .detail-ticket-scrollbar::-webkit-scrollbar-thumb:hover,
+  [data-theme="dark"] .detail-ticket-scrollbar::-webkit-scrollbar-thumb:active {
+    background: var(--card);
+    background-clip: border-box;
+  }
+
   ::view-transition-group(root) {
     animation: none;
   }
