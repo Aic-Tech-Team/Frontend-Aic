@@ -5,13 +5,16 @@ export interface EventItem {
   category: string;
   title: string;
   speaker?: string;
+  organizer?: string;
   location: string;
   dateLabel: string;
   startAt: string;
   endAt: string;
   seatsLeft?: number | null;
   image: string;
+  gallery?: string[];
   desc: string;
+  fullDesc?: string;
 }
 
 export interface EventItemWithStatus extends EventItem {
