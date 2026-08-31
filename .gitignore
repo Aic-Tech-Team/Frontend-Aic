@@ -16,3 +16,4 @@ pnpm-debug.log*
 
 next-env.d.ts
 *.tsbuildinfo
+node_modules
