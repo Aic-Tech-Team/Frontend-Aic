@@ -61,10 +61,17 @@ export function EventTicketCard({
         {/* 1. Ticket Image Stub */}
         <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden md:h-auto md:w-56 md:aspect-square">
           <Image
-            src={event.image}
+            src={event.image || "/images/placeholder.jpg"}
             alt={event.title}
             fill
             sizes="(min-width: 768px) 224px, 100vw"
+            unoptimized
+            onError={(e) => {
+              const target = e.currentTarget as HTMLImageElement;
+              if (!target.src.endsWith("/images/placeholder.jpg")) {
+                target.src = "/images/placeholder.jpg";
+              }
+            }}
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -198,7 +205,7 @@ export function EventTicketCard({
     </>
   );
 }
-    // -webkit-mask-position: 0 0, 0 0, 0 0, 0 0;
-    // -webkit-mask-size: 100% 100%, 100% 100%, 100% 24px, 100% 24px;
-    // -webkit-mask-repeat: no-repeat, no-repeat, repeat-y, repeat-y;
-    // -webkit-mask-composite: destination-in;
+// -webkit-mask-position: 0 0, 0 0, 0 0, 0 0;
+// -webkit-mask-size: 100% 100%, 100% 100%, 100% 24px, 100% 24px;
+// -webkit-mask-repeat: no-repeat, no-repeat, repeat-y, repeat-y;
+// -webkit-mask-composite: destination-in;

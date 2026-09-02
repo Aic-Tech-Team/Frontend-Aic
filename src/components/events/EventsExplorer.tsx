@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useTransition } from "react";
+import { useCallback, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
@@ -18,8 +18,10 @@ type FilterKey = "all" | EventStatus;
 const FILTER_KEYS: FilterKey[] = ["all", "ongoing", "upcoming", "past"];
 
 interface EventsExplorerProps {
-  /** All events (unfiltered) — used only for the spotlight carousel and badge counts. */
-  events: EventItemWithStatus[];
+  /** Top few events for the spotlight carousel — fetched separately, unrelated to the active filter/page. */
+  spotlightEvents: EventItemWithStatus[];
+  /** Per-status counts for the filter tab badges — fetched separately (the API is paginated, so we can't derive these from one page). */
+  counts: Record<FilterKey, number>;
   /** Total events matching the current server-side filter/query (for the results label). */
   totalCount: number;
   /** Server-rendered grid + pagination passed in from the page. */
@@ -27,7 +29,8 @@ interface EventsExplorerProps {
 }
 
 export function EventsExplorer({
-  events,
+  spotlightEvents,
+  counts,
   totalCount,
   children,
 }: EventsExplorerProps) {
@@ -86,17 +89,6 @@ export function EventsExplorer({
     });
   }, [pathname, router]);
 
-  const counts = useMemo(() => {
-    const base: Record<FilterKey, number> = {
-      all: events.length,
-      ongoing: 0,
-      upcoming: 0,
-      past: 0,
-    };
-    for (const event of events) base[event.status] += 1;
-    return base;
-  }, [events]);
-
   const hasSearchOrFilter =
     currentQuery.trim().length > 0 || currentFilter !== "all";
 
@@ -109,7 +101,7 @@ export function EventsExplorer({
           slideClassName="flex-[0_0_100%] sm:flex-[0_0_calc((100%-1.25rem)/2)] lg:flex-[0_0_calc((100%-2.5rem)/3)]"
           options={{ loop: false, slidesToScroll: 1 }}
         >
-          {events.slice(0, 5).map((event, index) => (
+          {spotlightEvents.slice(0, 5).map((event, index) => (
             <div
               key={event.id}
               className="group relative h-52 overflow-hidden rounded-3xl"

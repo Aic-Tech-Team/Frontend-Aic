@@ -71,12 +71,19 @@ export function EventDetailTicket({ event }: { event: EventItemWithStatus }) {
         <div className="p-5 sm:p-6">
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-muted">
             <Image
-              src={gallery[activeImage]}
+              src={gallery[activeImage] || "/images/placeholder.jpg"}
               alt={event.title}
               fill
               sizes="(min-width: 768px) 60vw, 100vw"
-              className="object-cover"
+              unoptimized
               priority
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                if (!target.src.endsWith("/images/placeholder.jpg")) {
+                  target.src = "/images/placeholder.jpg";
+                }
+              }}
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <Badge
@@ -103,10 +110,17 @@ export function EventDetailTicket({ event }: { event: EventItemWithStatus }) {
                   )}
                 >
                   <Image
-                    src={src}
+                    src={src || "/images/placeholder.jpg"}
                     alt=""
                     fill
                     sizes="80px"
+                    unoptimized
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (!target.src.endsWith("/images/placeholder.jpg")) {
+                        target.src = "/images/placeholder.jpg";
+                      }
+                    }}
                     className="object-cover"
                   />
                 </button>

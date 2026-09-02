@@ -11,7 +11,9 @@ function getApiVersionSegment(): string {
 }
 
 function base(): string {
-  return `${getApiBaseUrl()}/api/${getApiVersionSegment()}`;
+  // NEXT_PUBLIC_API_BASE_URL already ends in /api (e.g. https://.../api) —
+  // only append the version segment here, don't add /api again.
+  return `${getApiBaseUrl()}/${getApiVersionSegment()}`;
 }
 
 export function getApiConfig() {

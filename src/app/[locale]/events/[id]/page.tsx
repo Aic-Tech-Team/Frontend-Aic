@@ -3,16 +3,16 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
   ArrowRight,
   CalendarDays,
-  Clock,
   MapPin,
-  User,
   Tag,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { EventDetailTicket } from "@/components/events/EventDetailTicket";
 import { OtherEventsRow } from "@/components/events/OtherEventsRow";
 import { Badge } from "@/components/ui/badge";
-import { EventItem, EventStatus, withStatus } from "@/types/events";
+import { ApiError } from "@/lib/api/client";
+import { fetchEvent, fetchEvents, mapApiEvent } from "@/api/events";
+import { EventStatus } from "@/types/events";
 
 export const revalidate = 300;
 
@@ -27,17 +27,17 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string; id: string }>;
 }) {
-  const { locale, id } = await params;
-  const t = await getTranslations({ locale, namespace: "EventsPage" });
-  const items = t.raw("items") as EventItem[];
-  const event = items.find((item) => item.id === id);
+  const { id } = await params;
 
-  if (!event) return {};
-
-  return {
-    title: event.title,
-    description: event.desc,
-  };
+  try {
+    const apiEvent = await fetchEvent(id);
+    return {
+      title: apiEvent.title,
+      description: apiEvent.short_description ?? apiEvent.description,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export default async function EventDetailPage({
@@ -50,25 +50,24 @@ export default async function EventDetailPage({
 
   const t = await getTranslations("EventsPage");
   const td = await getTranslations("EventDetailPage");
-  const items = t.raw("items") as EventItem[];
-  const nowIso = new Date().toISOString();
-  const allEvents = withStatus(items, nowIso);
-  const event = allEvents.find((item) => item.id === id);
 
-  if (!event) {
-    notFound();
+  let event;
+  try {
+    event = mapApiEvent(await fetchEvent(id));
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      notFound();
+    }
+    throw error;
   }
 
-  const [datePart, timePart] = event.dateLabel.split("·").map((s) => s.trim());
+  const [datePart] = event.dateLabel.split("·").map((s) => s.trim());
 
-  const otherEvents = allEvents
-    .filter((item) => item.id !== event.id)
-    .sort((a, b) => {
-      // ongoing/upcoming first, then past
-      const rank = { ongoing: 0, upcoming: 1, past: 2 };
-      return rank[a.status] - rank[b.status];
-    })
-    .slice(0, 6);
+  const { results: otherApiEvents } = await fetchEvents({ page_size: 7 });
+  const otherEvents = otherApiEvents
+    .filter((item) => String(item.id) !== event.id)
+    .slice(0, 6)
+    .map(mapApiEvent);
 
   return (
     <div className="relative overflow-hidden py-10 sm:py-16">
@@ -113,12 +112,6 @@ export default async function EventDetailPage({
           </h1>
 
           <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            {event.organizer || event.speaker ? (
-              <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/80 sm:text-sm">
-                <User className="h-3.5 w-3.5 shrink-0 text-primary-300" />
-                {event.organizer || event.speaker}
-              </span>
-            ) : null}
             <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/80 sm:text-sm">
               <MapPin className="h-3.5 w-3.5 shrink-0 text-primary-300" />
               {event.location}
@@ -131,13 +124,6 @@ export default async function EventDetailPage({
             ) : null}
 
             {/* is it nessesary to show time part? */}
-
-            {/* {timePart ? (
-              <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/80 sm:text-sm">
-                <Clock className="h-3.5 w-3.5 shrink-0 text-primary-300" />
-                {timePart}
-              </span>
-            ) : null} */}
           </div>
         </div>
 

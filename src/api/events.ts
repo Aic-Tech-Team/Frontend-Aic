@@ -27,10 +27,10 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
-
 export interface ApiEvent {
   id: string | number;
   title: string;
+  short_description?: string;
   description?: string;
   event_type: ApiEventType;
   status: ApiEventStatus;
@@ -73,13 +73,15 @@ export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
     startAt: event.start_at,
     endAt: event.end_at,
     seatsLeft: event.seats_left ?? null,
-    image: event.image ?? "/images/placeholder.jpg",
-    gallery: event.gallery,
+    image:
+      event.image && event.image.trim()
+        ? event.image
+        : "/images/placeholder.jpg",
+    gallery: event.gallery?.filter(Boolean) ?? [],
     desc: event.description ?? "",
     status: apiStatusToStatus[event.status],
   };
 }
-
 
 function buildDateLabel(startAt: string, endAt: string): string {
   const start = new Date(startAt);

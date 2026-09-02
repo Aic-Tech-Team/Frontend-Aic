@@ -42,10 +42,17 @@ export function OtherEventsRow({
             >
               <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden">
                 <Image
-                  src={event.image}
+                  src={event.image || "/images/placeholder.jpg"}
                   alt={event.title}
                   fill
                   sizes="(min-width: 1024px) 28vw, (min-width: 640px) 44vw, 78vw"
+                  unoptimized
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (!target.src.endsWith("/images/placeholder.jpg")) {
+                      target.src = "/images/placeholder.jpg";
+                    }
+                  }}
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <Badge

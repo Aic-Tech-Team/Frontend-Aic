@@ -13,6 +13,7 @@ import { Footer } from "@/components/layout/Footer";
 import { AnimatedBackground } from "@/components/animations/AnimatedBackground";
 import { ThemeAwareParticles } from "@/components/animations/ThemeAwareParticles";
 import { ExperienceSplash } from "@/components/animations/ExperienceSplash";
+import { QueryProvider } from "@/providers/query-provider";
 import { cn } from "@/lib/utils";
 
 export function generateStaticParams() {
@@ -82,11 +83,13 @@ export default async function LocaleLayout({
           <ExperienceSplash />
 
           <NextIntlClientProvider messages={messages}>
-            <div className="relative z-0 flex min-h-screen flex-col">
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
+            <QueryProvider>
+              <div className="relative z-0 flex min-h-screen flex-col">
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+            </QueryProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
