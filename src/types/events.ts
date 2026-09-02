@@ -15,6 +15,8 @@ export interface EventItem {
   gallery?: string[];
   desc: string;
   fullDesc?: string;
+  /** External URL to register — from the API's `registration_link`. Falls back to `/#join` when absent. */
+  registrationLink?: string;
 }
 
 export interface EventItemWithStatus extends EventItem {

@@ -1,8 +1,9 @@
+import type { ApiResponse } from "@/types";
 import { api } from "@/lib/api/client";
 import { apiEndpoints } from "@/lib/api/config";
-import { ApiResponse } from "@/types";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
 
+/** Values confirmed from the Swagger docs for GET /api/v1/events/ */
 export type ApiEventType =
   | "competition"
   | "workshop"
@@ -28,19 +29,18 @@ export interface PaginatedResponse<T> {
 }
 
 export interface ApiEvent {
-  id: string | number;
+  id: number;
   title: string;
+  event_type: ApiEventType;
+  event_date: string;
+  status: ApiEventStatus;
   short_description?: string;
   description?: string;
-  event_type: ApiEventType;
-  status: ApiEventStatus;
-  location?: string;
-  organizer?: string;
-  start_at: string;
-  end_at: string;
-  seats_left?: number | null;
   image?: string | null;
-  gallery?: string[];
+  location?: string;
+  registration_link?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export async function fetchEvents(params: ListEventsParams = {}) {
@@ -67,33 +67,25 @@ export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
     id: String(event.id),
     category: event.event_type,
     title: event.title,
-    organizer: event.organizer,
     location: event.location ?? "",
-    dateLabel: buildDateLabel(event.start_at, event.end_at),
-    startAt: event.start_at,
-    endAt: event.end_at,
-    seatsLeft: event.seats_left ?? null,
-    image:
-      event.image && event.image.trim()
-        ? event.image
-        : "/images/placeholder.jpg",
-    gallery: event.gallery?.filter(Boolean) ?? [],
-    desc: event.description ?? "",
+    dateLabel: buildDateLabel(event.event_date),
+    startAt: event.event_date,
+    endAt: event.event_date,
+    seatsLeft: null,
+    image: event.image ?? "/images/placeholder.jpg",
+    desc: event.short_description || event.description || "",
+    fullDesc: event.description,
+    registrationLink: event.registration_link ?? undefined,
     status: apiStatusToStatus[event.status],
   };
 }
 
-function buildDateLabel(startAt: string, endAt: string): string {
-  const start = new Date(startAt);
-  const end = new Date(endAt);
-  const date = start.toLocaleDateString();
-  const startTime = start.toLocaleTimeString([], {
+function buildDateLabel(eventDate: string): string {
+  const date = new Date(eventDate);
+  const dateStr = date.toLocaleDateString();
+  const timeStr = date.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
   });
-  const endTime = end.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return `${date} · ${startTime}–${endTime}`;
+  return `${dateStr} · ${timeStr}`;
 }

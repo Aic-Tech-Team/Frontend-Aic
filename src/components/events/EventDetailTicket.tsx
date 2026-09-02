@@ -71,19 +71,12 @@ export function EventDetailTicket({ event }: { event: EventItemWithStatus }) {
         <div className="p-5 sm:p-6">
           <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-muted">
             <Image
-              src={gallery[activeImage] || "/images/placeholder.jpg"}
+              src={gallery[activeImage]}
               alt={event.title}
               fill
               sizes="(min-width: 768px) 60vw, 100vw"
-              unoptimized
-              priority
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                if (!target.src.endsWith("/images/placeholder.jpg")) {
-                  target.src = "/images/placeholder.jpg";
-                }
-              }}
               className="object-cover"
+              priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <Badge
@@ -110,17 +103,10 @@ export function EventDetailTicket({ event }: { event: EventItemWithStatus }) {
                   )}
                 >
                   <Image
-                    src={src || "/images/placeholder.jpg"}
+                    src={src}
                     alt=""
                     fill
                     sizes="80px"
-                    unoptimized
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      if (!target.src.endsWith("/images/placeholder.jpg")) {
-                        target.src = "/images/placeholder.jpg";
-                      }
-                    }}
                     className="object-cover"
                   />
                 </button>
@@ -230,10 +216,21 @@ export function EventDetailTicket({ event }: { event: EventItemWithStatus }) {
               size="lg"
               className="w-full gap-2 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
-              <Link href="/#join">
-                <Ticket className="h-4 w-4" />
-                {t("register")}
-              </Link>
+              {event.registrationLink ? (
+                <a
+                  href={event.registrationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Ticket className="h-4 w-4" />
+                  {t("register")}
+                </a>
+              ) : (
+                <Link href="/#join">
+                  <Ticket className="h-4 w-4" />
+                  {t("register")}
+                </Link>
+              )}
             </Button>
           )}
         </div>
