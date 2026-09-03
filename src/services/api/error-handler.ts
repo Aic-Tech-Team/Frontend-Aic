@@ -12,8 +12,7 @@ import type {
   ToastType,
 } from "@/types/error-handler";
 import { ApiError } from "./client";
-import { defaultErrorMessages } from "@/lib/api/error-messages";
-
+import { defaultErrorMessages } from "@/services/api/error-messages";
 
 const WARNING_STATUSES = new Set([409, 429]);
 
@@ -245,5 +244,3 @@ export function handleApiError(
   if (mergedOptions.redirectTo) deps.navigate?.(mergedOptions.redirectTo);
   if (mergedOptions.throwError) throw error;
 }
-
-

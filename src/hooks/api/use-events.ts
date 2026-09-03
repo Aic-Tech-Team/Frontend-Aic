@@ -1,13 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchEvents,
-  fetchEvent,
-  mapApiEvent,
-  type ListEventsParams,
-} from "@/api/events";
+
 import { useErrorHandler } from "@/hooks/use-error-handler";
+import { fetchEvent, fetchEvents, ListEventsParams, mapApiEvent } from "./events";
 
 export const eventsKeys = {
   all: ["events"] as const,
@@ -15,18 +11,29 @@ export const eventsKeys = {
   detail: (id: string | number) => ["events", "detail", id] as const,
 };
 
-// hard part...
 export function useEventsQuery(params: ListEventsParams = {}) {
   const { handleError } = useErrorHandler();
 
   const query = useQuery({
     queryKey: eventsKeys.list(params),
+
     queryFn: async () => {
       try {
-        const { count, next, previous, results } = await fetchEvents(params);
-        return { count, next, previous, events: results.map(mapApiEvent) };
+        const { count, next, previous, results } =
+          await fetchEvents(params);
+
+        return {
+          count,
+          next,
+          previous,
+          events: results.map(mapApiEvent),
+        };
       } catch (error) {
-        handleError(error, { showToast: true, logError: true });
+        handleError(error, {
+          showToast: true,
+          logError: true,
+        });
+
         throw error;
       }
     },
@@ -47,9 +54,11 @@ export function useEventQuery(id: string | number) {
 
   const query = useQuery({
     queryKey: eventsKeys.detail(id),
+
     queryFn: async () => {
       try {
         const event = await fetchEvent(id);
+
         return mapApiEvent(event);
       } catch (error) {
         handleError(error, {
@@ -57,6 +66,7 @@ export function useEventQuery(id: string | number) {
           logError: true,
           notFoundAction: "silent",
         });
+
         throw error;
       }
     },

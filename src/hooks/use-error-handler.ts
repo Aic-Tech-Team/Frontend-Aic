@@ -6,8 +6,8 @@ import {
   handleApiError,
   parseApiError,
   getErrorMessage,
-} from "@/lib/api/error-handler";
-import { defaultErrorMessages } from "@/lib/api/error-messages";
+} from "@/services/api/error-handler";
+import { defaultErrorMessages } from "@/services/api/error-messages";
 import { defaultToast } from "@/lib/toast";
 import type { ErrorHandlerOptions } from "@/types/error-handler";
 

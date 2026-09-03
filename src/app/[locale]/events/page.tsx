@@ -3,7 +3,11 @@ import { Ticket } from "lucide-react";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { EventsExplorer } from "@/components/events/EventsExplorer";
 import { EventsGrid } from "@/components/events/EventsGrid";
-import { fetchEvents, mapApiEvent, type ApiEventStatus } from "@/api/events";
+import {
+  fetchEvents,
+  mapApiEvent,
+  type ApiEventStatus,
+} from "@/hooks/api/events";
 import type { EventStatus } from "@/types/events";
 
 export const revalidate = 300;
@@ -32,34 +36,43 @@ export default async function EventsPage({
   const sp = await searchParams;
 
   // Parse searchParams — always scalars
-  const rawPage = Number(Array.isArray(sp.page) ? sp.page[0] : (sp.page ?? "1"));
-  const rawFilter = (Array.isArray(sp.filter) ? sp.filter[0] : sp.filter) ?? "all";
+  const rawPage = Number(
+    Array.isArray(sp.page) ? sp.page[0] : (sp.page ?? "1"),
+  );
+  const rawFilter =
+    (Array.isArray(sp.filter) ? sp.filter[0] : sp.filter) ?? "all";
   const rawQuery = (Array.isArray(sp.q) ? sp.q[0] : sp.q) ?? "";
 
-  const filter: FilterKey =
-    ["all", "ongoing", "upcoming", "past"].includes(rawFilter)
-      ? (rawFilter as FilterKey)
-      : "all";
+  const filter: FilterKey = ["all", "ongoing", "upcoming", "past"].includes(
+    rawFilter,
+  )
+    ? (rawFilter as FilterKey)
+    : "all";
   const query = rawQuery.trim().slice(0, 100);
   const currentPage = Math.max(1, isNaN(rawPage) ? 1 : rawPage);
 
   const t = await getTranslations("EventsPage");
 
-
-  const [countsAll, countsOngoing, countsUpcoming, countsPast, spotlightRes, pageRes] =
-    await Promise.all([
-      fetchEvents({ page_size: 1 }),
-      fetchEvents({ status: "ongoing", page_size: 1 }),
-      fetchEvents({ status: "upcoming", page_size: 1 }),
-      fetchEvents({ status: "finished", page_size: 1 }),
-      fetchEvents({ page_size: 5 }),
-      fetchEvents({
-        status: filter === "all" ? undefined : filterToApiStatus[filter],
-        search: query || undefined,
-        page: currentPage,
-        page_size: PAGE_SIZE,
-      }),
-    ]);
+  const [
+    countsAll,
+    countsOngoing,
+    countsUpcoming,
+    countsPast,
+    spotlightRes,
+    pageRes,
+  ] = await Promise.all([
+    fetchEvents({ page_size: 1 }),
+    fetchEvents({ status: "ongoing", page_size: 1 }),
+    fetchEvents({ status: "upcoming", page_size: 1 }),
+    fetchEvents({ status: "finished", page_size: 1 }),
+    fetchEvents({ page_size: 5 }),
+    fetchEvents({
+      status: filter === "all" ? undefined : filterToApiStatus[filter],
+      search: query || undefined,
+      page: currentPage,
+      page_size: PAGE_SIZE,
+    }),
+  ]);
 
   const counts: Record<FilterKey, number> = {
     all: countsAll.count,

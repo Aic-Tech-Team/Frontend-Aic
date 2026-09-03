@@ -1,22 +1,20 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import {
-  ArrowRight,
-  CalendarDays,
-  MapPin,
-  Tag,
-} from "lucide-react";
+import { ArrowRight, CalendarDays, MapPin, Tag } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { EventDetailTicket } from "@/components/events/EventDetailTicket";
 import { OtherEventsRow } from "@/components/events/OtherEventsRow";
 import { Badge } from "@/components/ui/badge";
-import { ApiError } from "@/lib/api/client";
-import { fetchEvent, fetchEvents, mapApiEvent } from "@/api/events";
+import { ApiError } from "@/services/api/client";
+import { fetchEvent, fetchEvents, mapApiEvent } from "@/hooks/api/events";
 import { EventStatus } from "@/types/events";
 
 export const revalidate = 300;
 
-const statusBadgeVariant: Record<EventStatus, "success" | "secondary" | "muted"> = {
+const statusBadgeVariant: Record<
+  EventStatus,
+  "success" | "secondary" | "muted"
+> = {
   ongoing: "success",
   upcoming: "secondary",
   past: "muted",

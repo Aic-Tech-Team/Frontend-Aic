@@ -1,9 +1,8 @@
 import type { ApiResponse } from "@/types";
-import { api } from "@/lib/api/client";
-import { apiEndpoints } from "@/lib/api/config";
+import { api } from "@/services/api/client";
+import { apiEndpoints, getApiConfig } from "@/services/api/config";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
 
-/** Values confirmed from the Swagger docs for GET /api/v1/events/ */
 export type ApiEventType =
   | "competition"
   | "workshop"
@@ -13,13 +12,13 @@ export type ApiEventType =
 
 export type ApiEventStatus = "upcoming" | "ongoing" | "finished";
 
-export interface ListEventsParams {
+export type ListEventsParams = {
   event_type?: ApiEventType;
   status?: ApiEventStatus;
   search?: string;
   page?: number;
   page_size?: number;
-}
+};
 
 export interface PaginatedResponse<T> {
   count: number;
@@ -46,7 +45,10 @@ export interface ApiEvent {
 export async function fetchEvents(params: ListEventsParams = {}) {
   return api<ApiResponse<PaginatedResponse<ApiEvent>>>(
     apiEndpoints.events.list(),
-    { params: { ...params }, revalidate: 300 },
+    {
+      params,
+      revalidate: 300,
+    },
   );
 }
 
@@ -72,7 +74,7 @@ export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
     startAt: event.event_date,
     endAt: event.event_date,
     seatsLeft: null,
-    image: event.image ?? "/images/placeholder.jpg",
+    image: resolveEventImage(event.image),
     desc: event.short_description || event.description || "",
     fullDesc: event.description,
     registrationLink: event.registration_link ?? undefined,
@@ -80,12 +82,23 @@ export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
   };
 }
 
+function resolveEventImage(image: string | null | undefined): string {
+  if (!image) return "/images/placeholder.jpg";
+  if (/^https?:\/\//i.test(image)) return image;
+
+  const { apiBaseUrl } = getApiConfig();
+  return apiBaseUrl ? new URL(image, `${apiBaseUrl}/`).toString() : image;
+}
+
 function buildDateLabel(eventDate: string): string {
   const date = new Date(eventDate);
+
   const dateStr = date.toLocaleDateString();
+
   const timeStr = date.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
   });
+
   return `${dateStr} · ${timeStr}`;
 }
