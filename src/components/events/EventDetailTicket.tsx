@@ -216,10 +216,21 @@ export function EventDetailTicket({ event }: { event: EventItemWithStatus }) {
               size="lg"
               className="w-full gap-2 rounded-xl shadow-md hover:shadow-lg transition-all"
             >
-              <Link href="/#join">
-                <Ticket className="h-4 w-4" />
-                {t("register")}
-              </Link>
+              {event.registrationLink ? (
+                <a
+                  href={event.registrationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Ticket className="h-4 w-4" />
+                  {t("register")}
+                </a>
+              ) : (
+                <Link href="/#join">
+                  <Ticket className="h-4 w-4" />
+                  {t("register")}
+                </Link>
+              )}
             </Button>
           )}
         </div>

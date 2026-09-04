@@ -6,6 +6,14 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "kaic.karaj.iau.ir",
+      },
+    ],
+  },
 };
 
 export default withNextIntl(nextConfig);
