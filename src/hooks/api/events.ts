@@ -83,7 +83,7 @@ export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
 }
 
 function resolveEventImage(image: string | null | undefined): string {
-  if (!image) return "/images/placeholder.jpg";
+  if (!image) return "/images/qq.jpg"; // Default placeholder image
   if (/^https?:\/\//i.test(image)) return image;
 
   const { apiBaseUrl } = getApiConfig();

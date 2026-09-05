@@ -61,15 +61,15 @@ export function EventTicketCard({
         {/* 1. Ticket Image Stub */}
         <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden md:h-auto md:w-56 md:aspect-square">
           <Image
-            src={event.image || "/images/placeholder.jpg"}
+            src={event.image || "/images/qq.svg"}
             alt={event.title}
             fill
             sizes="(min-width: 768px) 224px, 100vw"
             unoptimized
             onError={(e) => {
               const target = e.currentTarget as HTMLImageElement;
-              if (!target.src.endsWith("/images/placeholder.jpg")) {
-                target.src = "/images/placeholder.jpg";
+              if (!target.src.endsWith("/images/qq.svg")) {
+                target.src = "/images/qq.svg";
               }
             }}
             className="object-cover transition-transform duration-500 group-hover:scale-105"
