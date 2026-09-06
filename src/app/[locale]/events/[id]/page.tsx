@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowRight, CalendarDays, MapPin, Tag } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { CalendarDays, MapPin, Tag } from "lucide-react";
+import { EventDetailHero } from "@/components/events/EventDetailHero";
 import { EventDetailTicket } from "@/components/events/EventDetailTicket";
 import { OtherEventsRow } from "@/components/events/OtherEventsRow";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +48,7 @@ export default async function EventDetailPage({
 
   const t = await getTranslations("EventsPage");
   const td = await getTranslations("EventDetailPage");
+  const tNav = await getTranslations("Nav");
 
   let event;
   try {
@@ -68,84 +69,78 @@ export default async function EventDetailPage({
     .map(mapApiEvent);
 
   return (
-    <div className="relative overflow-hidden py-10 sm:py-16">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[70vh]"
-      >
-        <div className="absolute top-[-12rem] start-[8%] h-[26rem] w-[26rem] rounded-full bg-primary/25 blur-[110px]" />
-        <div className="absolute top-[6rem] end-[4%] h-[22rem] w-[22rem] rounded-full bg-primary-400/20 blur-[110px]" />
+    <div className="relative overflow-hidden">
+      <EventDetailHero
+        event={event}
+        homeLabel={tNav("home")}
+        eventsLabel={tNav("events")}
+      />
+
+      <div className="relative py-10 sm:py-16">
         <div
-          className="absolute inset-0 opacity-[0.35] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_20%,#000_10%,transparent_75%)]"
-          style={{
-            backgroundImage:
-              "radial-gradient(color-mix(in srgb, var(--border) 70%, transparent) 1px, transparent 1px)",
-            backgroundSize: "22px 22px",
-          }}
-        />
-      </div>
-
-      <div className="container">
-        <Link
-          href="/events"
-          className="surface inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary-300"
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[70vh]"
         >
-          <ArrowRight className="h-4 w-4 ltr:rotate-180" />
-          {td("backToEvents")}
-        </Link>
-
-        <div className="mt-6 flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={statusBadgeVariant[event.status]}>
-              {t(`status.${event.status}`)}
-            </Badge>
-            <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-foreground/80">
-              <Tag className="h-3.5 w-3.5 text-primary" />
-              {event.category}
-            </span>
-          </div>
-
-          <h1 className="max-w-3xl text-2xl font-extrabold leading-snug text-foreground sm:text-3xl md:text-4xl">
-            {event.title}
-          </h1>
-
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/80 sm:text-sm">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-primary-300" />
-              {event.location}
-            </span>
-            {datePart ? (
-              <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/80 sm:text-sm">
-                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-primary-300" />
-                {datePart}
-              </span>
-            ) : null}
-
-            {/* is it nessesary to show time part? */}
-          </div>
-        </div>
-
-        <div className="relative mt-8">
+          <div className="absolute top-[-12rem] start-[8%] h-[26rem] w-[26rem] rounded-full bg-primary/25 blur-[110px]" />
+          <div className="absolute top-[6rem] end-[4%] h-[22rem] w-[22rem] rounded-full bg-primary-400/20 blur-[110px]" />
           <div
-            aria-hidden
-            className="absolute -inset-3 -z-10 hidden rounded-[2.5rem] bg-gradient-to-b from-primary/10 via-transparent to-transparent ring-1 ring-border/40 sm:block sm:-inset-6"
+            className="absolute inset-0 opacity-[0.35] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_20%,#000_10%,transparent_75%)]"
+            style={{
+              backgroundImage:
+                "radial-gradient(color-mix(in srgb, var(--border) 70%, transparent) 1px, transparent 1px)",
+              backgroundSize: "22px 22px",
+            }}
           />
-          <EventDetailTicket event={event} />
         </div>
 
-        {otherEvents.length ? (
-          <div className="mt-16 sm:mt-20">
-            <OtherEventsRow
-              events={otherEvents}
-              title={td("otherEventsTitle")}
-              statusLabels={{
-                ongoing: t("status.ongoing"),
-                upcoming: t("status.upcoming"),
-                past: t("status.past"),
-              }}
-            />
+        <div className="container">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={statusBadgeVariant[event.status]}>
+                {t(`status.${event.status}`)}
+              </Badge>
+              <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-foreground/80">
+                <Tag className="h-3.5 w-3.5 text-primary" />
+                {event.category}
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+              <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/80 sm:text-sm">
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-primary-300" />
+                {event.location}
+              </span>
+              {datePart ? (
+                <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/80 sm:text-sm">
+                  <CalendarDays className="h-3.5 w-3.5 shrink-0 text-primary-300" />
+                  {datePart}
+                </span>
+              ) : null}
+            </div>
           </div>
-        ) : null}
+
+          <div className="relative mt-8">
+            <div
+              aria-hidden
+              className="absolute -inset-3 -z-10 hidden rounded-[2.5rem] bg-gradient-to-b from-primary/10 via-transparent to-transparent ring-1 ring-border/40 sm:block sm:-inset-6"
+            />
+            <EventDetailTicket event={event} />
+          </div>
+
+          {otherEvents.length ? (
+            <div className="mt-16 sm:mt-20">
+              <OtherEventsRow
+                events={otherEvents}
+                title={td("otherEventsTitle")}
+                statusLabels={{
+                  ongoing: t("status.ongoing"),
+                  upcoming: t("status.upcoming"),
+                  past: t("status.past"),
+                }}
+              />
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
