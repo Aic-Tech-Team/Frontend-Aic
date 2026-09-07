@@ -1,24 +1,12 @@
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { CalendarDays, MapPin, Tag } from "lucide-react";
 import { EventDetailHero } from "@/components/events/EventDetailHero";
 import { EventDetailTicket } from "@/components/events/EventDetailTicket";
 import { OtherEventsRow } from "@/components/events/OtherEventsRow";
-import { Badge } from "@/components/ui/badge";
 import { ApiError } from "@/services/api/client";
 import { fetchEvent, fetchEvents, mapApiEvent } from "@/hooks/api/events";
-import { EventStatus } from "@/types/events";
 
 export const revalidate = 300;
-
-const statusBadgeVariant: Record<
-  EventStatus,
-  "success" | "secondary" | "muted"
-> = {
-  ongoing: "success",
-  upcoming: "secondary",
-  past: "muted",
-};
 
 export async function generateMetadata({
   params,
@@ -60,8 +48,6 @@ export default async function EventDetailPage({
     throw error;
   }
 
-  const [datePart] = event.dateLabel.split("·").map((s) => s.trim());
-
   const { results: otherApiEvents } = await fetchEvents({ page_size: 7 });
   const otherEvents = otherApiEvents
     .filter((item) => String(item.id) !== event.id)
@@ -94,31 +80,6 @@ export default async function EventDetailPage({
         </div>
 
         <div className="container">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant={statusBadgeVariant[event.status]}>
-                {t(`status.${event.status}`)}
-              </Badge>
-              <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-foreground/80">
-                <Tag className="h-3.5 w-3.5 text-primary" />
-                {event.category}
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-              <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/80 sm:text-sm">
-                <MapPin className="h-3.5 w-3.5 shrink-0 text-primary-300" />
-                {event.location}
-              </span>
-              {datePart ? (
-                <span className="surface inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-foreground/80 sm:text-sm">
-                  <CalendarDays className="h-3.5 w-3.5 shrink-0 text-primary-300" />
-                  {datePart}
-                </span>
-              ) : null}
-            </div>
-          </div>
-
           <div className="relative mt-8">
             <div
               aria-hidden

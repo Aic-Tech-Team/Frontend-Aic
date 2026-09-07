@@ -1,6 +1,10 @@
+import Image from "next/image";
 import { Home, Ticket, ChevronLeft } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { EventItemWithStatus } from "@/types/events";
+
+/** Static banner — lives in /public/images, not tied to any event's own image. */
+const HERO_BANNER_SRC = "/images/banner.jpg";
 
 export function EventDetailHero({
   event,
@@ -11,27 +15,19 @@ export function EventDetailHero({
   homeLabel: string;
   eventsLabel: string;
 }) {
+  const [datePart] = event.dateLabel.split("·").map((s) => s.trim());
+
   return (
-    <div className="relative -mx-[calc(50vw-50%)] h-[260px] w-screen overflow-hidden rounded-[18px] bg-[#1a1430] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)] sm:h-[340px] sm:rounded-[22px]">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-24 top-1/2 h-[480px] w-[480px] -translate-y-1/2 rounded-full bg-primary/50 blur-[120px] sm:h-[600px] sm:w-[600px]"
+    <div className="relative -mx-[calc(50vw-50%)] h-[260px] w-screen overflow-hidden bg-[#1a1430] sm:h-[340px]">
+      <Image
+        src={HERO_BANNER_SRC}
+        alt=""
+        fill
+        sizes="100vw"
+        priority
+        className="object-cover"
       />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-20 top-1/3 h-[260px] w-[260px] -translate-y-1/2 rounded-full bg-fuchsia-500/30 blur-[100px]"
-      />
-      {/* faint dot-grid texture over the whole banner */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.25]"
-        style={{
-          backgroundImage:
-            "radial-gradient(rgba(255,255,255,0.5) 1px, transparent 1px)",
-          backgroundSize: "22px 22px",
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/45 to-black/20" />
 
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-4 text-center">
         <h1 className="max-w-3xl text-2xl font-extrabold text-white drop-shadow sm:text-4xl">
@@ -66,6 +62,20 @@ export function EventDetailHero({
             {event.title}
           </span>
         </nav>
+
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-center sm:gap-2.5">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-medium text-white/85 backdrop-blur-sm sm:text-xs">
+            {event.category}
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-medium text-white/85 backdrop-blur-sm sm:text-xs">
+            {event.location}
+          </span>
+          {datePart ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-medium text-white/85 backdrop-blur-sm sm:text-xs">
+              {datePart}
+            </span>
+          ) : null}
+        </div>
       </div>
     </div>
   );
