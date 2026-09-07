@@ -34,6 +34,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
   const sparksRef = useRef<Spark[]>([]);
   const animationIdRef = useRef<number | null>(null);
   const easeRef = useRef<(t: number) => number>(() => 0);
+  const drawRef = useRef<(timestamp: number) => void>(() => {});
 
   const easeFunc = useCallback(
     (t: number) => {
@@ -48,7 +49,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
           return t * (2 - t);
       }
     },
-    [easing]
+    [easing],
   );
 
   useEffect(() => {
@@ -125,13 +126,19 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
       });
 
       if (sparksRef.current.length > 0) {
-        animationIdRef.current = requestAnimationFrame(draw);
+        animationIdRef.current = requestAnimationFrame((nextTimestamp) =>
+          drawRef.current(nextTimestamp),
+        );
       } else {
         animationIdRef.current = null;
       }
     },
-    [sparkColor, sparkSize, sparkRadius, duration, extraScale]
+    [sparkColor, sparkSize, sparkRadius, duration, extraScale],
   );
+
+  useEffect(() => {
+    drawRef.current = draw;
+  }, [draw]);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>): void => {
     const canvas = canvasRef.current;
