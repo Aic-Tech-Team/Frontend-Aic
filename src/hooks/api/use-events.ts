@@ -11,11 +11,15 @@ export const eventsKeys = {
   detail: (id: string | number) => ["events", "detail", id] as const,
 };
 
-export function useEventsQuery(params: ListEventsParams = {}) {
+export function useEventsQuery(
+  params: ListEventsParams = {},
+  options: { enabled?: boolean } = {},
+) {
   const { handleError } = useErrorHandler();
 
   const query = useQuery({
     queryKey: eventsKeys.list(params),
+    enabled: options.enabled,
 
     queryFn: async () => {
       try {
