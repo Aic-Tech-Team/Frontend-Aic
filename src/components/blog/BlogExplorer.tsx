@@ -1,119 +1,72 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Search, X, Loader2 } from "lucide-react";
+import { Search, X, ChevronRight, ChevronLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Carousel } from "@/components/common/Carousel";
 import { RevealItem } from "@/components/animations/Reveal";
 import { BlogPostTicketCard } from "@/components/blog/BlogPostTicketCard";
-import { useDebounce } from "@/hooks/useDebounce";
 import { sanitizeSearchInput } from "@/lib/sanitize";
 import { cn } from "@/lib/utils";
-import { BlogPostItem } from "@/types/blog";
+import type { BlogPostItem } from "@/types/blog";
 
 const SEARCH_MAX_LENGTH = 100;
-const SEARCH_DEBOUNCE_MS = 300;
+const PAGE_SIZE = 6;
 const ALL_CATEGORY = "all";
 
-interface BlogExplorerProps {
-  spotlightPosts: BlogPostItem[];
-  categories: string[];
-  totalCount: number;
-  children: React.ReactNode;
-}
-
-export function BlogExplorer({
-  spotlightPosts,
-  categories,
-  totalCount,
-  children,
-}: BlogExplorerProps) {
+export function BlogExplorer({ posts }: { posts: BlogPostItem[] }) {
   const t = useTranslations("BlogPage");
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [, startTransition] = useTransition();
 
-  const currentQuery = searchParams.get("q") ?? "";
-  const currentCategory = searchParams.get("category") ?? ALL_CATEGORY;
+  const [searchInput, setSearchInput] = useState("");
+  const [category, setCategory] = useState<string>(ALL_CATEGORY);
+  const [page, setPage] = useState(1);
 
-  const [searchInput, setSearchInput] = useState(currentQuery);
-
-  const debouncedSearch = useDebounce(
-    sanitizeSearchInput(searchInput, SEARCH_MAX_LENGTH),
-    SEARCH_DEBOUNCE_MS,
+  const categories = useMemo(
+    () => Array.from(new Set(posts.map((p) => p.category).filter(Boolean))).sort(),
+    [posts],
   );
 
-  const isLiveSearchActive = debouncedSearch.trim().length > 0;
+  const query = sanitizeSearchInput(searchInput, SEARCH_MAX_LENGTH).trim().toLowerCase();
 
-  // API Call removed
-  const livePosts: BlogPostItem[] = [];
-  const liveCount = 0;
-  const isLiveSearchLoading = false;
-
-  /** Build a new href preserving all current params, then overriding the given ones. */
-  const buildHref = useCallback(
-    (overrides: Record<string, string | null>) => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      for (const [key, value] of Object.entries(overrides)) {
-        if (value === null || value === "") {
-          params.delete(key);
-        } else {
-          params.set(key, value);
-        }
-      }
-
-      params.delete("page");
-
-      const qs = params.toString();
-
-      return qs ? `${pathname}?${qs}` : pathname;
-    },
-    [pathname, searchParams],
-  );
-
-  const handleCategoryChange = useCallback(
-    (category: string) => {
-      startTransition(() => {
-        router.push(
-          buildHref({
-            category: category === ALL_CATEGORY ? null : category,
-          }),
-          { scroll: false },
-        );
-      });
-    },
-    [buildHref, router],
-  );
-
-  const handleClearAll = useCallback(() => {
-    setSearchInput("");
-
-    startTransition(() => {
-      router.push(pathname, { scroll: false });
+  const filtered = useMemo(() => {
+    return posts.filter((post) => {
+      const matchesCategory = category === ALL_CATEGORY || post.category === category;
+      const matchesQuery =
+        !query ||
+        post.title.toLowerCase().includes(query) ||
+        post.summary.toLowerCase().includes(query);
+      return matchesCategory && matchesQuery;
     });
-  }, [pathname, router]);
+  }, [posts, category, query]);
 
-  const hasSearchOrFilter =
-    searchInput.trim().length > 0 || currentCategory !== ALL_CATEGORY;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagePosts = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
-  const resultsCount = isLiveSearchActive ? liveCount : totalCount;
+  const hasSearchOrFilter = query.length > 0 || category !== ALL_CATEGORY;
+
+  function handleClearAll() {
+    setSearchInput("");
+    setCategory(ALL_CATEGORY);
+    setPage(1);
+  }
 
   return (
     <div>
       {/* Spotlight carousel — recent posts, regardless of filter */}
-      {spotlightPosts.length > 0 ? (
+      {posts.length > 0 ? (
         <div className="mb-6">
           <Carousel
             ariaLabel={t("title")}
             slideClassName="flex-[0_0_100%] sm:flex-[0_0_calc((100%-1.25rem)/2)] lg:flex-[0_0_calc((100%-2.5rem)/3)]"
             options={{ loop: false, slidesToScroll: 1 }}
           >
-            {spotlightPosts.slice(0, 5).map((post) => (
+            {posts.slice(0, 5).map((post) => (
               <div
                 key={post.id}
                 className="group relative h-52 overflow-hidden rounded-3xl"
@@ -124,18 +77,14 @@ export function BlogExplorer({
                     backgroundImage: `linear-gradient(135deg, rgba(10,10,20,0.18), rgba(10,10,20,0.75)), url(${post.image})`,
                   }}
                 />
-
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
                 <div className="relative flex h-full flex-col justify-end p-4 text-white sm:p-5">
                   <span className="mb-2 w-fit rounded-full border border-white/20 bg-black/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider backdrop-blur-sm">
                     {post.category}
                   </span>
-
                   <h3 className="line-clamp-2 text-base font-bold leading-snug sm:text-lg">
                     {post.title}
                   </h3>
-
                   <p className="mt-1 text-xs text-white/70 sm:text-sm">
                     {post.publishedLabel}
                   </p>
@@ -149,22 +98,19 @@ export function BlogExplorer({
       {/* Search + category filter bar */}
       <div className="surface flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="relative w-full sm:max-w-sm">
-          {isLiveSearchLoading ? (
-            <Loader2 className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
-          ) : (
-            <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          )}
-
+          <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={(e) => {
+              setSearchInput(e.target.value);
+              setPage(1);
+            }}
             maxLength={SEARCH_MAX_LENGTH}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchLabel")}
             className="ps-10 pe-9"
           />
-
           {searchInput ? (
             <button
               type="button"
@@ -181,32 +127,37 @@ export function BlogExplorer({
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={() => handleCategoryChange(ALL_CATEGORY)}
-              aria-pressed={currentCategory === ALL_CATEGORY}
+              onClick={() => {
+                setCategory(ALL_CATEGORY);
+                setPage(1);
+              }}
+              aria-pressed={category === ALL_CATEGORY}
               className={cn(
                 "rounded-full px-3.5 py-2 text-xs font-medium transition-colors sm:text-sm",
-                currentCategory === ALL_CATEGORY
+                category === ALL_CATEGORY
                   ? "bg-primary text-primary-foreground shadow-glow"
                   : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               {t("filters.all")}
             </button>
-
-            {categories.map((category) => (
+            {categories.map((c) => (
               <button
-                key={category}
+                key={c}
                 type="button"
-                onClick={() => handleCategoryChange(category)}
-                aria-pressed={currentCategory === category}
+                onClick={() => {
+                  setCategory(c);
+                  setPage(1);
+                }}
+                aria-pressed={category === c}
                 className={cn(
                   "rounded-full px-3.5 py-2 text-xs font-medium capitalize transition-colors sm:text-sm",
-                  currentCategory === category
+                  category === c
                     ? "bg-primary text-primary-foreground shadow-glow"
                     : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
-                {category}
+                {c}
               </button>
             ))}
           </div>
@@ -215,22 +166,13 @@ export function BlogExplorer({
 
       {/* Results count */}
       <p className="mb-6 mt-5 text-sm text-muted-foreground">
-        {t("resultsCount", { count: resultsCount })}
+        {t("resultsCount", { count: filtered.length })}
       </p>
 
-      {isLiveSearchActive ? (
-        isLiveSearchLoading ? (
+      {pagePosts.length > 0 ? (
+        <>
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-48 animate-pulse rounded-3xl bg-muted/50"
-              />
-            ))}
-          </div>
-        ) : livePosts.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
-            {livePosts.map((post, index) => (
+            {pagePosts.map((post, index) => (
               <RevealItem
                 key={post.id}
                 direction="up"
@@ -241,46 +183,42 @@ export function BlogExplorer({
               </RevealItem>
             ))}
           </div>
-        ) : (
-          <div className="surface flex flex-col items-center gap-4 rounded-3xl px-6 py-16 text-center">
-            <Search className="h-10 w-10 text-primary-300" />
 
-            <div>
-              <h3 className="text-lg font-bold text-foreground">
-                {t("noResultsTitle")}
-              </h3>
-
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                {t("noResultsDesc")}
-              </p>
+          {totalPages > 1 ? (
+            <div className="mt-8 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+              >
+                <ChevronRight className="h-4 w-4 ltr:rotate-180" />
+              </button>
+              <span className="px-2 text-sm text-muted-foreground">
+                {currentPage} / {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+              >
+                <ChevronLeft className="h-4 w-4 ltr:rotate-180" />
+              </button>
             </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-xl"
-              onClick={handleClearAll}
-            >
-              {t("clearFilters")}
-            </Button>
-          </div>
-        )
-      ) : totalCount > 0 ? (
-        children
+          ) : null}
+        </>
       ) : (
         <div className="surface flex flex-col items-center gap-4 rounded-3xl px-6 py-16 text-center">
           <Search className="h-10 w-10 text-primary-300" />
-
           <div>
             <h3 className="text-lg font-bold text-foreground">
               {t("noResultsTitle")}
             </h3>
-
             <p className="mt-1.5 text-sm text-muted-foreground">
               {t("noResultsDesc")}
             </p>
           </div>
-
           {hasSearchOrFilter ? (
             <Button
               variant="outline"

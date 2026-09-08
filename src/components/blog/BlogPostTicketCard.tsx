@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { CalendarDays, User, BookOpen } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { BlogPostItem } from "@/types/blog";
+import type { BlogPostItem } from "@/types/blog";
 
 function BarcodePattern() {
   return (
@@ -39,6 +39,7 @@ export function BlogPostTicketCard({
       className="real-ticket-mask group relative flex h-full flex-col overflow-hidden bg-card text-card-foreground shadow-lg transition-all duration-300 hover:shadow-2xl md:flex-row"
       style={{ animationDelay: `${index * 40}ms` }}
     >
+      {/* Ticket image */}
       <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden md:h-auto md:w-56 md:aspect-square">
         <Image
           src={post.image}
@@ -56,6 +57,7 @@ export function BlogPostTicketCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
+        {/* Category Pill */}
         <span className="absolute inset-s-3 top-3 rounded-full border border-white/20 bg-black/40 px-2.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur-md">
           {post.category}
         </span>
@@ -92,6 +94,7 @@ export function BlogPostTicketCard({
         </div>
       </div>
 
+      {/* Ticket Main Details */}
       <div className="flex min-w-0 flex-1 flex-col justify-between p-5">
         <div>
           <h3 className="line-clamp-2 wrap-break-word text-base font-bold leading-snug text-foreground sm:text-lg">
@@ -118,6 +121,7 @@ export function BlogPostTicketCard({
           </p>
         </div>
 
+        {/* Ticket Bottom Bar */}
         <div className="mt-5 flex items-center justify-between gap-3 border-t border-dashed border-border/60 pt-3">
           <BarcodePattern />
 

@@ -1,13 +1,9 @@
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowRight, CalendarDays, User, Tag } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-
-export const revalidate = 300;
-
-export async function generateMetadata() {
-  return {};
-}
+import { getSampleBlogPosts } from "@/types/BlogSamplePost";
 
 export default async function BlogPostPage({
   params,
@@ -19,17 +15,10 @@ export default async function BlogPostPage({
 
   const td = await getTranslations("BlogDetailPage");
 
-  // API data will be added here
-  const post = {
-    id,
-    title: "",
-    summary: "",
-    content: "",
-    image: "/images/qq.jpg",
-    category: "",
-    publishedLabel: "",
-    author: "",
-  };
+  const post = getSampleBlogPosts(locale).find((p) => p.id === id);
+  if (!post) {
+    notFound();
+  }
 
   return (
     <div className="py-10 sm:py-16">
@@ -53,9 +42,7 @@ export default async function BlogPostPage({
               priority
               className="object-cover"
             />
-
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-
             <span className="absolute inset-s-4 top-4 rounded-full border border-white/20 bg-black/40 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
               {post.category}
             </span>
@@ -71,14 +58,12 @@ export default async function BlogPostPage({
                 <CalendarDays className="h-4 w-4 shrink-0 text-primary" />
                 {post.publishedLabel}
               </span>
-
               {post.author ? (
                 <span className="flex items-center gap-1.5">
                   <User className="h-4 w-4 shrink-0 text-primary" />
                   {post.author}
                 </span>
               ) : null}
-
               <span className="flex items-center gap-1.5">
                 <Tag className="h-4 w-4 shrink-0 text-primary" />
                 {post.category}
@@ -94,5 +79,3 @@ export default async function BlogPostPage({
     </div>
   );
 }
-
-
