@@ -359,6 +359,24 @@
     "notFoundDesc": "The link might be wrong, or this event may have been removed.",
     "otherEventsTitle": "Other events"
   },
+  "BlogPage": {
+    "badge": "Blog",
+    "title": "Articles & Research Notes",
+    "description": "Read and search the latest educational and research posts from our members.",
+    "searchLabel": "Search articles",
+    "searchPlaceholder": "Search by title or content...",
+    "resultsCount": "{count, plural, =0 {No articles} one {# article} other {# articles}}",
+    "noResultsTitle": "No articles found",
+    "noResultsDesc": "Try changing the filters or your search term.",
+    "clearFilters": "Clear filters",
+    "readMore": "Read more",
+    "filters": {
+      "all": "All"
+    }
+  },
+  "BlogDetailPage": {
+    "backToBlog": "Back to blog"
+  },
   "Theme": {
     "dark": "Dark",
     "light": "Light",

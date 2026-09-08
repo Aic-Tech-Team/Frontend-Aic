@@ -359,6 +359,24 @@
     "notFoundDesc": "ممکن است لینک اشتباه باشد یا رویداد حذف شده باشد.",
     "otherEventsTitle": "رویدادهای دیگر"
   },
+  "BlogPage": {
+    "badge": "بلاگ",
+    "title": "مقالات و نوشته‌های علمی",
+    "description": "آخرین مطالب آموزشی و پژوهشی اعضای انجمن را بخوانید و جست‌وجو کنید.",
+    "searchLabel": "جست‌وجوی مقالات",
+    "searchPlaceholder": "جست‌وجو بر اساس عنوان یا محتوا...",
+    "resultsCount": "{count, plural, =0 {هیچ مقاله‌ای} one {# مقاله} other {# مقاله}}",
+    "noResultsTitle": "مقاله‌ای پیدا نشد",
+    "noResultsDesc": "فیلترها یا عبارت جست‌وجو را تغییر بده و دوباره امتحان کن.",
+    "clearFilters": "پاک کردن فیلترها",
+    "readMore": "ادامه مطلب",
+    "filters": {
+      "all": "همه"
+    }
+  },
+  "BlogDetailPage": {
+    "backToBlog": "بازگشت به بلاگ"
+  },
   "Theme": {
     "dark": "تیره",
     "light": "روشن",
