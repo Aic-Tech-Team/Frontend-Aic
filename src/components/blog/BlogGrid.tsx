@@ -71,7 +71,7 @@ export async function BlogGrid({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4 xl:gap-x-6">
         {posts.map((post, index) => (
           <RevealItem
             key={post.id}
@@ -89,10 +89,14 @@ export async function BlogGrid({
           <PaginationContent>
             <PaginationItem>
               <PaginationNavPrevious
-                href={currentPage > 1 ? buildPageHref(currentPage - 1) : undefined}
+                href={
+                  currentPage > 1 ? buildPageHref(currentPage - 1) : undefined
+                }
                 label={isFa ? "صفحه قبلی" : "Previous page"}
                 aria-disabled={currentPage === 1}
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                className={
+                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                }
               />
             </PaginationItem>
 
@@ -120,10 +124,18 @@ export async function BlogGrid({
 
             <PaginationItem>
               <PaginationNavNext
-                href={currentPage < totalPages ? buildPageHref(currentPage + 1) : undefined}
+                href={
+                  currentPage < totalPages
+                    ? buildPageHref(currentPage + 1)
+                    : undefined
+                }
                 label={isFa ? "صفحه بعدی" : "Next page"}
                 aria-disabled={currentPage === totalPages}
-                className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                className={
+                  currentPage === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }
               />
             </PaginationItem>
           </PaginationContent>

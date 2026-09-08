@@ -24,15 +24,19 @@ export function BlogExplorer({ posts }: { posts: BlogPostItem[] }) {
   const [page, setPage] = useState(1);
 
   const categories = useMemo(
-    () => Array.from(new Set(posts.map((p) => p.category).filter(Boolean))).sort(),
+    () =>
+      Array.from(new Set(posts.map((p) => p.category).filter(Boolean))).sort(),
     [posts],
   );
 
-  const query = sanitizeSearchInput(searchInput, SEARCH_MAX_LENGTH).trim().toLowerCase();
+  const query = sanitizeSearchInput(searchInput, SEARCH_MAX_LENGTH)
+    .trim()
+    .toLowerCase();
 
   const filtered = useMemo(() => {
     return posts.filter((post) => {
-      const matchesCategory = category === ALL_CATEGORY || post.category === category;
+      const matchesCategory =
+        category === ALL_CATEGORY || post.category === category;
       const matchesQuery =
         !query ||
         post.title.toLowerCase().includes(query) ||
@@ -171,7 +175,7 @@ export function BlogExplorer({ posts }: { posts: BlogPostItem[] }) {
 
       {pagePosts.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4 xl:gap-x-6">
             {pagePosts.map((post, index) => (
               <RevealItem
                 key={post.id}

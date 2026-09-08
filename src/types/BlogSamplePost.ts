@@ -1,10 +1,5 @@
 import type { BlogPostItem } from "@/types/blog";
 
-/**
- * ⚠️ Static placeholder data — no API call involved. Swap this file's
- * usage for the real `fetchBlogPosts`/`fetchBlogPost` (see hooks/api/blogs.ts)
- * once you're ready to wire the real backend in.
- */
 const ENGLISH_BLOG_POSTS: BlogPostItem[] = [
   {
     id: "1",

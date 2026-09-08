@@ -311,6 +311,52 @@
     --ticket-divider-x: calc(100% - 14rem);
   }
 
+  /* Vertical (stacked) ticket variant: keeps the ticket-like scalloped bites
+     on the top/bottom edges at every viewport width. Used by cards that are
+     always flex-col (e.g. 4-column blog grid) so the desktop side-notch mask
+     above never applies to them. Symmetric, so no RTL override needed. */
+  .real-ticket-mask--vertical {
+    -webkit-mask-image:
+      radial-gradient(
+        circle at var(--ticket-notch) 0,
+        transparent var(--ticket-notch),
+        #000 calc(var(--ticket-notch) + 0.5px)
+      ),
+      radial-gradient(
+        circle at var(--ticket-notch) 100%,
+        transparent var(--ticket-notch),
+        #000 calc(var(--ticket-notch) + 0.5px)
+      );
+    -webkit-mask-repeat: repeat-x, repeat-x;
+    -webkit-mask-size:
+      var(--ticket-gap) 100%,
+      var(--ticket-gap) 100%;
+    -webkit-mask-position:
+      calc(-1 * var(--ticket-notch)) 0,
+      calc(-1 * var(--ticket-notch)) 0;
+    -webkit-mask-composite: source-in;
+
+    mask-image:
+      radial-gradient(
+        circle at var(--ticket-notch) 0,
+        transparent var(--ticket-notch),
+        #000 calc(var(--ticket-notch) + 0.5px)
+      ),
+      radial-gradient(
+        circle at var(--ticket-notch) 100%,
+        transparent var(--ticket-notch),
+        #000 calc(var(--ticket-notch) + 0.5px)
+      );
+    mask-repeat: repeat-x, repeat-x;
+    mask-size:
+      var(--ticket-gap) 100%,
+      var(--ticket-gap) 100%;
+    mask-position:
+      calc(-1 * var(--ticket-notch)) 0,
+      calc(-1 * var(--ticket-notch)) 0;
+    mask-composite: intersect;
+  }
+
   @media (max-width: 767px) {
     .real-ticket-mask {
       /* On the stacked (mobile) layout the card's long edges are top/bottom */
