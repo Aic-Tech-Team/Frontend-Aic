@@ -153,7 +153,7 @@ export function BlogExplorer({
       </div>
 
       {/* Results count */}
-      {children}
+      <div className="mt-8">{children}</div>
     </div>
   );
 }

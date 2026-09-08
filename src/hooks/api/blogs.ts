@@ -11,6 +11,7 @@ export interface PaginatedBlogsResponse<T> {
 
 export type ListBlogsParams = {
   category?: string;
+  status?: string;
   search?: string;
   page?: number;
   page_size?: number;
@@ -21,10 +22,10 @@ export interface ApiBlogPost {
   title: string;
   category?: string;
   author?: string | null;
-  image?: string | null;
+  cover_image?: string | null;
   summary?: string | null;
-  short_description?: string | null;
   content?: string | null;
+  status?: string | null;
   published_at?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -53,8 +54,8 @@ export function mapApiBlogPost(post: ApiBlogPost): BlogPostItem {
     category: post.category ?? "",
     title: post.title,
     author: post.author ?? undefined,
-    image: resolveBlogImage(post.image),
-    summary: post.summary ?? post.short_description ?? "",
+    image: resolveBlogImage(post.cover_image),
+    summary: post.summary ?? post.content?.slice(0, 160) ?? "",
     content: post.content ?? undefined,
     publishedLabel: formatPublishedDate(publishedAt),
     publishedAt,

@@ -36,8 +36,9 @@ export default async function BlogPage({
 
   const [discoveryRes, pageRes] = await Promise.all([
     // Doubles as the spotlight source and the category-discovery source.
-    fetchBlogPosts({ page_size: CATEGORY_DISCOVERY_SIZE }),
+    fetchBlogPosts({ status: "published", page_size: CATEGORY_DISCOVERY_SIZE }),
     fetchBlogPosts({
+      status: "published",
       category: rawCategory === "all" ? undefined : rawCategory,
       search: query || undefined,
       page: currentPage,
