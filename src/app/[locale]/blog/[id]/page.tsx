@@ -1,9 +1,61 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowRight, CalendarDays, User, Tag } from "lucide-react";
-import { Link } from "@/i18n/navigation";
-import { getSampleBlogPosts } from "@/types/BlogSamplePost";
+import { ApiError } from "@/services/api/client";
+import {
+  fetchBlogPost,
+  fetchBlogPosts,
+  mapApiBlogPost,
+} from "@/hooks/api/blogs";
+import { BlogArticlePage } from "@/components/blog/detail/BlogArticlePage";
+import type { SidebarPost } from "@/types/blog";
+
+export const revalidate = 300;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}) {
+  const { id } = await params;
+
+  try {
+    const apiPost = await fetchBlogPost(id);
+    return {
+      title: apiPost.title,
+      description: apiPost.summary ?? apiPost.content?.slice(0, 160),
+    };
+  } catch {
+    return {};
+  }
+}
+
+function splitParagraphs(
+  content: string | undefined,
+  summary: string,
+): string[] {
+  const raw = (content ?? summary ?? "").trim();
+  if (!raw) return [];
+  const parts = raw
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  if (parts.length > 0) return parts;
+  // Single block: chunk into ~2 paragraphs for readability
+  if (raw.length > 400) {
+    const mid = Math.floor(raw.length / 2);
+    const splitAt =
+      raw.indexOf("。", mid) + 1 || raw.indexOf(".", mid) + 1 || mid;
+    return [raw.slice(0, splitAt).trim(), raw.slice(splitAt).trim()].filter(
+      Boolean,
+    );
+  }
+  return [raw];
+}
+
+function estimateReadMinutes(content: string | undefined): number {
+  const words = (content ?? "").trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200)) || 5;
+}
 
 export default async function BlogPostPage({
   params,
@@ -12,70 +64,75 @@ export default async function BlogPostPage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("BlogDetailPage");
 
-  const td = await getTranslations("BlogDetailPage");
-
-  const post = getSampleBlogPosts(locale).find((p) => p.id === id);
-  if (!post) {
-    notFound();
+  let apiPost: Awaited<ReturnType<typeof fetchBlogPost>>;
+  try {
+    apiPost = await fetchBlogPost(id);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      notFound();
+    }
+    throw error;
   }
 
+  const post = mapApiBlogPost(apiPost);
+  const readTime = (content: string | undefined) =>
+    t("readTime", { minutes: estimateReadMinutes(content) });
+
+  let sidebar: SidebarPost[] = [];
+  try {
+    const list = await fetchBlogPosts({
+      page_size: 8,
+    });
+    sidebar = list.results
+      .filter((p) => String(p.id) !== String(id))
+      .slice(0, 7)
+      .map((p) => {
+        const mapped = mapApiBlogPost(p);
+        return {
+          id: mapped.id,
+          title: mapped.title,
+          image: mapped.image,
+          date: mapped.publishedLabel,
+          readTime: readTime(mapped.content ?? mapped.summary),
+          source: mapped.author || mapped.category || "",
+        } satisfies SidebarPost;
+      });
+  } catch {
+    sidebar = [];
+  }
+
+  const latestPosts = sidebar.slice(0, 4);
+
   return (
-    <div className="py-10 sm:py-16">
-      <div className="container max-w-3xl">
-        <Link
-          href="/blog"
-          className="surface inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary-300"
-        >
-          <ArrowRight className="h-4 w-4 ltr:rotate-180" />
-          {td("backToBlog")}
-        </Link>
-
-        <article className="real-ticket-mask mt-6 overflow-hidden bg-card text-card-foreground shadow-lg">
-          <div className="relative aspect-[16/9] w-full overflow-hidden">
-            <Image
-              src={post.image}
-              alt={post.title}
-              fill
-              sizes="(min-width: 768px) 768px, 100vw"
-              unoptimized
-              priority
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-            <span className="absolute inset-s-4 top-4 rounded-full border border-white/20 bg-black/40 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
-              {post.category}
-            </span>
-          </div>
-
-          <div className="p-6 sm:p-8">
-            <h1 className="text-2xl font-extrabold leading-snug text-foreground sm:text-3xl">
-              {post.title}
-            </h1>
-
-            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-dashed border-border/60 pb-5 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <CalendarDays className="h-4 w-4 shrink-0 text-primary" />
-                {post.publishedLabel}
-              </span>
-              {post.author ? (
-                <span className="flex items-center gap-1.5">
-                  <User className="h-4 w-4 shrink-0 text-primary" />
-                  {post.author}
-                </span>
-              ) : null}
-              <span className="flex items-center gap-1.5">
-                <Tag className="h-4 w-4 shrink-0 text-primary" />
-                {post.category}
-              </span>
-            </div>
-
-            <div className="prose prose-sm sm:prose-base mt-6 max-w-none whitespace-pre-line leading-relaxed text-foreground/90">
-              {post.content || post.summary}
-            </div>
-          </div>
-        </article>
-      </div>
-    </div>
+    <BlogArticlePage
+      breadcrumb={[
+        { label: t("breadcrumbHome"), href: "/" },
+        { label: t("breadcrumbBlog"), href: "/blog" },
+        { label: post.title },
+      ]}
+      category={post.category}
+      title={post.title}
+      meta={{
+        author: post.author ?? "",
+        publishedAt: post.publishedLabel,
+        updatedAt: post.publishedLabel,
+        readTime: readTime(post.content ?? post.summary),
+      }}
+      heroImage={post.image}
+      heroAlt={post.title}
+      paragraphs={splitParagraphs(post.content, post.summary)}
+      latestPosts={latestPosts}
+      labels={{
+        breadcrumbLabel: t("breadcrumbLabel"),
+        latestPostsTitle: t("latestPostsTitle"),
+        viewAll: t("viewAll"),
+        authorLabel: t("authorLabel"),
+        publishedLabel: t("publishedLabel"),
+        updatedLabel: t("updatedLabel"),
+        readTimeLabel: t("readTimeLabel"),
+      }}
+    />
   );
 }
