@@ -21,18 +21,9 @@
   },
   "Hero": {
     "titleStatic": "Build the future with artificial intelligence!",
-    "line1": [
-      "Build the future with ",
-      "Brighter future with "
-    ],
-    "line2": [
-      "AI",
-      "modern tech"
-    ],
-    "line3": [
-      "together!",
-      "forward!"
-    ],
+    "line1": ["Build the future with ", "Brighter future with "],
+    "line2": ["AI", "modern tech"],
+    "line3": ["together!", "forward!"],
     "subtitle": "A home for learning, research, and collaboration for students passionate about AI — from specialized workshops to national competitions.",
     "ctaEvents": "View events",
     "ctaAbout": "About AIC",
@@ -375,7 +366,16 @@
     }
   },
   "BlogDetailPage": {
-    "backToBlog": "Back to blog"
+    "breadcrumbLabel": "Breadcrumb",
+    "breadcrumbHome": "Home",
+    "breadcrumbBlog": "Blog",
+    "latestPostsTitle": "Latest posts",
+    "viewAll": "View all",
+    "authorLabel": "Author",
+    "publishedLabel": "Published",
+    "updatedLabel": "Last updated",
+    "readTimeLabel": "Reading time",
+    "readTime": "{minutes} min"
   },
   "Theme": {
     "dark": "Dark",
