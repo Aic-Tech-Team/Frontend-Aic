@@ -1,8 +1,3 @@
-/**
- * پارس و مدیریت مرکزی خطا — بدون هیچ hook‌ای، توی سرور و کلاینت هر دو کار می‌کنه.
- * برای toast/navigate از هوک `useErrorHandler` استفاده کن.
- */
-
 import type {
   ErrorHandlerOptions,
   ErrorMessages,

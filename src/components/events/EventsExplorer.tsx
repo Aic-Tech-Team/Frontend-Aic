@@ -1,21 +1,35 @@
 "use client";
 
-import { useCallback, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Search, X } from "lucide-react";
+import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Carousel } from "@/components/common/Carousel";
+import { RevealItem } from "@/components/animations/Reveal";
+import { EventTicketCard } from "@/components/events/EventTicketCard";
+import { useEventsQuery } from "@/hooks/api/use-events";
+import { useDebounce } from "@/hooks/useDebounce";
 import { sanitizeSearchInput } from "@/lib/sanitize";
 import { cn } from "@/lib/utils";
+import type { ApiEventStatus } from "@/hooks/api/events";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
 
 const SEARCH_MAX_LENGTH = 100;
+const SEARCH_DEBOUNCE_MS = 300;
+const LIVE_SEARCH_PAGE_SIZE = 12;
 
 type FilterKey = "all" | EventStatus;
 
 const FILTER_KEYS: FilterKey[] = ["all", "ongoing", "upcoming", "past"];
+
+/** UI filter key -> API `status` query value ("all" has no API equivalent). */
+const filterToApiStatus: Record<Exclude<FilterKey, "all">, ApiEventStatus> = {
+  ongoing: "ongoing",
+  upcoming: "upcoming",
+  past: "finished",
+};
 
 interface EventsExplorerProps {
   /** Top few events for the spotlight carousel — fetched separately, unrelated to the active filter/page. */
@@ -43,6 +57,30 @@ export function EventsExplorer({
   const currentQuery = searchParams.get("q") ?? "";
   const currentFilter = (searchParams.get("filter") ?? "all") as FilterKey;
 
+  // Local, instant input state — typing here never blocks on the network or
+  // a server round-trip. Only the *debounced* value below triggers a fetch.
+  const [searchInput, setSearchInput] = useState(currentQuery);
+  const debouncedSearch = useDebounce(
+    sanitizeSearchInput(searchInput, SEARCH_MAX_LENGTH),
+    SEARCH_DEBOUNCE_MS,
+  );
+  const isLiveSearchActive = debouncedSearch.trim().length > 0;
+
+  // Client-side, TanStack Query-powered live search — only runs once the
+  // debounce settles, so a fast typist never fires a request per keystroke.
+  const {
+    events: liveEvents,
+    count: liveCount,
+    isLoading: isLiveSearchLoading,
+  } = useEventsQuery(
+    {
+      search: debouncedSearch || undefined,
+      status: currentFilter === "all" ? undefined : filterToApiStatus[currentFilter],
+      page_size: LIVE_SEARCH_PAGE_SIZE,
+    },
+    { enabled: isLiveSearchActive },
+  );
+
   /** Build a new href preserving all current params, then overriding the given ones. */
   const buildHref = useCallback(
     (overrides: Record<string, string | null>) => {
@@ -62,16 +100,6 @@ export function EventsExplorer({
     [pathname, searchParams],
   );
 
-  const handleQueryChange = useCallback(
-    (value: string) => {
-      const sanitized = sanitizeSearchInput(value, SEARCH_MAX_LENGTH);
-      startTransition(() => {
-        router.push(buildHref({ q: sanitized || null }), { scroll: false });
-      });
-    },
-    [buildHref, router],
-  );
-
   const handleFilterChange = useCallback(
     (key: FilterKey) => {
       startTransition(() => {
@@ -84,13 +112,16 @@ export function EventsExplorer({
   );
 
   const handleClearAll = useCallback(() => {
+    setSearchInput("");
     startTransition(() => {
       router.push(pathname, { scroll: false });
     });
   }, [pathname, router]);
 
   const hasSearchOrFilter =
-    currentQuery.trim().length > 0 || currentFilter !== "all";
+    searchInput.trim().length > 0 || currentFilter !== "all";
+
+  const resultsCount = isLiveSearchActive ? liveCount : totalCount;
 
   return (
     <div>
@@ -142,20 +173,24 @@ export function EventsExplorer({
       {/* Search + filter bar */}
       <div className="surface flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="relative w-full sm:max-w-sm">
-          <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          {isLiveSearchLoading ? (
+            <Loader2 className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+          ) : (
+            <Search className="pointer-events-none absolute start-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          )}
           <Input
             type="text"
-            value={currentQuery}
-            onChange={(e) => handleQueryChange(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             maxLength={SEARCH_MAX_LENGTH}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchLabel")}
             className="ps-10 pe-9"
           />
-          {currentQuery ? (
+          {searchInput ? (
             <button
               type="button"
-              onClick={() => handleQueryChange("")}
+              onClick={() => setSearchInput("")}
               aria-label={t("clearFilters")}
               className="absolute end-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
             >
@@ -187,11 +222,57 @@ export function EventsExplorer({
 
       {/* Results count */}
       <p className="mb-6 mt-5 text-sm text-muted-foreground">
-        {t("resultsCount", { count: totalCount })}
+        {t("resultsCount", { count: resultsCount })}
       </p>
 
-      {/* Server-rendered event grid + pagination (or empty state) */}
-      {totalCount > 0 ? (
+      {isLiveSearchActive ? (
+        // Client-side live search results (TanStack Query, debounced) — no
+        // pagination here by design, capped at LIVE_SEARCH_PAGE_SIZE.
+        isLiveSearchLoading ? (
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-48 animate-pulse rounded-3xl bg-muted/50"
+              />
+            ))}
+          </div>
+        ) : liveEvents.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-x-8">
+            {liveEvents.map((event, index) => (
+              <RevealItem
+                key={event.id}
+                direction="up"
+                delay={(index % 4) * 0.05}
+                className="h-full"
+              >
+                <EventTicketCard event={event} index={index} />
+              </RevealItem>
+            ))}
+          </div>
+        ) : (
+          <div className="surface flex flex-col items-center gap-4 rounded-3xl px-6 py-16 text-center">
+            <Search className="h-10 w-10 text-primary-300" />
+            <div>
+              <h3 className="text-lg font-bold text-foreground">
+                {t("noResultsTitle")}
+              </h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                {t("noResultsDesc")}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-xl"
+              onClick={handleClearAll}
+            >
+              {t("clearFilters")}
+            </Button>
+          </div>
+        )
+      ) : totalCount > 0 ? (
+        // Server-rendered event grid + pagination (default browse mode)
         children
       ) : (
         <div className="surface flex flex-col items-center gap-4 rounded-3xl px-6 py-16 text-center">
