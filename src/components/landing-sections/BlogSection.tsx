@@ -6,7 +6,6 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import GlareHover from "@/components/animations/GlareHover";
 import { Carousel } from "@/components/common/Carousel";
 
-
 const postImages = [
   "/images/581949583092327844.jpg",
   "/images/766456430349003443.jpg",
@@ -34,7 +33,7 @@ export async function BlogSection() {
           icon={BookOpen}
           title={t("title")}
           description={t("description")}
-          moreHref="#blog"
+          moreHref="/blog"
           moreLabel={common("more")}
         />
 

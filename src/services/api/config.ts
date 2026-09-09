@@ -1,4 +1,3 @@
-
 const DEFAULT_API_VERSION = "1.0";
 
 function getApiBaseUrl(): string {
@@ -11,8 +10,6 @@ function getApiVersionSegment(): string {
 }
 
 function base(): string {
-  // NEXT_PUBLIC_API_BASE_URL already ends in /api (e.g. https://.../api) —
-  // only append the version segment here, don't add /api again.
   return `${getApiBaseUrl()}/${getApiVersionSegment()}`;
 }
 
@@ -27,5 +24,9 @@ export const apiEndpoints = {
   events: {
     list: () => `${base()}/events/`,
     detail: (id: number | string) => `${base()}/events/${id}/`,
+  },
+  blogs: {
+    list: () => `${base()}/blogs/`,
+    detail: (id: number | string) => `${base()}/blogs/${id}/`,
   },
 } as const;

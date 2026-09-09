@@ -34,7 +34,7 @@ export async function EventsSection() {
           icon={Ticket}
           title={t("title")}
           description={t("description")}
-          moreHref="#events"
+          moreHref="/events"
           moreLabel={common("more")}
         />
 
@@ -75,7 +75,9 @@ export async function EventsSection() {
                         <h3 className="text-lg font-bold leading-7 text-white">
                           {event.title}
                         </h3>
-                        <p className="mt-1 text-sm text-white/70">{event.date}</p>
+                        <p className="mt-1 text-sm text-white/70">
+                          {event.date}
+                        </p>
                       </div>
                     </div>
                   </div>
