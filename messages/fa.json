@@ -377,6 +377,21 @@
     "readTimeLabel": "زمان مطالعه",
     "readTime": "{minutes} دقیقه"
   },
+    "ActivitiesPage": {
+    "badge": "فعالیت‌ها",
+    "title": "فعالیت‌ها و برنامه‌های انجمن",
+    "description": "مسابقات، جشنواره‌ها و برنامه‌هایی برای تجربه، یادگیری و رشد در کنار هم.",
+    "searchLabel": "جست‌وجوی فعالیت‌ها",
+    "searchPlaceholder": "جست‌وجو بر اساس عنوان یا موضوع...",
+    "resultsCount": "{count, plural, =0 {هیچ فعالیتی} one {# فعالیت} other {# فعالیت}}",
+    "noResultsTitle": "فعالیتی پیدا نشد",
+    "noResultsDesc": "فیلترها یا عبارت جست‌وجو را تغییر بده و دوباره امتحان کن.",
+    "clearFilters": "پاک کردن فیلترها",
+    "learnMore": "اطلاعات بیشتر",
+    "filters": {
+      "all": "همه"
+    }
+  },
   "Theme": {
     "dark": "تیره",
     "light": "روشن",
