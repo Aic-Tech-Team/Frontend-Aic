@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { CalendarClock, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Link } from "@/i18n/navigation";
 import type { ActivityItem } from "@/types/activity";
 
 function BarcodePattern() {
@@ -20,7 +21,6 @@ function BarcodePattern() {
     </div>
   );
 }
-
 
 export function ActivityTicketCard({
   activity,
@@ -97,10 +97,13 @@ export function ActivityTicketCard({
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-dashed border-border/60 pt-3">
             <BarcodePattern />
 
-            <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-md">
+            <Link
+              href={`/activities/${activity.id}`}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-md transition-opacity hover:opacity-90"
+            >
               {t("learnMore")}
               <ArrowLeft className="h-3.5 w-3.5 ltr:rotate-180" />
-            </span>
+            </Link>
           </div>
         </div>
       </article>
