@@ -2,7 +2,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CalendarClock } from "lucide-react";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { ActivitiesExplorer } from "@/components/activities/ActivitiesExplorer";
-import { getSampleActivities } from "@/types/activity-sample-items";
 
 export default async function ActivitiesPage({
   params,
@@ -24,7 +23,7 @@ export default async function ActivitiesPage({
           description={t("description")}
           align="center"
         />
-        <ActivitiesExplorer activities={getSampleActivities(locale)} />
+        <ActivitiesExplorer />
       </div>
     </div>
   );
