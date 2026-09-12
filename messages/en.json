@@ -377,7 +377,7 @@
     "readTimeLabel": "Reading time",
     "readTime": "{minutes} min"
   },
-    "ActivitiesPage": {
+  "ActivitiesPage": {
     "badge": "Activities",
     "title": "AIC activities and programs",
     "description": "Contests, festivals, and programs for experience, learning, and growth together.",
@@ -391,6 +391,14 @@
     "filters": {
       "all": "All"
     }
+  },
+  "ActivityDetailPage": {
+    "breadcrumbLabel": "Breadcrumb",
+    "breadcrumbHome": "Home",
+    "breadcrumbActivities": "Activities",
+    "latestActivitiesTitle": "Recent activities",
+    "viewAll": "View all",
+    "dateLabel": "Date"
   },
   "Theme": {
     "dark": "Dark",

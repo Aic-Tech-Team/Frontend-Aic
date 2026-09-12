@@ -377,7 +377,7 @@
     "readTimeLabel": "زمان مطالعه",
     "readTime": "{minutes} دقیقه"
   },
-    "ActivitiesPage": {
+  "ActivitiesPage": {
     "badge": "فعالیت‌ها",
     "title": "فعالیت‌ها و برنامه‌های انجمن",
     "description": "مسابقات، جشنواره‌ها و برنامه‌هایی برای تجربه، یادگیری و رشد در کنار هم.",
@@ -391,6 +391,14 @@
     "filters": {
       "all": "همه"
     }
+  },
+  "ActivityDetailPage": {
+    "breadcrumbLabel": "مسیر صفحه",
+    "breadcrumbHome": "خانه",
+    "breadcrumbActivities": "فعالیت‌ها",
+    "latestActivitiesTitle": "فعالیت‌های اخیر",
+    "viewAll": "مشاهده همه",
+    "dateLabel": "زمان برگزاری"
   },
   "Theme": {
     "dark": "تیره",

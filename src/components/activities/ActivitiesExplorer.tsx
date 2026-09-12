@@ -7,54 +7,69 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RevealItem } from "@/components/animations/Reveal";
 import { ActivityTicketCard } from "@/components/activities/ActivityTicketCard";
+import { useActivitiesQuery } from "@/hooks/api/use-activities";
+import { useDebounce } from "@/hooks/useDebounce";
 import { sanitizeSearchInput } from "@/lib/sanitize";
 import { cn } from "@/lib/utils";
-import type { ActivityItem } from "@/types/activity";
 
 const SEARCH_MAX_LENGTH = 100;
+const SEARCH_DEBOUNCE_MS = 300;
 const PAGE_SIZE = 8;
+const CATEGORY_DISCOVERY_SIZE = 100;
 const ALL_CATEGORY = "all";
 
 
-export function ActivitiesExplorer({ activities }: { activities: ActivityItem[] }) {
+export function ActivitiesExplorer() {
   const t = useTranslations("ActivitiesPage");
 
   const [searchInput, setSearchInput] = useState("");
   const [category, setCategory] = useState<string>(ALL_CATEGORY);
   const [page, setPage] = useState(1);
 
+  const debouncedSearch = useDebounce(
+    sanitizeSearchInput(searchInput, SEARCH_MAX_LENGTH).trim(),
+    SEARCH_DEBOUNCE_MS,
+  );
+
+  // Category discovery — a wide, unfiltered fetch mirroring BlogPage's
+  // CATEGORY_DISCOVERY_SIZE pattern (the API is paginated, so categories
+  // can't be derived from a single page of results).
+  const { activities: discoveryActivities } = useActivitiesQuery({
+    page_size: CATEGORY_DISCOVERY_SIZE,
+  });
+
   const categories = useMemo(
     () =>
-      Array.from(new Set(activities.map((a) => a.category).filter(Boolean))).sort(),
-    [activities],
+      Array.from(
+        new Set(discoveryActivities.map((a) => a.category).filter(Boolean)),
+      ).sort(),
+    [discoveryActivities],
   );
 
-  const query = sanitizeSearchInput(searchInput, SEARCH_MAX_LENGTH).trim().toLowerCase();
+  const {
+    activities: pageActivities,
+    count: totalCount,
+    isLoading,
+    isError,
+    refetch,
+  } = useActivitiesQuery({
+    category: category === ALL_CATEGORY ? undefined : category,
+    search: debouncedSearch || undefined,
+    page,
+    page_size: PAGE_SIZE,
+  });
 
-  const filtered = useMemo(() => {
-    return activities.filter((activity) => {
-      const matchesCategory = category === ALL_CATEGORY || activity.category === category;
-      const matchesQuery =
-        !query ||
-        activity.title.toLowerCase().includes(query) ||
-        activity.summary.toLowerCase().includes(query);
-      return matchesCategory && matchesQuery;
-    });
-  }, [activities, category, query]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
-  const pageActivities = filtered.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
-  );
 
-  const hasSearchOrFilter = query.length > 0 || category !== ALL_CATEGORY;
+  const hasSearchOrFilter =
+    debouncedSearch.length > 0 || category !== ALL_CATEGORY;
 
   function handleClearAll() {
     setSearchInput("");
     setCategory(ALL_CATEGORY);
     setPage(1);
+    void refetch();
   }
 
   return (
@@ -130,10 +145,39 @@ export function ActivitiesExplorer({ activities }: { activities: ActivityItem[] 
 
       {/* Results count */}
       <p className="mb-6 mt-5 text-sm text-muted-foreground">
-        {t("resultsCount", { count: filtered.length })}
+        {t("resultsCount", { count: isError ? 0 : totalCount })}
       </p>
 
-      {pageActivities.length > 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4 xl:gap-x-6">
+          {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+            <div
+              key={i}
+              className="h-72 animate-pulse rounded-3xl bg-muted/50"
+            />
+          ))}
+        </div>
+      ) : isError ? (
+        <div className="surface flex flex-col items-center gap-4 rounded-3xl px-6 py-16 text-center">
+          <Search className="h-10 w-10 text-primary-300" />
+          <div>
+            <h3 className="text-lg font-bold text-foreground">
+              {t("noResultsTitle")}
+            </h3>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {t("noResultsDesc")}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-xl"
+            onClick={handleClearAll}
+          >
+            {t("clearFilters")}
+          </Button>
+        </div>
+      ) : pageActivities.length > 0 ? (
         <>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4 xl:gap-x-6">
             {pageActivities.map((activity, index) => (
