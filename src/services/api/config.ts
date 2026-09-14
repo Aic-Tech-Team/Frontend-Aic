@@ -29,4 +29,8 @@ export const apiEndpoints = {
     list: () => `${base()}/blogs/`,
     detail: (id: number | string) => `${base()}/blogs/${id}/`,
   },
+  activities: {
+    list: () => `${base()}/activities/`,
+    detail: (id: number | string) => `${base()}/activities/${id}/`,
+  },
 } as const;
