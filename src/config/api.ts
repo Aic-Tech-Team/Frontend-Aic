@@ -1,6 +1,4 @@
-export enum ApiVersion {
-  V1 = "api/v1",
-}
-
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "";
+// Canonical API config lives in "@/services/api/config".
+// This module is kept only so old imports don't break — do not add
+// competing base URLs here.
+export { apiEndpoints, getApiConfig } from "@/services/api/config";

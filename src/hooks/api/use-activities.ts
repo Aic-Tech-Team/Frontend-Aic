@@ -29,8 +29,11 @@ export function useActivitiesQuery(
 
     queryFn: async () => {
       try {
-        const { count, next, previous, results } =
-          await fetchActivities(params);
+        // Client-side fetch: no `next.revalidate` (server-only fetch option).
+        const { count, next, previous, results } = await fetchActivities(
+          params,
+          { revalidate: undefined },
+        );
 
         return {
           count,
@@ -68,7 +71,7 @@ export function useActivityQuery(id: string | number) {
 
     queryFn: async () => {
       try {
-        const activity = await fetchActivity(id);
+        const activity = await fetchActivity(id, { revalidate: undefined });
 
         return mapApiActivity(activity);
       } catch (error) {

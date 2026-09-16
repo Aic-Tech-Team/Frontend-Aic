@@ -33,13 +33,27 @@ export class ApiError extends Error {
 
 function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
   if (!params) return url;
-  const withParams = new URL(url);
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null && value !== "") {
+  const entries = Object.entries(params).filter(
+    ([, value]) => value !== undefined && value !== null && value !== "",
+  );
+  if (entries.length === 0) return url;
+  // `url` is absolute in practice, but tolerate a relative base (e.g. tests
+  // or missing env) by falling back to manual query-string construction.
+  try {
+    const withParams = new URL(url);
+    for (const [key, value] of entries) {
       withParams.searchParams.set(key, String(value));
     }
+    return withParams.toString();
+  } catch {
+    const qs = entries
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
+      )
+      .join("&");
+    return qs ? `${url}${url.includes("?") ? "&" : "?"}${qs}` : url;
   }
-  return withParams.toString();
 }
 
 async function parseResponseBody(response: Response): Promise<unknown> {

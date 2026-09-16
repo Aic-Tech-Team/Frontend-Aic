@@ -23,8 +23,10 @@ export function useEventsQuery(
 
     queryFn: async () => {
       try {
-        const { count, next, previous, results } =
-          await fetchEvents(params);
+        // Client-side fetch: no `next.revalidate` (server-only fetch option).
+        const { count, next, previous, results } = await fetchEvents(params, {
+          revalidate: undefined,
+        });
 
         return {
           count,
@@ -61,7 +63,7 @@ export function useEventQuery(id: string | number) {
 
     queryFn: async () => {
       try {
-        const event = await fetchEvent(id);
+        const event = await fetchEvent(id, { revalidate: undefined });
 
         return mapApiEvent(event);
       } catch (error) {

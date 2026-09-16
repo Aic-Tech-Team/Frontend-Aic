@@ -24,7 +24,11 @@ export function useBlogPostsQuery(
 
     queryFn: async () => {
       try {
-        const { count, next, previous, results } = await fetchBlogPosts(params);
+        // Client-side fetch: no `next.revalidate` (server-only fetch option).
+        const { count, next, previous, results } = await fetchBlogPosts(
+          params,
+          { revalidate: undefined },
+        );
 
         return {
           count,
@@ -61,7 +65,7 @@ export function useBlogPostQuery(id: string | number) {
 
     queryFn: async () => {
       try {
-        const post = await fetchBlogPost(id);
+        const post = await fetchBlogPost(id, { revalidate: undefined });
 
         return mapApiBlogPost(post);
       } catch (error) {
