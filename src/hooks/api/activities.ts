@@ -32,21 +32,23 @@ export interface ApiActivity {
 
 export async function fetchActivities(
   params: ListActivitiesParams = {},
+  opts: { revalidate?: number } = { revalidate: 300 },
 ): Promise<PaginatedActivitiesResponse<ApiActivity>> {
   return api<PaginatedActivitiesResponse<ApiActivity>>(
     apiEndpoints.activities.list(),
     {
       params,
-      revalidate: 300,
+      revalidate: opts.revalidate,
     },
   );
 }
 
 export async function fetchActivity(
   id: string | number,
+  opts: { revalidate?: number } = { revalidate: 300 },
 ): Promise<ApiActivity> {
   return api<ApiActivity>(apiEndpoints.activities.detail(id), {
-    revalidate: 300,
+    revalidate: opts.revalidate,
   });
 }
 
@@ -69,8 +71,14 @@ function resolveActivityImage(image: string | null | undefined): string {
   if (!image) return "/images/qq.jpg";
   if (/^https?:\/\//i.test(image)) return image;
 
+  // Origin-based for the same reason as events (see resolveEventImage).
   const { apiBaseUrl } = getApiConfig();
-  return apiBaseUrl ? new URL(image, `${apiBaseUrl}/`).toString() : image;
+  try {
+    const origin = new URL(apiBaseUrl).origin;
+    return new URL(image, `${origin}/`).toString();
+  } catch {
+    return image;
+  }
 }
 
 function formatActivityDate(value: string): string {

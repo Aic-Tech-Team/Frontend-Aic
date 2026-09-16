@@ -42,19 +42,25 @@ export interface ApiEvent {
   updated_at?: string;
 }
 
-export async function fetchEvents(params: ListEventsParams = {}) {
+export async function fetchEvents(
+  params: ListEventsParams = {},
+  opts: { revalidate?: number } = { revalidate: 300 },
+) {
   return api<ApiResponse<PaginatedResponse<ApiEvent>>>(
     apiEndpoints.events.list(),
     {
       params,
-      revalidate: 300,
+      revalidate: opts.revalidate,
     },
   );
 }
 
-export async function fetchEvent(id: string | number) {
+export async function fetchEvent(
+  id: string | number,
+  opts: { revalidate?: number } = { revalidate: 300 },
+) {
   return api<ApiResponse<ApiEvent>>(apiEndpoints.events.detail(id), {
-    revalidate: 300,
+    revalidate: opts.revalidate,
   });
 }
 
@@ -86,8 +92,17 @@ function resolveEventImage(image: string | null | undefined): string {
   if (!image) return "/images/qq.jpg"; // Default placeholder image
   if (/^https?:\/\//i.test(image)) return image;
 
+  // Resolve media paths against the API *origin* (https://host/), never the
+  // versioned base (https://host/api) — a path without a leading slash would
+  // otherwise break to /api/media/... Detail responses use "/media/...",
+  // which is origin-safe either way.
   const { apiBaseUrl } = getApiConfig();
-  return apiBaseUrl ? new URL(image, `${apiBaseUrl}/`).toString() : image;
+  try {
+    const origin = new URL(apiBaseUrl).origin;
+    return new URL(image, `${origin}/`).toString();
+  } catch {
+    return image;
+  }
 }
 
 function buildDateLabel(eventDate: string): string {

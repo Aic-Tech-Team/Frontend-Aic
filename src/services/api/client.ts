@@ -33,13 +33,27 @@ export class ApiError extends Error {
 
 function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
   if (!params) return url;
-  const withParams = new URL(url);
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null && value !== "") {
+  const entries = Object.entries(params).filter(
+    ([, value]) => value !== undefined && value !== null && value !== "",
+  );
+  if (entries.length === 0) return url;
+  // `url` is absolute in practice, but tolerate a relative base (e.g. tests
+  // or missing env) by falling back to manual query-string construction.
+  try {
+    const withParams = new URL(url);
+    for (const [key, value] of entries) {
       withParams.searchParams.set(key, String(value));
     }
+    return withParams.toString();
+  } catch {
+    const qs = entries
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
+      )
+      .join("&");
+    return qs ? `${url}${url.includes("?") ? "&" : "?"}${qs}` : url;
   }
-  return withParams.toString();
 }
 
 async function parseResponseBody(response: Response): Promise<unknown> {
@@ -50,12 +64,51 @@ async function parseResponseBody(response: Response): Promise<unknown> {
   return text || null;
 }
 
+/**
+ * In-flight deduplication for identical concurrent GETs.
+ * 100 rapid clicks on the same section share 1 network request
+ * instead of firing 100. Entries are removed on settle, so
+ * sequential (non-overlapping) calls still fetch fresh data
+ * per React Query's staleTime/GC policy.
+ */
+const inflightRequests = new Map<string, Promise<unknown>>();
+
+function isDedupable(method: string | undefined, body: unknown): boolean {
+  return (method === undefined || method.toUpperCase() === "GET") && body === undefined;
+}
+
 export async function api<T = unknown>(
   url: string,
   options: ApiRequestOptions = {},
 ): Promise<T> {
   const { params, body, revalidate, headers, ...init } = options;
   const finalUrl = buildUrl(url, params);
+
+  if (!isDedupable(init.method, body)) {
+    return fetchAndParse<T>(finalUrl, headers, init, body, revalidate);
+  }
+
+  const key = `GET ${finalUrl}`;
+  const existing = inflightRequests.get(key);
+  if (existing) return existing as Promise<T>;
+
+  const request = fetchAndParse<T>(finalUrl, headers, init, body, revalidate).finally(
+    () => {
+      if (inflightRequests.get(key) === request) inflightRequests.delete(key);
+    },
+  );
+
+  inflightRequests.set(key, request);
+  return request;
+}
+
+async function fetchAndParse<T>(
+  finalUrl: string,
+  headers: ApiRequestOptions["headers"],
+  init: Omit<RequestInit, "body" | "headers">,
+  body: unknown,
+  revalidate: number | undefined,
+): Promise<T> {
 
   const response = await fetch(finalUrl, {
     ...init,

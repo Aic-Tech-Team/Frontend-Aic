@@ -41,7 +41,7 @@ export async function ActivitiesSection() {
           icon={CalendarClock}
           title={t("title")}
           description={t("description")}
-          moreHref="#activities"
+          moreHref="/activities"
           moreLabel={common("more")}
         />
 

@@ -3,6 +3,7 @@ import { Newspaper } from "lucide-react";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { BlogExplorer } from "@/components/blog/BlogExplorer";
 import { BlogGrid } from "@/components/blog/BlogGrid";
+import { ApiError } from "@/services/api/client";
 import { fetchBlogPosts, mapApiBlogPost } from "@/hooks/api/blogs";
 
 export const revalidate = 300;
@@ -34,15 +35,36 @@ export default async function BlogPage({
 
   const t = await getTranslations("BlogPage");
 
+  // A hand-crafted ?category=xxx that the API doesn't know returns 400.
+  // Fall back to unfiltered instead of crashing the page (500).
+  async function fetchPageRes() {
+    try {
+      return await fetchBlogPosts({
+        category: rawCategory === "all" ? undefined : rawCategory,
+        search: query || undefined,
+        page: currentPage,
+        page_size: PAGE_SIZE,
+      });
+    } catch (error) {
+      if (
+        error instanceof ApiError &&
+        error.status === 400 &&
+        rawCategory !== "all"
+      ) {
+        return fetchBlogPosts({
+          search: query || undefined,
+          page: currentPage,
+          page_size: PAGE_SIZE,
+        });
+      }
+      throw error;
+    }
+  }
+
   const [discoveryRes, pageRes] = await Promise.all([
     // Doubles as the spotlight source and the category-discovery source.
     fetchBlogPosts({ page_size: CATEGORY_DISCOVERY_SIZE }),
-    fetchBlogPosts({
-      category: rawCategory === "all" ? undefined : rawCategory,
-      search: query || undefined,
-      page: currentPage,
-      page_size: PAGE_SIZE,
-    }),
+    fetchPageRes(),
   ]);
 
   const discoveryPosts = discoveryRes.results.map(mapApiBlogPost);

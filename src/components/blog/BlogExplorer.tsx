@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { Search, X } from "lucide-react";
@@ -33,13 +33,27 @@ export function BlogExplorer({
 
   const [searchInput, setSearchInput] = useState(search);
   const category = selectedCategory || ALL_CATEGORY;
+  const lastPushedRef = useRef<string | null>(null);
 
   function updateFilters(nextSearch: string, nextCategory: string) {
+    const trimmedSearch = nextSearch.trim();
+    // Same-section repeat clicks: identical URL -> skip router.push/fetch.
+    // lastPushedRef also collapses rapid duplicate clicks fired before
+    // the server re-renders with new props.
+    if (
+      nextCategory === category &&
+      trimmedSearch === search.trim()
+    ) {
+      return;
+    }
     const params = new URLSearchParams();
-    if (nextSearch.trim()) params.set("q", nextSearch.trim());
+    if (trimmedSearch) params.set("q", trimmedSearch);
     if (nextCategory !== ALL_CATEGORY) params.set("category", nextCategory);
     const queryString = params.toString();
-    router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    const href = queryString ? `${pathname}?${queryString}` : pathname;
+    if (lastPushedRef.current === href) return;
+    lastPushedRef.current = href;
+    router.push(href);
   }
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
