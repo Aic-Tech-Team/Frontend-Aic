@@ -33,16 +33,20 @@ export interface ApiBlogPost {
 
 export async function fetchBlogPosts(
   params: ListBlogsParams = {},
+  opts: { revalidate?: number } = { revalidate: 300 },
 ): Promise<PaginatedBlogsResponse<ApiBlogPost>> {
   return api<PaginatedBlogsResponse<ApiBlogPost>>(apiEndpoints.blogs.list(), {
     params,
-    revalidate: 300,
+    revalidate: opts.revalidate,
   });
 }
 
-export async function fetchBlogPost(id: string | number): Promise<ApiBlogPost> {
+export async function fetchBlogPost(
+  id: string | number,
+  opts: { revalidate?: number } = { revalidate: 300 },
+): Promise<ApiBlogPost> {
   return api<ApiBlogPost>(apiEndpoints.blogs.detail(id), {
-    revalidate: 300,
+    revalidate: opts.revalidate,
   });
 }
 
@@ -66,8 +70,14 @@ function resolveBlogImage(image: string | null | undefined): string {
   if (!image) return "/images/qq.jpg";
   if (/^https?:\/\//i.test(image)) return image;
 
+  // Origin-based for the same reason as events (see resolveEventImage).
   const { apiBaseUrl } = getApiConfig();
-  return apiBaseUrl ? new URL(image, `${apiBaseUrl}/`).toString() : image;
+  try {
+    const origin = new URL(apiBaseUrl).origin;
+    return new URL(image, `${origin}/`).toString();
+  } catch {
+    return image;
+  }
 }
 
 function formatPublishedDate(value: string): string {

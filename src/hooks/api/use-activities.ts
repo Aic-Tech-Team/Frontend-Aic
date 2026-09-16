@@ -29,8 +29,11 @@ export function useActivitiesQuery(
 
     queryFn: async () => {
       try {
-        const { count, next, previous, results } =
-          await fetchActivities(params);
+        // Client-side fetch: no `next.revalidate` (server-only fetch option).
+        const { count, next, previous, results } = await fetchActivities(
+          params,
+          { revalidate: undefined },
+        );
 
         return {
           count,
@@ -54,6 +57,7 @@ export function useActivitiesQuery(
     count: query.data?.count ?? 0,
     hasNextPage: Boolean(query.data?.next),
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     isError: query.isError,
     refetch: query.refetch,
   };
@@ -67,7 +71,7 @@ export function useActivityQuery(id: string | number) {
 
     queryFn: async () => {
       try {
-        const activity = await fetchActivity(id);
+        const activity = await fetchActivity(id, { revalidate: undefined });
 
         return mapApiActivity(activity);
       } catch (error) {

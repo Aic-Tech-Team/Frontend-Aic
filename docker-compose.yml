@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://kaic.karaj.iau.ir}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://kaic.karaj.iau.ir/api}
         NEXT_PUBLIC_API_VERSION: ${NEXT_PUBLIC_API_VERSION:-1.0}
 
     image: aic-frontend

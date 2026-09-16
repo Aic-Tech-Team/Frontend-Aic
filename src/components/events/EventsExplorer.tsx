@@ -52,7 +52,7 @@ export function EventsExplorer({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
 
   const currentQuery = searchParams.get("q") ?? "";
   const currentFilter = (searchParams.get("filter") ?? "all") as FilterKey;
@@ -102,21 +102,24 @@ export function EventsExplorer({
 
   const handleFilterChange = useCallback(
     (key: FilterKey) => {
+      // Same-section repeat clicks: no state change -> no navigation/fetch.
+      if (key === currentFilter || isPending) return;
       startTransition(() => {
         router.push(buildHref({ filter: key === "all" ? null : key }), {
           scroll: false,
         });
       });
     },
-    [buildHref, router],
+    [buildHref, router, currentFilter, isPending],
   );
 
   const handleClearAll = useCallback(() => {
+    if (!searchInput && currentFilter === "all") return;
     setSearchInput("");
     startTransition(() => {
       router.push(pathname, { scroll: false });
     });
-  }, [pathname, router]);
+  }, [pathname, router, searchInput, currentFilter]);
 
   const hasSearchOrFilter =
     searchInput.trim().length > 0 || currentFilter !== "all";
@@ -206,6 +209,7 @@ export function EventsExplorer({
               type="button"
               onClick={() => handleFilterChange(key)}
               aria-pressed={currentFilter === key}
+              disabled={isPending}
               className={cn(
                 "rounded-full px-3.5 py-2 text-xs font-medium transition-colors sm:text-sm",
                 currentFilter === key
