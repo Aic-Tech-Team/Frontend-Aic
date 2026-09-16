@@ -50,6 +50,7 @@ export function ActivitiesExplorer() {
     activities: pageActivities,
     count: totalCount,
     isLoading,
+    isFetching,
     isError,
     refetch,
   } = useActivitiesQuery({
@@ -65,7 +66,22 @@ export function ActivitiesExplorer() {
   const hasSearchOrFilter =
     debouncedSearch.length > 0 || category !== ALL_CATEGORY;
 
+  function selectCategory(next: string) {
+    // Same-section repeat clicks: no state change -> no queryKey change -> no fetch.
+    if (next === category) return;
+    setCategory(next);
+    setPage(1);
+  }
+
+  function goToPage(next: number) {
+    const clamped = Math.min(Math.max(1, next), totalPages);
+    // Same-page repeat clicks or clicks while a page fetch is in-flight: skip.
+    if (clamped === page || isFetching) return;
+    setPage(clamped);
+  }
+
   function handleClearAll() {
+    if (!searchInput && category === ALL_CATEGORY && page === 1) return;
     setSearchInput("");
     setCategory(ALL_CATEGORY);
     setPage(1);
@@ -106,10 +122,7 @@ export function ActivitiesExplorer() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={() => {
-                setCategory(ALL_CATEGORY);
-                setPage(1);
-              }}
+              onClick={() => selectCategory(ALL_CATEGORY)}
               aria-pressed={category === ALL_CATEGORY}
               className={cn(
                 "rounded-full px-3.5 py-2 text-xs font-medium transition-colors sm:text-sm",
@@ -124,10 +137,7 @@ export function ActivitiesExplorer() {
               <button
                 key={c}
                 type="button"
-                onClick={() => {
-                  setCategory(c);
-                  setPage(1);
-                }}
+                onClick={() => selectCategory(c)}
                 aria-pressed={category === c}
                 className={cn(
                   "rounded-full px-3.5 py-2 text-xs font-medium transition-colors sm:text-sm",
@@ -196,8 +206,8 @@ export function ActivitiesExplorer() {
             <div className="mt-8 flex items-center justify-center gap-2">
               <button
                 type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1 || isFetching}
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
               >
                 <ChevronRight className="h-4 w-4 ltr:rotate-180" />
@@ -207,8 +217,8 @@ export function ActivitiesExplorer() {
               </span>
               <button
                 type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages || isFetching}
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
               >
                 <ChevronLeft className="h-4 w-4 ltr:rotate-180" />

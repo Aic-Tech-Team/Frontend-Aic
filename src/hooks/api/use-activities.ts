@@ -54,6 +54,7 @@ export function useActivitiesQuery(
     count: query.data?.count ?? 0,
     hasNextPage: Boolean(query.data?.next),
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     isError: query.isError,
     refetch: query.refetch,
   };
