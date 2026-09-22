@@ -22,6 +22,7 @@ export function SidebarPostCard({ post, showDivider }: SidebarPostCardProps) {
             alt={post.title}
             fill
             sizes="76px"
+            unoptimized
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </span>

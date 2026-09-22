@@ -1,6 +1,7 @@
 import type { ApiResponse } from "@/types";
 import { api } from "@/services/api/client";
-import { apiEndpoints, getApiConfig } from "@/services/api/config";
+import { apiEndpoints } from "@/services/api/config";
+import { resolveMediaUrl } from "@/services/api/media";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
 
 export type ApiEventType =
@@ -80,7 +81,7 @@ export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
     startAt: event.event_date,
     endAt: event.event_date,
     seatsLeft: null,
-    image: resolveEventImage(event.image),
+    image: resolveMediaUrl(event.image),
     desc: event.short_description || event.description || "",
     fullDesc: event.description,
     registrationLink: event.registration_link ?? undefined,
@@ -88,22 +89,6 @@ export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
   };
 }
 
-function resolveEventImage(image: string | null | undefined): string {
-  if (!image) return "/images/qq.jpg"; // Default placeholder image
-  if (/^https?:\/\//i.test(image)) return image;
-
-  // Resolve media paths against the API *origin* (https://host/), never the
-  // versioned base (https://host/api) — a path without a leading slash would
-  // otherwise break to /api/media/... Detail responses use "/media/...",
-  // which is origin-safe either way.
-  const { apiBaseUrl } = getApiConfig();
-  try {
-    const origin = new URL(apiBaseUrl).origin;
-    return new URL(image, `${origin}/`).toString();
-  } catch {
-    return image;
-  }
-}
 
 function buildDateLabel(eventDate: string): string {
   const date = new Date(eventDate);

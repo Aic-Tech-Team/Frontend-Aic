@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ContentUnavailablePage } from "@/components/common/ContentUnavailable";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ApiError } from "@/services/api/client";
 import {
@@ -73,7 +74,10 @@ export default async function BlogPostPage({
     if (error instanceof ApiError && error.status === 404) {
       notFound();
     }
-    throw error;
+    // Upstream unreachable/erroring. error.tsx only renders client-side for an
+    // initial SSR throw, so handle it here to avoid a bare 500 document.
+    console.error("[blog] failed to load:", error);
+    return <ContentUnavailablePage />;
   }
 
   const post = mapApiBlogPost(apiPost);

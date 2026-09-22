@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
+        # Browser-facing. Baked into the client bundle at build time, so it must
+        # be the URL a visitor's browser can reach.
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://kaic.karaj.iau.ir/api}
         NEXT_PUBLIC_API_VERSION: ${NEXT_PUBLIC_API_VERSION:-1.0}
 
@@ -11,11 +13,33 @@ services:
     container_name: aic-frontend
     restart: unless-stopped
 
+    environment:
+      # Server-facing. Read at runtime (never baked, never shipped to the browser).
+      #
+      # Server Components fetch from *inside* this container, where the public
+      # hostname is unroutable: resolving kaic.karaj.iau.ir returns this host's
+      # own public IP, so the connect has to hairpin back through nginx and
+      # instead hangs until it times out — turning every server-rendered route
+      # into a 500. Going straight to gunicorn over the shared docker network
+      # skips DNS, nginx and TLS entirely.
+      API_INTERNAL_BASE_URL: ${API_INTERNAL_BASE_URL:-http://app-backend:8000/api}
+
     ports:
       - "127.0.0.1:8040:3000"
+
+    networks:
+      - app-network
 
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
+
+networks:
+  # The network the backend compose project already created. Compose prefixes
+  # network names with its project name, so confirm the real one with
+  # `docker network ls` and override BACKEND_NETWORK_NAME if it differs.
+  app-network:
+    external: true
+    name: ${BACKEND_NETWORK_NAME:-backend-aic-main_app-network}
