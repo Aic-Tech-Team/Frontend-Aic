@@ -1,5 +1,6 @@
 import { api } from "@/services/api/client";
-import { apiEndpoints, getApiConfig } from "@/services/api/config";
+import { apiEndpoints } from "@/services/api/config";
+import { resolveMediaUrl } from "@/services/api/media";
 import type { ActivityItem } from "@/types/activity";
 
 export interface PaginatedActivitiesResponse<T> {
@@ -59,7 +60,7 @@ export function mapApiActivity(activity: ApiActivity): ActivityItem {
     id: String(activity.id),
     category: activity.category ?? "",
     title: activity.title,
-    image: resolveActivityImage(activity.image),
+    image: resolveMediaUrl(activity.image),
     summary:
       activity.short_description ?? activity.description?.slice(0, 160) ?? "",
     content: activity.description ?? undefined,
@@ -67,19 +68,6 @@ export function mapApiActivity(activity: ApiActivity): ActivityItem {
   };
 }
 
-function resolveActivityImage(image: string | null | undefined): string {
-  if (!image) return "/images/qq.jpg";
-  if (/^https?:\/\//i.test(image)) return image;
-
-  // Origin-based for the same reason as events (see resolveEventImage).
-  const { apiBaseUrl } = getApiConfig();
-  try {
-    const origin = new URL(apiBaseUrl).origin;
-    return new URL(image, `${origin}/`).toString();
-  } catch {
-    return image;
-  }
-}
 
 function formatActivityDate(value: string): string {
   if (!value) return "";

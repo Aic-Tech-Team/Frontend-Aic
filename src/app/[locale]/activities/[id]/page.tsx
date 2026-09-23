@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ContentUnavailablePage } from "@/components/common/ContentUnavailable";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ActivityArticlePage } from "@/components/activities/detail/ActivityArticlePage";
 import { ApiError } from "@/services/api/client";
@@ -67,7 +68,10 @@ export default async function ActivityDetailPage({
     if (error instanceof ApiError && error.status === 404) {
       notFound();
     }
-    throw error;
+    // Upstream unreachable/erroring. error.tsx only renders client-side for an
+    // initial SSR throw, so handle it here to avoid a bare 500 document.
+    console.error("[activities] failed to load:", error);
+    return <ContentUnavailablePage />;
   }
 
   const activity = mapApiActivity(apiActivity);

@@ -31,6 +31,34 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * How long a single request may take before we give up.
+ *
+ * Without this, a dead or unroutable upstream hangs on the OS default (~10s,
+ * or longer behind a proxy) and the whole server render blocks with it. Failing
+ * fast lets the page fall back to its unavailable state instead of timing out.
+ */
+const REQUEST_TIMEOUT_MS = 6000;
+
+/**
+ * Transport-level failure: DNS, connect refused/timeout, TLS. Distinct from
+ * ApiError, which means the server answered with a non-2xx.
+ */
+export class ApiNetworkError extends Error {
+  readonly url: string;
+
+  constructor(url: string, cause: unknown) {
+    const reason =
+      cause instanceof Error && cause.name === "TimeoutError"
+        ? `timed out after ${REQUEST_TIMEOUT_MS}ms`
+        : "could not be reached";
+    super(`API request to ${url} ${reason}`);
+    this.name = "ApiNetworkError";
+    this.url = url;
+    this.cause = cause;
+  }
+}
+
 function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
   if (!params) return url;
   const entries = Object.entries(params).filter(
@@ -110,16 +138,24 @@ async function fetchAndParse<T>(
   revalidate: number | undefined,
 ): Promise<T> {
 
-  const response = await fetch(finalUrl, {
-    ...init,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...headers,
-    },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    next: revalidate !== undefined ? { revalidate } : undefined,
-  });
+  let response: Response;
+  try {
+    response = await fetch(finalUrl, {
+      ...init,
+      // Caller-provided signal wins; otherwise fail fast rather than hanging
+      // the server render on an unreachable upstream.
+      signal: init.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      next: revalidate !== undefined ? { revalidate } : undefined,
+    });
+  } catch (error) {
+    throw new ApiNetworkError(finalUrl, error);
+  }
 
   const data = await parseResponseBody(response);
 

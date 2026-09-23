@@ -1,18 +1,34 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Ticket } from "lucide-react";
 import { SectionHeading } from "@/components/common/SectionHeading";
+import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 import { EventsExplorer } from "@/components/events/EventsExplorer";
 import { EventsGrid } from "@/components/events/EventsGrid";
+import { ApiError } from "@/services/api/client";
 import {
   fetchEvents,
   mapApiEvent,
+  type ApiEvent,
   type ApiEventStatus,
+  type PaginatedResponse,
 } from "@/hooks/api/events";
 import type { EventStatus } from "@/types/events";
 
 export const revalidate = 300;
 
 const PAGE_SIZE = 6;
+
+const EMPTY_PAGE: PaginatedResponse<ApiEvent> = {
+  count: 0,
+  next: null,
+  previous: null,
+  results: [],
+};
+
+/** Guards against a non-paginated or malformed payload reaching `.map`. */
+function resultsOf(res: PaginatedResponse<ApiEvent>): ApiEvent[] {
+  return Array.isArray(res?.results) ? res.results : [];
+}
 
 type FilterKey = "all" | EventStatus;
 
@@ -53,39 +69,77 @@ export default async function EventsPage({
 
   const t = await getTranslations("EventsPage");
 
-  const [
-    countsAll,
-    countsOngoing,
-    countsUpcoming,
-    countsPast,
-    spotlightRes,
-    pageRes,
-  ] = await Promise.all([
-    fetchEvents({ page_size: 1 }),
-    fetchEvents({ status: "ongoing", page_size: 1 }),
-    fetchEvents({ status: "upcoming", page_size: 1 }),
-    fetchEvents({ status: "finished", page_size: 1 }),
-    fetchEvents({ page_size: 5 }),
-    fetchEvents({
-      status: filter === "all" ? undefined : filterToApiStatus[filter],
-      search: query || undefined,
-      page: currentPage,
-      page_size: PAGE_SIZE,
-    }),
-  ]);
+  // A ?page= past the last page returns 404 ("Invalid page") — show the empty
+  // state rather than letting it become a 500.
+  async function fetchPageRes() {
+    try {
+      return await fetchEvents({
+        status: filter === "all" ? undefined : filterToApiStatus[filter],
+        search: query || undefined,
+        page: currentPage,
+        page_size: PAGE_SIZE,
+      });
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 404) return EMPTY_PAGE;
+      throw error;
+    }
+  }
+
+  let countsAll: PaginatedResponse<ApiEvent>;
+  let countsOngoing: PaginatedResponse<ApiEvent>;
+  let countsUpcoming: PaginatedResponse<ApiEvent>;
+  let countsPast: PaginatedResponse<ApiEvent>;
+  let spotlightRes: PaginatedResponse<ApiEvent>;
+  let pageRes: PaginatedResponse<ApiEvent>;
+
+  try {
+    [
+      countsAll,
+      countsOngoing,
+      countsUpcoming,
+      countsPast,
+      spotlightRes,
+      pageRes,
+    ] = await Promise.all([
+      fetchEvents({ page_size: 1 }),
+      fetchEvents({ status: "ongoing", page_size: 1 }),
+      fetchEvents({ status: "upcoming", page_size: 1 }),
+      fetchEvents({ status: "finished", page_size: 1 }),
+      fetchEvents({ page_size: 5 }),
+      fetchPageRes(),
+    ]);
+  } catch (error) {
+    // Upstream unreachable or erroring — render the page shell with a fallback
+    // rather than letting the throw become an opaque production 500.
+    console.error("[events] failed to load events:", error);
+    return (
+      <div className="py-10 sm:py-16">
+        <div className="container">
+          <SectionHeading
+            badge={t("badge")}
+            icon={Ticket}
+            title={t("title")}
+            description={t("description")}
+            align="center"
+          />
+          <ContentUnavailable className="mt-8" />
+        </div>
+      </div>
+    );
+  }
 
   const counts: Record<FilterKey, number> = {
-    all: countsAll.count,
-    ongoing: countsOngoing.count,
-    upcoming: countsUpcoming.count,
-    past: countsPast.count,
+    all: countsAll.count ?? 0,
+    ongoing: countsOngoing.count ?? 0,
+    upcoming: countsUpcoming.count ?? 0,
+    past: countsPast.count ?? 0,
   };
 
-  const spotlightEvents = spotlightRes.results.map(mapApiEvent);
+  const spotlightEvents = resultsOf(spotlightRes).map(mapApiEvent);
 
-  const totalCount = pageRes.count;
+  const totalCount = pageRes.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const pageEvents = pageRes.results.map(mapApiEvent);
+  const pageEvents = resultsOf(pageRes).map(mapApiEvent);
 
   // Builds a URL for a given page, preserving the current filter and query.
   function buildPageHref(page: number): string {

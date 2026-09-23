@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ContentUnavailablePage } from "@/components/common/ContentUnavailable";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { EventDetailHero } from "@/components/events/EventDetailHero";
 import { EventDetailTicket } from "@/components/events/EventDetailTicket";
@@ -45,14 +46,23 @@ export default async function EventDetailPage({
     if (error instanceof ApiError && error.status === 404) {
       notFound();
     }
-    throw error;
+    // Upstream unreachable/erroring. error.tsx only renders client-side for an
+    // initial SSR throw, so handle it here to avoid a bare 500 document.
+    console.error("[events] failed to load:", error);
+    return <ContentUnavailablePage />;
   }
 
-  const { results: otherApiEvents } = await fetchEvents({ page_size: 7 });
-  const otherEvents = otherApiEvents
-    .filter((item) => String(item.id) !== event.id)
-    .slice(0, 6)
-    .map(mapApiEvent);
+  // Secondary content — never worth failing the whole article over.
+  let otherEvents: ReturnType<typeof mapApiEvent>[] = [];
+  try {
+    const { results: otherApiEvents } = await fetchEvents({ page_size: 7 });
+    otherEvents = (Array.isArray(otherApiEvents) ? otherApiEvents : [])
+      .filter((item) => String(item.id) !== event.id)
+      .slice(0, 6)
+      .map(mapApiEvent);
+  } catch (error) {
+    console.error("[events] failed to load related events:", error);
+  }
 
   return (
     <div className="relative overflow-hidden">

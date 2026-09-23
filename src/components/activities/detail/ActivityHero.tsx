@@ -15,6 +15,9 @@ export function ActivityHero({ src, alt }: ActivityHeroProps) {
           fill
           priority
           sizes="(min-width: 1280px) 820px, (min-width: 1024px) 68vw, 100vw"
+          // API media lives on the public host, which the server cannot reach —
+          // routing through /_next/image would 504. Let the browser fetch it.
+          unoptimized
           className="object-cover"
         />
       </div>
