@@ -1,6 +1,6 @@
 import { getApiConfig, getInternalApiBaseUrl } from "@/services/api/config";
 
-const PLACEHOLDER_IMAGE = "/images/qq.jpg";
+const PLACEHOLDER_IMAGE = "/images/banner.jpg";
 
 export function resolveMediaUrl(image: string | null | undefined): string {
   if (!image) return PLACEHOLDER_IMAGE;

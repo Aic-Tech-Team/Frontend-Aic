@@ -46,8 +46,8 @@ export function ActivityTicketCard({
             unoptimized
             onError={(e) => {
               const target = e.currentTarget as HTMLImageElement;
-              if (!target.src.endsWith("/images/qq.jpg")) {
-                target.src = "/images/qq.jpg";
+              if (!target.src.endsWith("/images/banner.jpg")) {
+                target.src = "/images/banner.jpg";
               }
             }}
             className="object-cover"

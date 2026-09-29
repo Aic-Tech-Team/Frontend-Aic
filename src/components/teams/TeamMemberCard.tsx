@@ -1,40 +1,13 @@
 import Image from "next/image";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { DeptHead, TeamItem } from "@/types/teams";
 
-export interface DeptHead {
-  label: string;
-  names: string[];
-}
-
-export interface TeamMember {
-  name: string;
-  role: string;
-  team: string;
-  bio: string;
-  tasks: string[];
-  heads?: DeptHead[];
-}
-
-interface TeamMemberCardProps extends TeamMember {
-  photo: string;
+interface TeamMemberCardProps extends TeamItem {
   index: number;
   tasksLabel: string;
   active?: boolean;
   className?: string;
-}
-
-const MEMBER_PHOTOS = [
-  "/images/1002895410747413355.jpg",
-  "/images/668010557261534380.jpg",
-  "/images/158048268165812819.jpg",
-  "/images/581949583092327844.jpg",
-  "/images/766456430349003443.jpg",
-  "/images/1088745278696137752.jpg",
-] as const;
-
-export function memberPhoto(index: number): string {
-  return MEMBER_PHOTOS[index % MEMBER_PHOTOS.length];
 }
 
 const BLOBS = [
@@ -96,7 +69,12 @@ export function TeamMemberCard({
   className,
 }: TeamMemberCardProps) {
   const leadership: DeptHead[] =
-    heads && heads.length > 0 ? heads : [{ label: role, names: [name] }];
+    heads && heads.length > 0
+      ? heads
+      : name
+        ? [{ label: role ?? "", names: [name] }]
+        : [];
+  const showLeadership = leadership.some((h) => h.names.length > 0);
 
   return (
     <article
@@ -163,12 +141,13 @@ export function TeamMemberCard({
           {team}
         </h2>
 
+        {showLeadership ? (
         <div className="mt-4 rounded-2xl bg-white/[0.045] p-2.5 ring-1 ring-white/10 backdrop-blur-sm">
           <div className="flex items-center gap-3">
             <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-violet-300/40 [box-shadow:0_0_16px_-2px_rgba(139,92,246,0.6)]">
               <Image
                 src={photo}
-                alt={name}
+                alt={leadership[0].names[0] ?? team}
                 fill
                 sizes="48px"
                 className="object-cover"
@@ -201,6 +180,7 @@ export function TeamMemberCard({
             </div>
           ))}
         </div>
+        ) : null}
 
         {/* description */}
         <p className="mx-auto mt-2.5 line-clamp-2 w-full max-w-[250px] text-center text-[12px] leading-6 text-white/55">

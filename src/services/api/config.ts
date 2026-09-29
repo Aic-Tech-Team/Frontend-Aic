@@ -78,4 +78,7 @@ export const apiEndpoints = {
     list: () => `${base()}/activities/`,
     detail: (id: number | string) => `${base()}/activities/${encodeURIComponent(String(id))}/`,
   },
+  teams: {
+    list: () => `${base()}/organization/teams/`,
+  },
 } as const;

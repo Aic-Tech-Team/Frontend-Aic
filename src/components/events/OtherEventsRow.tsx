@@ -42,15 +42,15 @@ export function OtherEventsRow({
             >
               <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden">
                 <Image
-                  src={event.image || "/images/qq.svg"}
+                  src={event.image || "/images/banner.jpg"}
                   alt={event.title}
                   fill
                   sizes="(min-width: 1024px) 28vw, (min-width: 640px) 44vw, 78vw"
                   unoptimized
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement;
-                    if (!target.src.endsWith("/images/qq.jpg")) {
-                      target.src = "/images/qq.jpg";
+                    if (!target.src.endsWith("/images/banner.jpg")) {
+                      target.src = "/images/banner.jpg";
                     }
                   }}
                   className="object-cover transition-transform duration-500 group-hover:scale-105"

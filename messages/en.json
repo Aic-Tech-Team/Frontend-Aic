@@ -167,8 +167,6 @@
     "title": "AIC specialized teams",
     "description": "Each team works with expertise and drive to advance AIC’s scientific and organizational goals.",
     "membersLabel": "{count} active members",
-    "membersTitle": "People behind the teams",
-    "membersDescription": "A small group of leads and mentors who keep workshops, projects, and events running — meet the faces behind AIC.",
     "responsibilitiesLabel": "Responsibilities",
     "items": [
       {
@@ -190,74 +188,6 @@
       {
         "title": "Education team",
         "desc": "Workshops, courses, and study sessions to raise members’ scientific level."
-      }
-    ],
-    "members": [
-      {
-        "name": "Sara Mohammadi",
-        "role": "Technical Lead",
-        "team": "Tech team",
-        "bio": "Full-stack developer and ML enthusiast. Sara leads AIC's digital infrastructure and mentors new members joining technical projects.",
-        "tasks": [
-          "Maintaining the community website and tools",
-          "Mentoring web and AI project groups",
-          "Supporting event tech and live demos"
-        ]
-      },
-      {
-        "name": "Amir Rezaei",
-        "role": "Events Coordinator",
-        "team": "Events team",
-        "bio": "Robotics researcher who loves bringing people together. Amir plans conferences, visits, and contests from idea to stage.",
-        "tasks": [
-          "Planning conferences and scientific visits",
-          "Coordinating speakers and schedules",
-          "Running student contests on the day"
-        ]
-      },
-      {
-        "name": "Maryam Karimi",
-        "role": "Education Manager",
-        "team": "Education team",
-        "bio": "NLP specialist focused on clear, practical teaching. Maryam designs workshop curricula and study paths for every level.",
-        "tasks": [
-          "Designing workshop and course curricula",
-          "Organizing study sessions and reviews",
-          "Guiding new learners step by step"
-        ]
-      },
-      {
-        "name": "Negar Salehi",
-        "role": "Media & Content Lead",
-        "team": "Media team",
-        "bio": "Designer and storyteller. Negar shapes AIC's visual voice and turns workshops and research into content worth sharing.",
-        "tasks": [
-          "Producing educational posts and recaps",
-          "Managing social channels and news",
-          "Documenting events with photo and video"
-        ]
-      },
-      {
-        "name": "Kaveh Rostami",
-        "role": "Partnerships Lead",
-        "team": "Public relations",
-        "bio": "Connector between AIC, universities, and industry. Kaveh builds collaborations that open doors for members.",
-        "tasks": [
-          "Liaising with universities and companies",
-          "Arranging sponsorships and guests",
-          "Growing inter-university collaboration"
-        ]
-      },
-      {
-        "name": "Ali Heydari",
-        "role": "ML Instructor",
-        "team": "Education team",
-        "bio": "Python and deep-learning instructor. Ali teaches foundations first, then helps members ship their first real models.",
-        "tasks": [
-          "Teaching Python and ML foundations",
-          "Reviewing projects and giving feedback",
-          "Preparing hands-on practice material"
-        ]
       }
     ]
   },

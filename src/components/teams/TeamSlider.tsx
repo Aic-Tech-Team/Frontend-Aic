@@ -3,14 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  TeamMemberCard,
-  memberPhoto,
-  type TeamMember,
-} from "@/components/teams/TeamMemberCard";
+import { TeamMemberCard } from "@/components/teams/TeamMemberCard";
+import type { TeamItem } from "@/types/teams";
 
 interface TeamSliderProps {
-  members: TeamMember[];
+  members: TeamItem[];
   tasksLabel: string;
   className?: string;
 }
@@ -60,6 +57,8 @@ export function TeamSlider({ members, tasksLabel, className }: TeamSliderProps) 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [prev, next]);
+
+  if (total === 0) return null;
 
   return (
     <div className={cn("relative", className)}>
@@ -118,7 +117,7 @@ export function TeamSlider({ members, tasksLabel, className }: TeamSliderProps) 
 
             return (
               <div
-                key={member.name}
+                key={member.id}
                 className="absolute left-1/2 top-10"
                 style={{
                   transform: `translateX(-50%) translateX(${offset * step}px) translateZ(${-abs * DEPTH}px) rotateY(${offset * -TILT}deg) scale(${1 - abs * 0.07})`,
@@ -138,13 +137,14 @@ export function TeamSlider({ members, tasksLabel, className }: TeamSliderProps) 
               >
                 <div className={cn(offset !== 0 && "cursor-pointer")}>
                   <TeamMemberCard
+                    id={member.id}
                     name={member.name}
                     role={member.role}
                     team={member.team}
                     bio={member.bio}
                     tasks={member.tasks}
                     heads={member.heads}
-                    photo={memberPhoto(i)}
+                    photo={member.photo}
                     index={i}
                     tasksLabel={tasksLabel}
                     active={offset === 0}
@@ -169,10 +169,10 @@ export function TeamSlider({ members, tasksLabel, className }: TeamSliderProps) 
         <div className="flex items-center gap-2">
           {members.map((m, i) => (
             <button
-              key={m.name}
+              key={m.id}
               type="button"
               onClick={() => goTo(i)}
-              aria-label={`Go to ${m.name}`}
+              aria-label={`Go to ${m.team}`}
               className={cn(
                 "h-2 rounded-full transition-all duration-300",
                 i === active
