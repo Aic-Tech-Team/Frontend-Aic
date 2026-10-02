@@ -21,7 +21,7 @@ export function Navbar() {
     { href: "/", label: tNav("home"), icon: Ticket },
     { href: "/events", label: tNav("events"), icon: Ticket },
     { href: "/activities", label: tNav("activities"), icon: CalendarClock },
-    { href: "/#teams", label: tNav("teams"), icon: Layers },
+    { href: "/teams", label: tNav("teams"), icon: Layers },
     { href: "/blog", label: tNav("blog"), icon: BookOpen },
   ] as const;
 
