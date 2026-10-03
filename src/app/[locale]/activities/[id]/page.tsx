@@ -7,13 +7,15 @@ import {
   fetchActivities,
   fetchActivity,
   mapApiActivity,
-} from "@/hooks/api/activities";
+} from "@/services/api/activities";
 import type { SidebarActivity } from "@/types/activity";
 
 export const revalidate = 300;
 
-
-function splitParagraphs(content: string | undefined, summary: string): string[] {
+function splitParagraphs(
+  content: string | undefined,
+  summary: string,
+): string[] {
   const raw = (content ?? summary ?? "").trim();
   if (!raw) return [];
   const parts = raw
@@ -37,7 +39,6 @@ export async function generateMetadata({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { id } = await params;
-
   try {
     const apiActivity = await fetchActivity(id);
     return {
@@ -65,11 +66,7 @@ export default async function ActivityDetailPage({
   try {
     apiActivity = await fetchActivity(id);
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
-      notFound();
-    }
-    // Upstream unreachable/erroring. error.tsx only renders client-side for an
-    // initial SSR throw, so handle it here to avoid a bare 500 document.
+    if (error instanceof ApiError && error.status === 404) notFound();
     console.error("[activities] failed to load:", error);
     return <ContentUnavailablePage />;
   }
@@ -78,9 +75,7 @@ export default async function ActivityDetailPage({
 
   let recentActivities: SidebarActivity[] = [];
   try {
-    const list = await fetchActivities({
-      page_size: 8,
-    });
+    const list = await fetchActivities({ page_size: 8 });
     recentActivities = list.results
       .filter((a) => String(a.id) !== activity.id)
       .slice(0, 4)

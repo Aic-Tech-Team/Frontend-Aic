@@ -6,7 +6,7 @@ import {
   fetchBlogPost,
   fetchBlogPosts,
   mapApiBlogPost,
-} from "@/hooks/api/blogs";
+} from "@/services/api/blogs";
 import { BlogArticlePage } from "@/components/blog/detail/BlogArticlePage";
 import type { SidebarPost } from "@/types/blog";
 
@@ -18,7 +18,6 @@ export async function generateMetadata({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { id } = await params;
-
   try {
     const apiPost = await fetchBlogPost(id);
     return {
@@ -41,7 +40,6 @@ function splitParagraphs(
     .map((p) => p.trim())
     .filter(Boolean);
   if (parts.length > 0) return parts;
-  // Single block: chunk into ~2 paragraphs for readability
   if (raw.length > 400) {
     const mid = Math.floor(raw.length / 2);
     const splitAt =
@@ -71,11 +69,7 @@ export default async function BlogPostPage({
   try {
     apiPost = await fetchBlogPost(id);
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
-      notFound();
-    }
-    // Upstream unreachable/erroring. error.tsx only renders client-side for an
-    // initial SSR throw, so handle it here to avoid a bare 500 document.
+    if (error instanceof ApiError && error.status === 404) notFound();
     console.error("[blog] failed to load:", error);
     return <ContentUnavailablePage />;
   }
@@ -86,9 +80,7 @@ export default async function BlogPostPage({
 
   let sidebar: SidebarPost[] = [];
   try {
-    const list = await fetchBlogPosts({
-      page_size: 8,
-    });
+    const list = await fetchBlogPosts({ page_size: 8 });
     sidebar = list.results
       .filter((p) => String(p.id) !== String(id))
       .slice(0, 7)
@@ -106,8 +98,6 @@ export default async function BlogPostPage({
   } catch {
     sidebar = [];
   }
-
-  const latestPosts = sidebar.slice(0, 4);
 
   return (
     <BlogArticlePage
@@ -127,7 +117,7 @@ export default async function BlogPostPage({
       heroImage={post.image}
       heroAlt={post.title}
       paragraphs={splitParagraphs(post.content, post.summary)}
-      latestPosts={latestPosts}
+      latestPosts={sidebar.slice(0, 4)}
       labels={{
         breadcrumbLabel: t("breadcrumbLabel"),
         latestPostsTitle: t("latestPostsTitle"),

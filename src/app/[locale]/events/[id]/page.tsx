@@ -5,7 +5,7 @@ import { EventDetailHero } from "@/components/events/EventDetailHero";
 import { EventDetailTicket } from "@/components/events/EventDetailTicket";
 import { OtherEventsRow } from "@/components/events/OtherEventsRow";
 import { ApiError } from "@/services/api/client";
-import { fetchEvent, fetchEvents, mapApiEvent } from "@/hooks/api/events";
+import { fetchEvent, fetchEvents, mapApiEvent } from "@/services/api/events";
 
 export const revalidate = 300;
 
@@ -15,7 +15,6 @@ export async function generateMetadata({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { id } = await params;
-
   try {
     const apiEvent = await fetchEvent(id);
     return {
@@ -43,20 +42,15 @@ export default async function EventDetailPage({
   try {
     event = mapApiEvent(await fetchEvent(id));
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
-      notFound();
-    }
-    // Upstream unreachable/erroring. error.tsx only renders client-side for an
-    // initial SSR throw, so handle it here to avoid a bare 500 document.
+    if (error instanceof ApiError && error.status === 404) notFound();
     console.error("[events] failed to load:", error);
     return <ContentUnavailablePage />;
   }
 
-  // Secondary content — never worth failing the whole article over.
   let otherEvents: ReturnType<typeof mapApiEvent>[] = [];
   try {
-    const { results: otherApiEvents } = await fetchEvents({ page_size: 7 });
-    otherEvents = (Array.isArray(otherApiEvents) ? otherApiEvents : [])
+    const { results } = await fetchEvents({ page_size: 7 });
+    otherEvents = (Array.isArray(results) ? results : [])
       .filter((item) => String(item.id) !== event.id)
       .slice(0, 6)
       .map(mapApiEvent);
@@ -93,7 +87,7 @@ export default async function EventDetailPage({
           <div className="relative mt-8">
             <div
               aria-hidden
-              className="absolute -inset-3 -z-10 hidden rounded-[2.5rem] bg-gradient-to-b from-primary/10 via-transparent to-transparent ring-1 ring-border/40 sm:block sm:-inset-6"
+              className="absolute -inset-3 -z-10 hidden rounded-[2.5rem] bg-linear-to-b from-primary/10 via-transparent to-transparent ring-1 ring-border/40 sm:block sm:-inset-6"
             />
             <EventDetailTicket event={event} />
           </div>

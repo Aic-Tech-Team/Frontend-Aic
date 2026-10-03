@@ -1,7 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { Newspaper } from "lucide-react";
+import { CalendarSearch } from "lucide-react";
 import { RevealItem } from "@/components/animations/Reveal";
-import { BlogPostTicketCard } from "@/components/blog/BlogPostTicketCard";
+import { ActivityTicketCard } from "@/components/activities/ActivityTicketCard";
 import {
   Pagination,
   PaginationContent,
@@ -11,7 +11,7 @@ import {
   PaginationNavNext,
   PaginationNavPrevious,
 } from "@/components/ui/pagination";
-import type { BlogPostItem } from "@/types/blog";
+import type { ActivityItem } from "@/types/activity";
 
 function getPaginationRange(current: number, total: number): (number | null)[] {
   const siblings = 1;
@@ -26,8 +26,8 @@ function getPaginationRange(current: number, total: number): (number | null)[] {
   return range;
 }
 
-interface BlogGridProps {
-  posts: BlogPostItem[];
+interface ActivitiesGridProps {
+  activities: ActivityItem[];
   totalCount: number;
   currentPage: number;
   pageSize: number;
@@ -35,23 +35,23 @@ interface BlogGridProps {
 }
 
 /** Server Component — titles land in the HTML for crawlers / View Source. */
-export async function BlogGrid({
-  posts,
+export async function ActivitiesGrid({
+  activities,
   totalCount,
   currentPage,
   pageSize,
   buildPageHref,
-}: BlogGridProps) {
-  const t = await getTranslations("BlogPage");
+}: ActivitiesGridProps) {
+  const t = await getTranslations("ActivitiesPage");
   const locale = await getLocale();
   const isFa = locale === "fa";
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const paginationRange = getPaginationRange(currentPage, totalPages);
 
-  if (posts.length === 0) {
+  if (activities.length === 0) {
     return (
       <div className="surface flex flex-col items-center gap-4 rounded-3xl px-6 py-16 text-center">
-        <Newspaper className="h-10 w-10 text-primary-300" />
+        <CalendarSearch className="h-10 w-10 text-primary-300" />
         <div>
           <h3 className="text-lg font-bold text-foreground">
             {t("noResultsTitle")}
@@ -70,14 +70,14 @@ export async function BlogGrid({
         {t("resultsCount", { count: totalCount })}
       </p>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4 xl:gap-x-6">
-        {posts.map((post, index) => (
+        {activities.map((activity, index) => (
           <RevealItem
-            key={post.id}
+            key={activity.id}
             direction="up"
             delay={(index % 4) * 0.05}
             className="h-full"
           >
-            <BlogPostTicketCard post={post} index={index} />
+            <ActivityTicketCard activity={activity} index={index} />
           </RevealItem>
         ))}
       </div>

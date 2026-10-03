@@ -9,25 +9,22 @@ import {
   fetchBlogPosts,
   mapApiBlogPost,
   type ApiBlogPost,
-  type PaginatedBlogsResponse,
-} from "@/hooks/api/blogs";
+} from "@/services/api/blogs";
+import type { PaginatedResponse } from "@/services/api/types";
 
 export const revalidate = 300;
 
 const PAGE_SIZE = 6;
-const CATEGORY_DISCOVERY_SIZE = 100;
+const DISCOVERY_SIZE = 20;
 
-const EMPTY_PAGE: PaginatedBlogsResponse<ApiBlogPost> = {
+const EMPTY: PaginatedResponse<ApiBlogPost> = {
   count: 0,
   next: null,
   previous: null,
   results: [],
 };
 
-/** Guards against a non-paginated or malformed payload reaching `.map`. */
-function resultsOf(
-  res: PaginatedBlogsResponse<ApiBlogPost>,
-): ApiBlogPost[] {
+function resultsOf(res: PaginatedResponse<ApiBlogPost>) {
   return Array.isArray(res?.results) ? res.results : [];
 }
 
@@ -42,67 +39,26 @@ export default async function BlogPage({
   setRequestLocale(locale);
 
   const sp = await searchParams;
-
-  const rawPage = Number(
-    Array.isArray(sp.page) ? sp.page[0] : (sp.page ?? "1"),
+  const page = Math.max(
+    1,
+    Number(Array.isArray(sp.page) ? sp.page[0] : (sp.page ?? "1")) || 1,
   );
-  const rawCategory =
+  const category =
     (Array.isArray(sp.category) ? sp.category[0] : sp.category) ?? "all";
-  const rawQuery = (Array.isArray(sp.q) ? sp.q[0] : sp.q) ?? "";
-
-  const query = rawQuery.trim().slice(0, 100);
-  const currentPage = Math.max(1, isNaN(rawPage) ? 1 : rawPage);
+  const search = ((Array.isArray(sp.q) ? sp.q[0] : sp.q) ?? "")
+    .trim()
+    .slice(0, 100);
 
   const t = await getTranslations("BlogPage");
 
-  // A hand-crafted ?category=xxx that the API doesn't know returns 400, and a
-  // ?page= past the last page returns 404 ("Invalid page"). Neither should take
-  // the route down — fall back to unfiltered / empty instead of crashing (500).
-  async function fetchPageRes() {
-    try {
-      return await fetchBlogPosts({
-        category: rawCategory === "all" ? undefined : rawCategory,
-        search: query || undefined,
-        page: currentPage,
-        page_size: PAGE_SIZE,
-      });
-    } catch (error) {
-      if (!(error instanceof ApiError)) throw error;
-
-      if (error.status === 404) return EMPTY_PAGE;
-
-      if (error.status === 400 && rawCategory !== "all") {
-        try {
-          return await fetchBlogPosts({
-            search: query || undefined,
-            page: currentPage,
-            page_size: PAGE_SIZE,
-          });
-        } catch (retryError) {
-          if (retryError instanceof ApiError && retryError.status === 404) {
-            return EMPTY_PAGE;
-          }
-          throw retryError;
-        }
-      }
-
-      throw error;
-    }
+  let pageRes: PaginatedResponse<ApiBlogPost> | null = null;
+  try {
+    pageRes = await loadBlogPage({ category, search, page });
+  } catch (error) {
+    console.error("[blog] list failed:", error);
   }
 
-  let discoveryRes: PaginatedBlogsResponse<ApiBlogPost>;
-  let pageRes: PaginatedBlogsResponse<ApiBlogPost>;
-
-  try {
-    [discoveryRes, pageRes] = await Promise.all([
-      // Doubles as the spotlight source and the category-discovery source.
-      fetchBlogPosts({ page_size: CATEGORY_DISCOVERY_SIZE }),
-      fetchPageRes(),
-    ]);
-  } catch (error) {
-    // Upstream unreachable or erroring — render the page shell with a fallback
-    // rather than letting the throw become an opaque production 500.
-    console.error("[blog] failed to load posts:", error);
+  if (!pageRes) {
     return (
       <div className="py-10 sm:py-16">
         <div className="container">
@@ -119,24 +75,31 @@ export default async function BlogPage({
     );
   }
 
+  let discoveryRes = pageRes;
+  try {
+    discoveryRes = await fetchBlogPosts({ page_size: DISCOVERY_SIZE });
+  } catch (error) {
+    console.warn("[blog] discovery failed:", error);
+  }
+
   const discoveryPosts = resultsOf(discoveryRes).map(mapApiBlogPost);
   const categories = Array.from(
     new Set(
       resultsOf(discoveryRes)
         .map((p) => p.category)
-        .filter((category): category is string => Boolean(category)),
+        .filter((c): c is string => Boolean(c)),
     ),
   ).sort();
 
   const totalCount = pageRes.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const pagePosts = resultsOf(pageRes).map(mapApiBlogPost);
+  const posts = resultsOf(pageRes).map(mapApiBlogPost);
 
-  function buildPageHref(page: number): string {
+  function buildPageHref(pageNumber: number): string {
     const params = new URLSearchParams();
-    if (query) params.set("q", rawQuery.trim());
-    if (rawCategory !== "all") params.set("category", rawCategory);
-    if (page !== 1) params.set("page", String(page));
+    if (search) params.set("q", search);
+    if (category !== "all") params.set("category", category);
+    if (pageNumber !== 1) params.set("page", String(pageNumber));
     const qs = params.toString();
     return qs ? `?${qs}` : "?";
   }
@@ -154,19 +117,55 @@ export default async function BlogPage({
         <BlogExplorer
           spotlightPosts={discoveryPosts}
           categories={categories}
-          search={query}
-          selectedCategory={rawCategory}
+          search={search}
+          selectedCategory={category}
         >
           <BlogGrid
-            posts={pagePosts}
+            posts={posts}
             totalCount={totalCount}
-            currentPage={Math.min(currentPage, totalPages)}
+            currentPage={Math.min(page, totalPages)}
             pageSize={PAGE_SIZE}
-            locale={locale}
             buildPageHref={buildPageHref}
           />
         </BlogExplorer>
       </div>
     </div>
   );
+}
+
+async function loadBlogPage({
+  category,
+  search,
+  page,
+}: {
+  category: string;
+  search: string;
+  page: number;
+}) {
+  try {
+    return await fetchBlogPosts({
+      category: category === "all" ? undefined : category,
+      search: search || undefined,
+      page,
+      page_size: PAGE_SIZE,
+    });
+  } catch (error) {
+    if (!(error instanceof ApiError)) throw error;
+    if (error.status === 404) return EMPTY;
+    if (error.status === 400 && category !== "all") {
+      try {
+        return await fetchBlogPosts({
+          search: search || undefined,
+          page,
+          page_size: PAGE_SIZE,
+        });
+      } catch (retryError) {
+        if (retryError instanceof ApiError && retryError.status === 404) {
+          return EMPTY;
+        }
+        throw retryError;
+      }
+    }
+    throw error;
+  }
 }

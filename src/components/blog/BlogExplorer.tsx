@@ -1,11 +1,12 @@
 "use client";
 
-import { FormEvent, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
 import { Search, X } from "lucide-react";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
 import { Carousel } from "@/components/common/Carousel";
+import { sanitizeSearchInput } from "@/lib/sanitize";
 import { cn } from "@/lib/utils";
 import type { BlogPostItem } from "@/types/blog";
 
@@ -20,6 +21,7 @@ interface BlogExplorerProps {
   children: React.ReactNode;
 }
 
+/** Client filters only. List HTML comes from the server as `children`. */
 export function BlogExplorer({
   spotlightPosts,
   categories,
@@ -32,38 +34,39 @@ export function BlogExplorer({
   const pathname = usePathname();
 
   const [searchInput, setSearchInput] = useState(search);
+  const [prevSearch, setPrevSearch] = useState(search);
+  if (search !== prevSearch) {
+    setPrevSearch(search);
+    setSearchInput(search);
+  }
+
   const category = selectedCategory || ALL_CATEGORY;
   const lastPushedRef = useRef<string | null>(null);
 
-  function updateFilters(nextSearch: string, nextCategory: string) {
+  function pushFilters(nextSearch: string, nextCategory: string) {
     const trimmedSearch = nextSearch.trim();
-    // Same-section repeat clicks: identical URL -> skip router.push/fetch.
-    // lastPushedRef also collapses rapid duplicate clicks fired before
-    // the server re-renders with new props.
-    if (
-      nextCategory === category &&
-      trimmedSearch === search.trim()
-    ) {
-      return;
-    }
+    if (nextCategory === category && trimmedSearch === search.trim()) return;
+
     const params = new URLSearchParams();
     if (trimmedSearch) params.set("q", trimmedSearch);
     if (nextCategory !== ALL_CATEGORY) params.set("category", nextCategory);
-    const queryString = params.toString();
-    const href = queryString ? `${pathname}?${queryString}` : pathname;
+    const qs = params.toString();
+    const href = qs ? `${pathname}?${qs}` : pathname;
     if (lastPushedRef.current === href) return;
     lastPushedRef.current = href;
     router.push(href);
   }
 
-  function handleSearch(event: FormEvent<HTMLFormElement>) {
+  function handleSearch(event: React.SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
-    updateFilters(searchInput.slice(0, SEARCH_MAX_LENGTH), category);
+    pushFilters(
+      sanitizeSearchInput(searchInput, SEARCH_MAX_LENGTH).trim(),
+      category,
+    );
   }
 
   return (
     <div>
-      {/* Spotlight carousel — recent posts, regardless of filter */}
       {spotlightPosts.length > 0 ? (
         <div className="mb-6">
           <Carousel
@@ -100,16 +103,13 @@ export function BlogExplorer({
         </div>
       ) : null}
 
-      {/* Search + category filter bar */}
       <div className="surface flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <form onSubmit={handleSearch} className="relative w-full sm:max-w-sm">
           <Search className="pointer-events-none absolute inset-s-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
             value={searchInput}
-            onChange={(e) => {
-              setSearchInput(e.target.value);
-            }}
+            onChange={(e) => setSearchInput(e.target.value)}
             maxLength={SEARCH_MAX_LENGTH}
             placeholder={t("searchPlaceholder")}
             aria-label={t("searchLabel")}
@@ -118,7 +118,10 @@ export function BlogExplorer({
           {searchInput ? (
             <button
               type="button"
-              onClick={() => setSearchInput("")}
+              onClick={() => {
+                setSearchInput("");
+                pushFilters("", category);
+              }}
               aria-label={t("clearFilters")}
               className="absolute inset-e-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
             >
@@ -131,9 +134,7 @@ export function BlogExplorer({
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={() => {
-                updateFilters(searchInput, ALL_CATEGORY);
-              }}
+              onClick={() => pushFilters(searchInput, ALL_CATEGORY)}
               aria-pressed={category === ALL_CATEGORY}
               className={cn(
                 "rounded-full px-3.5 py-2 text-xs font-medium transition-colors sm:text-sm",
@@ -148,9 +149,7 @@ export function BlogExplorer({
               <button
                 key={c}
                 type="button"
-                onClick={() => {
-                  updateFilters(searchInput, c);
-                }}
+                onClick={() => pushFilters(searchInput, c)}
                 aria-pressed={category === c}
                 className={cn(
                   "rounded-full px-3.5 py-2 text-xs font-medium capitalize transition-colors sm:text-sm",
@@ -166,7 +165,6 @@ export function BlogExplorer({
         ) : null}
       </div>
 
-      {/* Results count */}
       <div className="mt-8">{children}</div>
     </div>
   );
