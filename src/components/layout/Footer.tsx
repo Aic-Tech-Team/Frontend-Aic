@@ -18,33 +18,30 @@ export function Footer() {
   const quickLinks = [
     { label: tFooter("home"), href: "/" },
     { label: tFooter("events"), href: "/events" },
-    { label: tFooter("activities"), href: "/#activities" },
-    { label: tFooter("blog"), href: "/#blog" },
+    { label: tFooter("activities"), href: "/activities" },
+    { label: tFooter("blog"), href: "/blog" },
     { label: tFooter("about"), href: "/about" },
   ];
 
   const activityLinks = [
-    { label: tFooter("workshops"), href: "/#activities" },
+    { label: tFooter("workshops"), href: "/activities" },
     { label: tFooter("conferences"), href: "/events" },
-    { label: tFooter("visits"), href: "/#activities" },
+    { label: tFooter("visits"), href: "/activities" },
     { label: tFooter("contests"), href: "/events" },
-    { label: tFooter("research"), href: "/#teams" },
+    { label: tFooter("research"), href: "/about" },
   ];
 
   const social = [
     {
       label: tFooter("telegram"),
-      href: "#",
       node: <SiTelegram color="currentColor" className="h-4 w-4" />,
     },
     {
       label: tFooter("linkedin"),
-      href: "#",
       node: <LinkedinIcon className="h-4 w-4" />,
     },
     {
       label: tFooter("instagram"),
-      href: "#",
       node: <SiInstagram color="currentColor" className="h-4 w-4" />,
     },
   ];
@@ -75,15 +72,14 @@ export function Footer() {
               {tFooter("blurb")}
             </p>
             <div className="mt-5 flex items-center gap-2">
-              {social.map(({ label, href, node }) => (
-                <a
+              {social.map(({ label, node }) => (
+                <span
                   key={label}
-                  href={href}
                   aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-all duration-300 hover:border-primary-400/40 hover:text-primary-300"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground"
                 >
                   {node}
-                </a>
+                </span>
               ))}
             </div>
           </RevealItem>
@@ -154,15 +150,6 @@ export function Footer() {
 
         <div className="relative mt-6 flex flex-col items-center justify-between gap-3 border-t border-border/50 pt-4 text-center text-xs text-muted-foreground sm:flex-row sm:text-start">
           <p>{tFooter("copyright", { years: copyrightYears })}</p>
-
-          <div className="flex items-center gap-5">
-            <a href="#" className="transition-colors hover:text-primary-300">
-              {tFooter("privacy")}
-            </a>
-            <a href="#" className="transition-colors hover:text-primary-300">
-              {tFooter("terms")}
-            </a>
-          </div>
 
           <figure className="pointer-events-none absolute inset-e-0 top-0 z-20 translate-y-[-75%]">
             <Image

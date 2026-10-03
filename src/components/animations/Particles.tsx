@@ -131,6 +131,9 @@ const Particles: React.FC<ParticlesProps> = ({
     if (!paused) startLoopRef.current?.();
   }, [paused]);
 
+  // Stable string key — avoid remount when parent passes a new array ref of same colors
+  const particleColorsKey = (particleColors ?? defaultColors).join(",");
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -272,8 +275,7 @@ const Particles: React.FC<ParticlesProps> = ({
     particleCount,
     particleSpread,
     speed,
-    // Stable string key — avoid remount when parent passes a new array ref of same colors
-    (particleColors ?? defaultColors).join(','),
+    particleColorsKey,
     moveParticlesOnHover,
     particleHoverFactor,
     alphaParticles,
