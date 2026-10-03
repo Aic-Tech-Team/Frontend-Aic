@@ -1,13 +1,10 @@
 export interface ApiRequestOptions extends Omit<RequestInit, "body" | "signal"> {
-  /** Query params appended to the URL — undefined/empty values are skipped. */
   params?: Record<string, string | number | boolean | undefined | null>;
-  /** JSON body — auto-serialized */
   body?: unknown;
-  /**
-   * Next.js data-cache revalidate window, in seconds.
-   * Omit (or pass undefined) for `cache: "no-store"` (client / one-off fetches).
-   */
+  /** Next.js revalidate window (seconds). Omit for `cache: "no-store"`. */
   revalidate?: number;
+  /** Override default request timeout (ms). */
+  timeoutMs?: number;
 }
 
 export class ApiError extends Error {
@@ -32,8 +29,7 @@ export class ApiError extends Error {
   }
 }
 
-/** Soft ceiling so a dead upstream cannot hang an RSC forever. */
-const REQUEST_TIMEOUT_MS = 4000;
+const REQUEST_TIMEOUT_MS = 10000;
 
 function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
   if (!params) return url;
@@ -58,7 +54,7 @@ function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
   }
 }
 
-async function parseResponseBody(response: Response): Promise<unknown> {
+async function parseBody(response: Response): Promise<unknown> {
   if (response.status === 204) return null;
   const contentType = response.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) return response.json();
@@ -66,32 +62,24 @@ async function parseResponseBody(response: Response): Promise<unknown> {
   return text || null;
 }
 
-function timeoutError(url: string): Error {
-  const error = new Error(
-    `API request to ${url} timed out after ${REQUEST_TIMEOUT_MS}ms`,
-  );
-  error.name = "TimeoutError";
-  return error;
-}
-
 /**
- * Do not pass AbortSignal into Next's cached fetch — it conflicts with
- * `next.revalidate` and can blow the whole RSC into the error boundary.
- * Race a timer instead.
+ * Race fetch vs timeout. Does not reject — callers choose throw vs soft-null.
+ * Avoid AbortSignal with `next.revalidate` (conflicts in Next cache).
  */
-async function fetchWithTimeout(
+async function fetchRace(
   url: string,
   init: RequestInit,
-): Promise<Response> {
+  timeoutMs: number,
+): Promise<{ response: Response } | { timedOut: boolean }> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
-      fetch(url, init),
-      new Promise<Response>((_, reject) => {
-        timer = setTimeout(
-          () => reject(timeoutError(url)),
-          REQUEST_TIMEOUT_MS,
-        );
+      fetch(url, init).then(
+        (response) => ({ response }),
+        () => ({ timedOut: false as const }),
+      ),
+      new Promise<{ timedOut: true }>((resolve) => {
+        timer = setTimeout(() => resolve({ timedOut: true }), timeoutMs);
       }),
     ]);
   } finally {
@@ -99,12 +87,14 @@ async function fetchWithTimeout(
   }
 }
 
-export async function api<T = unknown>(
+async function requestJson<T>(
   url: string,
-  options: ApiRequestOptions = {},
-): Promise<T> {
-  const { params, body, revalidate, headers, cache, ...init } = options;
+  options: ApiRequestOptions,
+): Promise<{ data: T } | { error: Error }> {
+  const { params, body, revalidate, headers, cache, timeoutMs, ...init } =
+    options;
   const finalUrl = buildUrl(url, params);
+  const ms = timeoutMs ?? REQUEST_TIMEOUT_MS;
 
   const baseInit: RequestInit = {
     ...init,
@@ -124,22 +114,38 @@ export async function api<T = unknown>(
         })
       : baseInit;
 
-  let response: Response;
-  try {
-    response = await fetchWithTimeout(finalUrl, fetchInit);
-  } catch (error) {
-    const reason =
-      error instanceof Error && error.name === "TimeoutError"
-        ? `timed out after ${REQUEST_TIMEOUT_MS}ms`
-        : "could not be reached";
-    throw new Error(`API request to ${finalUrl} ${reason}`, { cause: error });
+  const raced = await fetchRace(finalUrl, fetchInit, ms);
+  if (!("response" in raced)) {
+    return {
+      error: new Error(
+        `API request to ${finalUrl} ${
+          raced.timedOut ? `timed out after ${ms}ms` : "could not be reached"
+        }`,
+      ),
+    };
   }
 
-  const data = await parseResponseBody(response);
-
-  if (!response.ok) {
-    throw new ApiError(response.status, data, finalUrl);
+  const data = await parseBody(raced.response);
+  if (!raced.response.ok) {
+    return { error: new ApiError(raced.response.status, data, finalUrl) };
   }
+  return { data: data as T };
+}
 
-  return data as T;
+export async function api<T = unknown>(
+  url: string,
+  options: ApiRequestOptions = {},
+): Promise<T> {
+  const result = await requestJson<T>(url, options);
+  if ("error" in result) throw result.error;
+  return result.data;
+}
+
+/** Never throws — returns `null` on network / timeout / HTTP failure. */
+export async function apiSoft<T = unknown>(
+  url: string,
+  options: ApiRequestOptions = {},
+): Promise<T | null> {
+  const result = await requestJson<T>(url, options);
+  return "data" in result ? result.data : null;
 }
