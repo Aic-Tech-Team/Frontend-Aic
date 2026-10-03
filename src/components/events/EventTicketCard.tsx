@@ -6,7 +6,6 @@ import {
   CalendarDays,
   MapPin,
   User,
-  Users,
   Ticket,
   CircleSlash,
 } from "lucide-react";
@@ -57,6 +56,7 @@ export function EventTicketCard({
           "real-ticket-mask group relative flex h-full flex-col overflow-hidden bg-card text-card-foreground shadow-lg transition-all duration-300 hover:shadow-2xl md:flex-row",
           isPast && "opacity-75 grayscale-[20%]",
         )}
+        style={{ animationDelay: `${index * 40}ms` }}
       >
         {/* 1. Ticket Image Stub */}
         <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden md:h-auto md:w-56 md:aspect-square">
@@ -74,7 +74,7 @@ export function EventTicketCard({
             }}
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
 
           {/* Status Badge */}
           <Badge
@@ -169,12 +169,6 @@ export function EventTicketCard({
           <div className="mt-5 flex items-center justify-between gap-3 border-t border-dashed border-border/60 pt-3">
             <div className="flex items-center gap-3">
               <BarcodePattern />
-              {typeof event.seatsLeft === "number" && !isPast && (
-                <span className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-primary">
-                  <Users className="h-3.5 w-3.5 shrink-0" />
-                  {t("seatsLeft", { count: event.seatsLeft })}
-                </span>
-              )}
             </div>
 
             {isPast ? (

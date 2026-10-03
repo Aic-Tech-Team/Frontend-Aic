@@ -1,14 +1,8 @@
 import { api } from "@/services/api/client";
 import { apiEndpoints } from "@/services/api/config";
 import { resolveMediaUrl } from "@/services/api/media";
+import type { PaginatedResponse } from "@/services/api/types";
 import type { ActivityItem } from "@/types/activity";
-
-export interface PaginatedActivitiesResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
 
 export type ListActivitiesParams = {
   category?: string;
@@ -34,14 +28,11 @@ export interface ApiActivity {
 export async function fetchActivities(
   params: ListActivitiesParams = {},
   opts: { revalidate?: number } = { revalidate: 300 },
-): Promise<PaginatedActivitiesResponse<ApiActivity>> {
-  return api<PaginatedActivitiesResponse<ApiActivity>>(
-    apiEndpoints.activities.list(),
-    {
-      params,
-      revalidate: opts.revalidate,
-    },
-  );
+): Promise<PaginatedResponse<ApiActivity>> {
+  return api<PaginatedResponse<ApiActivity>>(apiEndpoints.activities.list(), {
+    params,
+    revalidate: opts.revalidate,
+  });
 }
 
 export async function fetchActivity(
@@ -68,12 +59,9 @@ export function mapApiActivity(activity: ApiActivity): ActivityItem {
   };
 }
 
-
 function formatActivityDate(value: string): string {
   if (!value) return "";
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-
   return date.toLocaleDateString();
 }

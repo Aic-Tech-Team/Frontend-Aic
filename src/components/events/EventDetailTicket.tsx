@@ -8,7 +8,6 @@ import {
   Clock,
   MapPin,
   User,
-  Users,
   Ticket,
   CircleSlash,
   Tag,
@@ -169,13 +168,6 @@ export function EventDetailTicket({ event }: { event: EventItemWithStatus }) {
                 label={td("timeLabel")}
                 value={timePart}
               />
-            ) : null}
-
-            {typeof event.seatsLeft === "number" && !isPast ? (
-              <div className="flex items-center gap-2 rounded-2xl bg-primary/10 p-3 text-xs font-semibold text-primary">
-                <Users className="h-4 w-4 shrink-0" />
-                {t("seatsLeft", { count: event.seatsLeft })}
-              </div>
             ) : null}
           </div>
         </div>

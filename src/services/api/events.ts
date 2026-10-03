@@ -1,7 +1,7 @@
-import type { ApiResponse } from "@/types";
 import { api } from "@/services/api/client";
 import { apiEndpoints } from "@/services/api/config";
 import { resolveMediaUrl } from "@/services/api/media";
+import type { PaginatedResponse } from "@/services/api/types";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
 
 export type ApiEventType =
@@ -21,13 +21,6 @@ export type ListEventsParams = {
   page_size?: number;
 };
 
-export interface PaginatedResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
-
 export interface ApiEvent {
   id: number;
   title: string;
@@ -46,21 +39,18 @@ export interface ApiEvent {
 export async function fetchEvents(
   params: ListEventsParams = {},
   opts: { revalidate?: number } = { revalidate: 300 },
-) {
-  return api<ApiResponse<PaginatedResponse<ApiEvent>>>(
-    apiEndpoints.events.list(),
-    {
-      params,
-      revalidate: opts.revalidate,
-    },
-  );
+): Promise<PaginatedResponse<ApiEvent>> {
+  return api<PaginatedResponse<ApiEvent>>(apiEndpoints.events.list(), {
+    params,
+    revalidate: opts.revalidate,
+  });
 }
 
 export async function fetchEvent(
   id: string | number,
   opts: { revalidate?: number } = { revalidate: 300 },
-) {
-  return api<ApiResponse<ApiEvent>>(apiEndpoints.events.detail(id), {
+): Promise<ApiEvent> {
+  return api<ApiEvent>(apiEndpoints.events.detail(id), {
     revalidate: opts.revalidate,
   });
 }
@@ -80,7 +70,6 @@ export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
     dateLabel: buildDateLabel(event.event_date),
     startAt: event.event_date,
     endAt: event.event_date,
-    seatsLeft: null,
     image: resolveMediaUrl(event.image),
     desc: event.short_description || event.description || "",
     fullDesc: event.description,
@@ -89,16 +78,12 @@ export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
   };
 }
 
-
 function buildDateLabel(eventDate: string): string {
   const date = new Date(eventDate);
-
   const dateStr = date.toLocaleDateString();
-
   const timeStr = date.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
   });
-
   return `${dateStr} · ${timeStr}`;
 }

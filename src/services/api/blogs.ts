@@ -1,14 +1,8 @@
 import { api } from "@/services/api/client";
 import { apiEndpoints } from "@/services/api/config";
 import { resolveMediaUrl } from "@/services/api/media";
+import type { PaginatedResponse } from "@/services/api/types";
 import type { BlogPostItem } from "@/types/blog";
-
-export interface PaginatedBlogsResponse<T> {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: T[];
-}
 
 export type ListBlogsParams = {
   category?: string;
@@ -35,8 +29,8 @@ export interface ApiBlogPost {
 export async function fetchBlogPosts(
   params: ListBlogsParams = {},
   opts: { revalidate?: number } = { revalidate: 300 },
-): Promise<PaginatedBlogsResponse<ApiBlogPost>> {
-  return api<PaginatedBlogsResponse<ApiBlogPost>>(apiEndpoints.blogs.list(), {
+): Promise<PaginatedResponse<ApiBlogPost>> {
+  return api<PaginatedResponse<ApiBlogPost>>(apiEndpoints.blogs.list(), {
     params,
     revalidate: opts.revalidate,
   });
@@ -67,12 +61,9 @@ export function mapApiBlogPost(post: ApiBlogPost): BlogPostItem {
   };
 }
 
-
 function formatPublishedDate(value: string): string {
   if (!value) return "";
-
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-
   return date.toLocaleDateString();
 }

@@ -1,11 +1,12 @@
-
-
-export interface ApiRequestOptions extends Omit<RequestInit, "body"> {
+export interface ApiRequestOptions extends Omit<RequestInit, "body" | "signal"> {
   /** Query params appended to the URL — undefined/empty values are skipped. */
   params?: Record<string, string | number | boolean | undefined | null>;
   /** JSON body — auto-serialized */
   body?: unknown;
-  /** Next.js data-cache revalidate window, in seconds. */
+  /**
+   * Next.js data-cache revalidate window, in seconds.
+   * Omit (or pass undefined) for `cache: "no-store"` (client / one-off fetches).
+   */
   revalidate?: number;
 }
 
@@ -31,33 +32,8 @@ export class ApiError extends Error {
   }
 }
 
-/**
- * How long a single request may take before we give up.
- *
- * Without this, a dead or unroutable upstream hangs on the OS default (~10s,
- * or longer behind a proxy) and the whole server render blocks with it. Failing
- * fast lets the page fall back to its unavailable state instead of timing out.
- */
-const REQUEST_TIMEOUT_MS = 6000;
-
-/**
- * Transport-level failure: DNS, connect refused/timeout, TLS. Distinct from
- * ApiError, which means the server answered with a non-2xx.
- */
-export class ApiNetworkError extends Error {
-  readonly url: string;
-
-  constructor(url: string, cause: unknown) {
-    const reason =
-      cause instanceof Error && cause.name === "TimeoutError"
-        ? `timed out after ${REQUEST_TIMEOUT_MS}ms`
-        : "could not be reached";
-    super(`API request to ${url} ${reason}`);
-    this.name = "ApiNetworkError";
-    this.url = url;
-    this.cause = cause;
-  }
-}
+/** Soft ceiling so a dead upstream cannot hang an RSC forever. */
+const REQUEST_TIMEOUT_MS = 4000;
 
 function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
   if (!params) return url;
@@ -65,8 +41,6 @@ function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
     ([, value]) => value !== undefined && value !== null && value !== "",
   );
   if (entries.length === 0) return url;
-  // `url` is absolute in practice, but tolerate a relative base (e.g. tests
-  // or missing env) by falling back to manual query-string construction.
   try {
     const withParams = new URL(url);
     for (const [key, value] of entries) {
@@ -92,69 +66,73 @@ async function parseResponseBody(response: Response): Promise<unknown> {
   return text || null;
 }
 
-/**
- * In-flight deduplication for identical concurrent GETs.
- * 100 rapid clicks on the same section share 1 network request
- * instead of firing 100. Entries are removed on settle, so
- * sequential (non-overlapping) calls still fetch fresh data
- * per React Query's staleTime/GC policy.
- */
-const inflightRequests = new Map<string, Promise<unknown>>();
+function timeoutError(url: string): Error {
+  const error = new Error(
+    `API request to ${url} timed out after ${REQUEST_TIMEOUT_MS}ms`,
+  );
+  error.name = "TimeoutError";
+  return error;
+}
 
-function isDedupable(method: string | undefined, body: unknown): boolean {
-  return (method === undefined || method.toUpperCase() === "GET") && body === undefined;
+/**
+ * Do not pass AbortSignal into Next's cached fetch — it conflicts with
+ * `next.revalidate` and can blow the whole RSC into the error boundary.
+ * Race a timer instead.
+ */
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+): Promise<Response> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      fetch(url, init),
+      new Promise<Response>((_, reject) => {
+        timer = setTimeout(
+          () => reject(timeoutError(url)),
+          REQUEST_TIMEOUT_MS,
+        );
+      }),
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
 }
 
 export async function api<T = unknown>(
   url: string,
   options: ApiRequestOptions = {},
 ): Promise<T> {
-  const { params, body, revalidate, headers, ...init } = options;
+  const { params, body, revalidate, headers, cache, ...init } = options;
   const finalUrl = buildUrl(url, params);
 
-  if (!isDedupable(init.method, body)) {
-    return fetchAndParse<T>(finalUrl, headers, init, body, revalidate);
-  }
-
-  const key = `GET ${finalUrl}`;
-  const existing = inflightRequests.get(key);
-  if (existing) return existing as Promise<T>;
-
-  const request = fetchAndParse<T>(finalUrl, headers, init, body, revalidate).finally(
-    () => {
-      if (inflightRequests.get(key) === request) inflightRequests.delete(key);
+  const baseInit: RequestInit = {
+    ...init,
+    headers: {
+      Accept: "application/json",
+      ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+      ...headers,
     },
-  );
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+    cache: revalidate !== undefined ? cache : (cache ?? "no-store"),
+  };
 
-  inflightRequests.set(key, request);
-  return request;
-}
-
-async function fetchAndParse<T>(
-  finalUrl: string,
-  headers: ApiRequestOptions["headers"],
-  init: Omit<RequestInit, "body" | "headers">,
-  body: unknown,
-  revalidate: number | undefined,
-): Promise<T> {
+  const fetchInit =
+    revalidate !== undefined
+      ? ({ ...baseInit, next: { revalidate } } as RequestInit & {
+          next: { revalidate: number };
+        })
+      : baseInit;
 
   let response: Response;
   try {
-    response = await fetch(finalUrl, {
-      ...init,
-      // Caller-provided signal wins; otherwise fail fast rather than hanging
-      // the server render on an unreachable upstream.
-      signal: init.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        ...headers,
-      },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-      next: revalidate !== undefined ? { revalidate } : undefined,
-    });
+    response = await fetchWithTimeout(finalUrl, fetchInit);
   } catch (error) {
-    throw new ApiNetworkError(finalUrl, error);
+    const reason =
+      error instanceof Error && error.name === "TimeoutError"
+        ? `timed out after ${REQUEST_TIMEOUT_MS}ms`
+        : "could not be reached";
+    throw new Error(`API request to ${finalUrl} ${reason}`, { cause: error });
   }
 
   const data = await parseResponseBody(response);
