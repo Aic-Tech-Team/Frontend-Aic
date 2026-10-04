@@ -1,9 +1,11 @@
 import { ArrowLeft, Handshake } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { Reveal } from "@/components/animations/Reveal";
 import { SectionBadge } from "@/components/common/SectionHeading";
 import AutoBorderGlow from "@/components/animations/AutoBorderGlow";
+import { cn } from "@/lib/utils";
 
 export async function CtaSection() {
   const t = await getTranslations("Cta");
@@ -38,16 +40,16 @@ export async function CtaSection() {
               </p>
 
               <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:mt-9 sm:flex-row">
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full rounded-2xl shadow-glow sm:w-auto sm:rounded-xl"
+                <a
+                  href="#join"
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "w-full rounded-2xl shadow-glow sm:w-auto sm:rounded-xl",
+                  )}
                 >
-                  <a href="#join">
-                    {t("join")}
-                    <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
-                  </a>
-                </Button>
+                  {t("join")}
+                  <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
+                </a>
                 <Button
                   variant="outline"
                   size="lg"

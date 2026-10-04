@@ -10,10 +10,11 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { RevealItem } from "@/components/animations/Reveal";
 import { SectionHeading } from "@/components/common/SectionHeading";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import ElectricBorder from "@/components/animations/ElectricBorder";
 import { Carousel } from "@/components/common/Carousel";
 import { getLandingEvents } from "@/services/api/landing";
+import { cn } from "@/lib/utils";
 
 export async function EventsSection() {
   const t = await getTranslations("Events");
@@ -112,16 +113,16 @@ export async function EventsSection() {
                         ) : null}
                       </div>
 
-                      <Button
-                        asChild
-                        size="sm"
-                        className="h-9 w-full rounded-xl text-xs shadow-none"
+                      <Link
+                        href={`/events/${event.id}`}
+                        className={cn(
+                          buttonVariants({ size: "sm" }),
+                          "h-9 w-full rounded-xl text-xs shadow-none",
+                        )}
                       >
-                        <Link href={`/events/${event.id}`}>
-                          {t("detailsCta")}
-                          <ArrowLeft className="h-3.5 w-3.5 ltr:rotate-180" />
-                        </Link>
-                      </Button>
+                        {t("detailsCta")}
+                        <ArrowLeft className="h-3.5 w-3.5 ltr:rotate-180" />
+                      </Link>
                     </div>
                   </div>
                 </div>

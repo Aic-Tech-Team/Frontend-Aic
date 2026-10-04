@@ -1,6 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import {
   Card,
   CardHeader,
@@ -8,6 +8,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default async function AboutPage({
   params,
@@ -47,12 +48,13 @@ export default async function AboutPage({
         </div>
       </div>
 
-      <Button asChild variant="outline" className="mt-10">
-        <Link href="/">
-          {t("backToHome")}
-          <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-        </Link>
-      </Button>
+      <Link
+        href="/"
+        className={cn(buttonVariants({ variant: "outline" }), "mt-10")}
+      >
+        {t("backToHome")}
+        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+      </Link>
     </div>
   );
 }
