@@ -1,4 +1,4 @@
-import { api } from "@/services/api/client";
+import { apiResult, ApiError } from "@/services/api/client";
 import { apiEndpoints } from "@/services/api/config";
 import { resolveMediaUrl } from "@/services/api/media";
 import type { PaginatedResponse } from "@/services/api/types";
@@ -26,21 +26,39 @@ export interface ApiBlogPost {
   updated_at?: string | null;
 }
 
+const EMPTY: PaginatedResponse<ApiBlogPost> = {
+  count: 0,
+  next: null,
+  previous: null,
+  results: [],
+};
+
 export async function fetchBlogPosts(
   params: ListBlogsParams = {},
   opts: { revalidate?: number } = { revalidate: 300 },
-): Promise<PaginatedResponse<ApiBlogPost>> {
-  return api<PaginatedResponse<ApiBlogPost>>(apiEndpoints.blogs.list(), {
-    params,
-    revalidate: opts.revalidate,
-  });
+): Promise<PaginatedResponse<ApiBlogPost> | null> {
+  const result = await apiResult<PaginatedResponse<ApiBlogPost>>(
+    apiEndpoints.blogs.list(),
+    { params, revalidate: opts.revalidate },
+  );
+  if (result.ok) return result.data;
+  if (result.notFound) return EMPTY;
+  if (
+    result.error instanceof ApiError &&
+    result.error.status === 400 &&
+    params.category
+  ) {
+    const { category: _category, ...rest } = params;
+    return fetchBlogPosts(rest, opts);
+  }
+  return null;
 }
 
 export async function fetchBlogPost(
   id: string | number,
   opts: { revalidate?: number } = { revalidate: 300 },
-): Promise<ApiBlogPost> {
-  return api<ApiBlogPost>(apiEndpoints.blogs.detail(id), {
+) {
+  return apiResult<ApiBlogPost>(apiEndpoints.blogs.detail(id), {
     revalidate: opts.revalidate,
   });
 }

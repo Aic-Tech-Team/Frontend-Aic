@@ -1,4 +1,4 @@
-import { api } from "@/services/api/client";
+import { apiResult, ApiError } from "@/services/api/client";
 import { apiEndpoints } from "@/services/api/config";
 import { resolveMediaUrl } from "@/services/api/media";
 import type { PaginatedResponse } from "@/services/api/types";
@@ -25,21 +25,41 @@ export interface ApiActivity {
   updated_at?: string | null;
 }
 
+const EMPTY: PaginatedResponse<ApiActivity> = {
+  count: 0,
+  next: null,
+  previous: null,
+  results: [],
+};
+
+/** Soft list — `null` = unreachable API; empty page = real empty / 404. */
 export async function fetchActivities(
   params: ListActivitiesParams = {},
   opts: { revalidate?: number } = { revalidate: 300 },
-): Promise<PaginatedResponse<ApiActivity>> {
-  return api<PaginatedResponse<ApiActivity>>(apiEndpoints.activities.list(), {
-    params,
-    revalidate: opts.revalidate,
-  });
+): Promise<PaginatedResponse<ApiActivity> | null> {
+  const result = await apiResult<PaginatedResponse<ApiActivity>>(
+    apiEndpoints.activities.list(),
+    { params, revalidate: opts.revalidate },
+  );
+  if (result.ok) return result.data;
+  if (result.notFound) return EMPTY;
+  if (
+    result.error instanceof ApiError &&
+    result.error.status === 400 &&
+    params.category
+  ) {
+    const { category: _category, ...rest } = params;
+    return fetchActivities(rest, opts);
+  }
+  return null;
 }
 
+/** Soft detail via ApiResult — never throws. */
 export async function fetchActivity(
   id: string | number,
   opts: { revalidate?: number } = { revalidate: 300 },
-): Promise<ApiActivity> {
-  return api<ApiActivity>(apiEndpoints.activities.detail(id), {
+) {
+  return apiResult<ApiActivity>(apiEndpoints.activities.detail(id), {
     revalidate: opts.revalidate,
   });
 }

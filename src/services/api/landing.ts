@@ -13,31 +13,40 @@ import type { TeamItem } from "@/types/team";
 const PAGE_SIZE = 6;
 const TIMEOUT_MS = 2500;
 
-async function fetchList<T>(url: string): Promise<T[]> {
+/**
+ * `null` = API unreachable / soft-fail.
+ * `[]` = reachable but empty.
+ */
+async function fetchList<T>(url: string): Promise<T[] | null> {
   const page = await apiSoft<PaginatedResponse<T>>(url, {
     params: { page_size: PAGE_SIZE },
     revalidate: 300,
     timeoutMs: TIMEOUT_MS,
   });
-  return Array.isArray(page?.results) ? page.results : [];
+  if (page === null) return null;
+  return Array.isArray(page.results) ? page.results : [];
 }
 
-export async function getLandingEvents(): Promise<EventItemWithStatus[]> {
+export async function getLandingEvents(): Promise<EventItemWithStatus[] | null> {
   const rows = await fetchList<ApiEvent>(apiEndpoints.events.list());
+  if (rows === null) return null;
   return rows.map(mapApiEvent);
 }
 
-export async function getLandingActivities(): Promise<ActivityItem[]> {
+export async function getLandingActivities(): Promise<ActivityItem[] | null> {
   const rows = await fetchList<ApiActivity>(apiEndpoints.activities.list());
+  if (rows === null) return null;
   return rows.map(mapApiActivity);
 }
 
-export async function getLandingBlogPosts(): Promise<BlogPostItem[]> {
+export async function getLandingBlogPosts(): Promise<BlogPostItem[] | null> {
   const rows = await fetchList<ApiBlogPost>(apiEndpoints.blogs.list());
+  if (rows === null) return null;
   return rows.map(mapApiBlogPost);
 }
 
-export async function getLandingTeams(): Promise<TeamItem[]> {
+export async function getLandingTeams(): Promise<TeamItem[] | null> {
   const rows = await fetchList<ApiTeam>(apiEndpoints.teams.list());
+  if (rows === null) return null;
   return mapTeamRows(rows);
 }

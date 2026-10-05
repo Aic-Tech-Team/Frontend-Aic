@@ -4,7 +4,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { EventDetailHero } from "@/components/events/EventDetailHero";
 import { EventDetailTicket } from "@/components/events/EventDetailTicket";
 import { OtherEventsRow } from "@/components/events/OtherEventsRow";
-import { ApiError } from "@/services/api/client";
 import { fetchEvent, fetchEvents, mapApiEvent } from "@/services/api/events";
 
 export const revalidate = 300;
@@ -15,15 +14,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { id } = await params;
-  try {
-    const apiEvent = await fetchEvent(id);
-    return {
-      title: apiEvent.title,
-      description: apiEvent.short_description ?? apiEvent.description,
-    };
-  } catch {
-    return {};
-  }
+  const result = await fetchEvent(id);
+  if (!result.ok) return {};
+  return {
+    title: result.data.title,
+    description: result.data.short_description ?? result.data.description,
+  };
 }
 
 export default async function EventDetailPage({
@@ -38,25 +34,19 @@ export default async function EventDetailPage({
   const td = await getTranslations("EventDetailPage");
   const tNav = await getTranslations("Nav");
 
-  let event;
-  try {
-    event = mapApiEvent(await fetchEvent(id));
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) notFound();
-    console.error("[events] failed to load:", error);
+  const result = await fetchEvent(id);
+  if (!result.ok) {
+    if (result.notFound) notFound();
     return <ContentUnavailablePage />;
   }
 
-  let otherEvents: ReturnType<typeof mapApiEvent>[] = [];
-  try {
-    const { results } = await fetchEvents({ page_size: 7 });
-    otherEvents = (Array.isArray(results) ? results : [])
-      .filter((item) => String(item.id) !== event.id)
-      .slice(0, 6)
-      .map(mapApiEvent);
-  } catch (error) {
-    console.error("[events] failed to load related events:", error);
-  }
+  const event = mapApiEvent(result.data);
+
+  const list = await fetchEvents({ page_size: 7 });
+  const otherEvents = (list?.results ?? [])
+    .filter((item) => String(item.id) !== event.id)
+    .slice(0, 6)
+    .map(mapApiEvent);
 
   return (
     <div className="relative overflow-hidden">

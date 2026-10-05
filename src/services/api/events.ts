@@ -1,4 +1,4 @@
-import { api } from "@/services/api/client";
+import { apiResult, ApiError } from "@/services/api/client";
 import { apiEndpoints } from "@/services/api/config";
 import { resolveMediaUrl } from "@/services/api/media";
 import type { PaginatedResponse } from "@/services/api/types";
@@ -36,21 +36,39 @@ export interface ApiEvent {
   updated_at?: string;
 }
 
+const EMPTY: PaginatedResponse<ApiEvent> = {
+  count: 0,
+  next: null,
+  previous: null,
+  results: [],
+};
+
 export async function fetchEvents(
   params: ListEventsParams = {},
   opts: { revalidate?: number } = { revalidate: 300 },
-): Promise<PaginatedResponse<ApiEvent>> {
-  return api<PaginatedResponse<ApiEvent>>(apiEndpoints.events.list(), {
-    params,
-    revalidate: opts.revalidate,
-  });
+): Promise<PaginatedResponse<ApiEvent> | null> {
+  const result = await apiResult<PaginatedResponse<ApiEvent>>(
+    apiEndpoints.events.list(),
+    { params, revalidate: opts.revalidate },
+  );
+  if (result.ok) return result.data;
+  if (result.notFound) return EMPTY;
+  if (
+    result.error instanceof ApiError &&
+    result.error.status === 400 &&
+    (params.status || params.event_type)
+  ) {
+    const { status: _s, event_type: _t, ...rest } = params;
+    return fetchEvents(rest, opts);
+  }
+  return null;
 }
 
 export async function fetchEvent(
   id: string | number,
   opts: { revalidate?: number } = { revalidate: 300 },
-): Promise<ApiEvent> {
-  return api<ApiEvent>(apiEndpoints.events.detail(id), {
+) {
+  return apiResult<ApiEvent>(apiEndpoints.events.detail(id), {
     revalidate: opts.revalidate,
   });
 }

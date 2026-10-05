@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import { Carousel } from "@/components/common/Carousel";
 import AutoBorderGlow from "@/components/animations/AutoBorderGlow";
 import { getLandingActivities } from "@/services/api/landing";
+import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 
 const icons = [LayoutGrid, CalendarClock] as const;
 
@@ -14,6 +15,24 @@ export async function ActivitiesSection() {
   const t = await getTranslations("Activities");
   const common = await getTranslations("Common");
   const items = await getLandingActivities();
+
+  if (items === null) {
+    return (
+      <section id="activities" className="py-14 sm:py-20">
+        <div className="container">
+          <SectionHeading
+            badge={t("badge")}
+            icon={CalendarClock}
+            title={t("title")}
+            description={t("description")}
+            moreHref="/activities"
+            moreLabel={common("more")}
+          />
+          <ContentUnavailable className="mt-8" />
+        </div>
+      </section>
+    );
+  }
 
   if (items.length === 0) return null;
 

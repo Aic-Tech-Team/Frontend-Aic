@@ -7,6 +7,7 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import GlareHover from "@/components/animations/GlareHover";
 import { Carousel } from "@/components/common/Carousel";
 import { getLandingBlogPosts } from "@/services/api/landing";
+import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 
 function readMinutes(text: string): number {
   const chars = text.trim().length;
@@ -18,6 +19,24 @@ export async function BlogSection() {
   const tDetail = await getTranslations("BlogDetailPage");
   const common = await getTranslations("Common");
   const posts = await getLandingBlogPosts();
+
+  if (posts === null) {
+    return (
+      <section id="blog" className="py-14 sm:py-20">
+        <div className="container">
+          <SectionHeading
+            badge={t("badge")}
+            icon={BookOpen}
+            title={t("title")}
+            description={t("description")}
+            moreHref="/blog"
+            moreLabel={common("more")}
+          />
+          <ContentUnavailable className="mt-8" />
+        </div>
+      </section>
+    );
+  }
 
   if (posts.length === 0) return null;
 

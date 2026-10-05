@@ -14,12 +14,31 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import ElectricBorder from "@/components/animations/ElectricBorder";
 import { Carousel } from "@/components/common/Carousel";
 import { getLandingEvents } from "@/services/api/landing";
+import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 import { cn } from "@/lib/utils";
 
 export async function EventsSection() {
   const t = await getTranslations("Events");
   const common = await getTranslations("Common");
   const events = await getLandingEvents();
+
+  if (events === null) {
+    return (
+      <section id="events" className="py-10 sm:py-20">
+        <div className="container min-w-0">
+          <SectionHeading
+            badge={t("badge")}
+            icon={Ticket}
+            title={t("title")}
+            description={t("description")}
+            moreHref="/events"
+            moreLabel={common("more")}
+          />
+          <ContentUnavailable className="mt-8" />
+        </div>
+      </section>
+    );
+  }
 
   if (events.length === 0) return null;
 

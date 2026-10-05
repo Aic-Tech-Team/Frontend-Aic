@@ -1,4 +1,4 @@
-import { api } from "@/services/api/client";
+import { apiResult } from "@/services/api/client";
 import { apiEndpoints } from "@/services/api/config";
 import { resolveMediaUrl } from "@/services/api/media";
 import type { PaginatedResponse } from "@/services/api/types";
@@ -18,11 +18,13 @@ export interface ApiTeam {
 export async function fetchTeams(
   params: { page?: number; page_size?: number } = {},
   opts: { revalidate?: number } = { revalidate: 300 },
-): Promise<PaginatedResponse<ApiTeam>> {
-  return api<PaginatedResponse<ApiTeam>>(apiEndpoints.teams.list(), {
-    params,
-    revalidate: opts.revalidate,
-  });
+): Promise<PaginatedResponse<ApiTeam> | null> {
+  const result = await apiResult<PaginatedResponse<ApiTeam>>(
+    apiEndpoints.teams.list(),
+    { params, revalidate: opts.revalidate },
+  );
+  if (result.ok) return result.data;
+  return null;
 }
 
 export function mapApiTeam(team: ApiTeam): TeamItem {
@@ -35,13 +37,13 @@ export function mapApiTeam(team: ApiTeam): TeamItem {
   };
 }
 
-/** Sorted + mapped list for pages (throws on API failure). */
-export async function listTeams(pageSize = 50): Promise<TeamItem[]> {
+/** Soft list for pages — `null` when API unreachable. */
+export async function listTeams(pageSize = 50): Promise<TeamItem[] | null> {
   const res = await fetchTeams({ page_size: pageSize });
-  return mapTeamRows(res?.results);
+  if (!res) return null;
+  return mapTeamRows(res.results);
 }
 
-/** Soft-safe mapper for landing / already-fetched rows. */
 export function mapTeamRows(rows: ApiTeam[] | null | undefined): TeamItem[] {
   if (!Array.isArray(rows)) return [];
   return [...rows]

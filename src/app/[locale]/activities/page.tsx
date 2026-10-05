@@ -4,7 +4,6 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 import { ActivitiesExplorer } from "@/components/activities/ActivitiesExplorer";
 import { ActivitiesGrid } from "@/components/activities/ActivitiesGrid";
-import { ApiError } from "@/services/api/client";
 import {
   fetchActivities,
   mapApiActivity,
@@ -16,13 +15,6 @@ export const revalidate = 300;
 
 const PAGE_SIZE = 8;
 const DISCOVERY_SIZE = 20;
-
-const EMPTY: PaginatedResponse<ApiActivity> = {
-  count: 0,
-  next: null,
-  previous: null,
-  results: [],
-};
 
 function resultsOf(res: PaginatedResponse<ApiActivity>) {
   return Array.isArray(res?.results) ? res.results : [];
@@ -51,12 +43,12 @@ export default async function ActivitiesPage({
 
   const t = await getTranslations("ActivitiesPage");
 
-  let pageRes: PaginatedResponse<ApiActivity> | null = null;
-  try {
-    pageRes = await loadActivitiesPage({ category, search, page });
-  } catch (error) {
-    console.error("[activities] list failed:", error);
-  }
+  const pageRes = await fetchActivities({
+    category: category === "all" ? undefined : category,
+    search: search || undefined,
+    page,
+    page_size: PAGE_SIZE,
+  });
 
   if (!pageRes) {
     return (
@@ -75,12 +67,8 @@ export default async function ActivitiesPage({
     );
   }
 
-  let discoveryRes = pageRes;
-  try {
-    discoveryRes = await fetchActivities({ page_size: DISCOVERY_SIZE });
-  } catch (error) {
-    console.warn("[activities] discovery failed:", error);
-  }
+  const discoveryRes =
+    (await fetchActivities({ page_size: DISCOVERY_SIZE })) ?? pageRes;
 
   const categories = Array.from(
     new Set(
@@ -129,41 +117,4 @@ export default async function ActivitiesPage({
       </div>
     </div>
   );
-}
-
-async function loadActivitiesPage({
-  category,
-  search,
-  page,
-}: {
-  category: string;
-  search: string;
-  page: number;
-}) {
-  try {
-    return await fetchActivities({
-      category: category === "all" ? undefined : category,
-      search: search || undefined,
-      page,
-      page_size: PAGE_SIZE,
-    });
-  } catch (error) {
-    if (!(error instanceof ApiError)) throw error;
-    if (error.status === 404) return EMPTY;
-    if (error.status === 400 && category !== "all") {
-      try {
-        return await fetchActivities({
-          search: search || undefined,
-          page,
-          page_size: PAGE_SIZE,
-        });
-      } catch (retryError) {
-        if (retryError instanceof ApiError && retryError.status === 404) {
-          return EMPTY;
-        }
-        throw retryError;
-      }
-    }
-    throw error;
-  }
 }

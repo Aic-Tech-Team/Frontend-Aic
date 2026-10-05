@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getApiConfig, getInternalApiBaseUrl } from "@/services/api/config";
 
 /**
  * Shown in place of a section whose data could not be loaded.
@@ -15,6 +16,9 @@ export async function ContentUnavailable({
   className?: string;
 }) {
   const t = await getTranslations("ErrorState");
+  const isDev = process.env.NODE_ENV === "development";
+  const { apiBaseUrl } = getApiConfig();
+  const internal = getInternalApiBaseUrl();
 
   return (
     <div
@@ -29,6 +33,17 @@ export async function ContentUnavailable({
         <p className="mt-1.5 text-sm text-muted-foreground">
           {t("description")}
         </p>
+        {isDev ? (
+          <p className="mx-auto mt-3 max-w-md text-start font-mono text-[11px] leading-5 text-muted-foreground/90">
+            Dev: API unreachable from this Node process.
+            <br />
+            public: {apiBaseUrl || "(unset)"}
+            <br />
+            internal: {internal || "(unset)"}
+            <br />
+            Run: pnpm api:check — logs are in the terminal, not the browser.
+          </p>
+        ) : null}
       </div>
     </div>
   );

@@ -4,7 +4,6 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 import { TeamSlider } from "@/components/teams/TeamSlider";
 import { listTeams } from "@/services/api/teams";
-import type { TeamItem } from "@/types/team";
 
 export const revalidate = 300;
 
@@ -17,13 +16,7 @@ export default async function TeamsPage({
   setRequestLocale(locale);
 
   const t = await getTranslations("Teams");
-
-  let teams: TeamItem[] = [];
-  try {
-    teams = await listTeams();
-  } catch (error) {
-    console.error("[teams] list failed:", error);
-  }
+  const teams = (await listTeams()) ?? [];
 
   return (
     <div className="relative overflow-x-clip py-10 sm:py-16">

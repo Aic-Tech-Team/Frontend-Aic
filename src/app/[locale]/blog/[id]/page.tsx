@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import { ContentUnavailablePage } from "@/components/common/ContentUnavailable";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ApiError } from "@/services/api/client";
 import {
   fetchBlogPost,
   fetchBlogPosts,
   mapApiBlogPost,
+  type ApiBlogPost,
 } from "@/services/api/blogs";
 import { BlogArticlePage } from "@/components/blog/detail/BlogArticlePage";
 import type { SidebarPost } from "@/types/blog";
@@ -18,15 +18,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { id } = await params;
-  try {
-    const apiPost = await fetchBlogPost(id);
-    return {
-      title: apiPost.title,
-      description: apiPost.summary ?? apiPost.content?.slice(0, 160),
-    };
-  } catch {
-    return {};
-  }
+  const result = await fetchBlogPost(id);
+  if (!result.ok) return {};
+  return {
+    title: result.data.title,
+    description: result.data.summary ?? result.data.content?.slice(0, 160),
+  };
 }
 
 function splitParagraphs(
@@ -65,39 +62,18 @@ export default async function BlogPostPage({
   setRequestLocale(locale);
   const t = await getTranslations("BlogDetailPage");
 
-  let apiPost: Awaited<ReturnType<typeof fetchBlogPost>>;
-  try {
-    apiPost = await fetchBlogPost(id);
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) notFound();
-    console.error("[blog] failed to load:", error);
+  const result = await fetchBlogPost(id);
+  if (!result.ok) {
+    if (result.notFound) notFound();
     return <ContentUnavailablePage />;
   }
 
-  const post = mapApiBlogPost(apiPost);
+  const post = mapApiBlogPost(result.data);
   const readTime = (content: string | undefined) =>
     t("readTime", { minutes: estimateReadMinutes(content) });
 
-  let sidebar: SidebarPost[] = [];
-  try {
-    const list = await fetchBlogPosts({ page_size: 8 });
-    sidebar = list.results
-      .filter((p) => String(p.id) !== String(id))
-      .slice(0, 7)
-      .map((p) => {
-        const mapped = mapApiBlogPost(p);
-        return {
-          id: mapped.id,
-          title: mapped.title,
-          image: mapped.image,
-          date: mapped.publishedLabel,
-          readTime: readTime(mapped.content ?? mapped.summary),
-          source: mapped.author || mapped.category || "",
-        } satisfies SidebarPost;
-      });
-  } catch {
-    sidebar = [];
-  }
+  const list = await fetchBlogPosts({ page_size: 8 });
+  const sidebar = toSidebar(list?.results ?? [], id, readTime);
 
   return (
     <BlogArticlePage
@@ -129,4 +105,25 @@ export default async function BlogPostPage({
       }}
     />
   );
+}
+
+function toSidebar(
+  rows: ApiBlogPost[],
+  excludeId: string,
+  readTime: (content: string | undefined) => string,
+): SidebarPost[] {
+  return rows
+    .filter((p) => String(p.id) !== String(excludeId))
+    .slice(0, 7)
+    .map((p) => {
+      const mapped = mapApiBlogPost(p);
+      return {
+        id: mapped.id,
+        title: mapped.title,
+        image: mapped.image,
+        date: mapped.publishedLabel,
+        readTime: readTime(mapped.content ?? mapped.summary),
+        source: mapped.author || mapped.category || "",
+      } satisfies SidebarPost;
+    });
 }

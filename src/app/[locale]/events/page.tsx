@@ -4,7 +4,6 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 import { EventsExplorer } from "@/components/events/EventsExplorer";
 import { EventsGrid } from "@/components/events/EventsGrid";
-import { ApiError } from "@/services/api/client";
 import {
   fetchEvents,
   mapApiEvent,
@@ -66,20 +65,12 @@ export default async function EventsPage({
 
   const t = await getTranslations("EventsPage");
 
-  let pageRes: PaginatedResponse<ApiEvent> | null = null;
-  try {
-    pageRes = await fetchEvents({
-      status: filter === "all" ? undefined : filterToApiStatus[filter],
-      search: search || undefined,
-      page,
-      page_size: PAGE_SIZE,
-    }).catch((error) => {
-      if (error instanceof ApiError && error.status === 404) return EMPTY;
-      throw error;
-    });
-  } catch (error) {
-    console.error("[events] list failed:", error);
-  }
+  const pageRes = await fetchEvents({
+    status: filter === "all" ? undefined : filterToApiStatus[filter],
+    search: search || undefined,
+    page,
+    page_size: PAGE_SIZE,
+  });
 
   if (!pageRes) {
     return (
@@ -98,12 +89,8 @@ export default async function EventsPage({
     );
   }
 
-  let spotlightRes = EMPTY;
-  try {
-    spotlightRes = await fetchEvents({ page_size: SPOTLIGHT_SIZE });
-  } catch (error) {
-    console.warn("[events] spotlight failed:", error);
-  }
+  const spotlightRes =
+    (await fetchEvents({ page_size: SPOTLIGHT_SIZE })) ?? EMPTY;
 
   const totalCount = pageRes.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));

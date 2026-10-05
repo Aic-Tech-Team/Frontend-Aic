@@ -2,11 +2,11 @@ import { notFound } from "next/navigation";
 import { ContentUnavailablePage } from "@/components/common/ContentUnavailable";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ActivityArticlePage } from "@/components/activities/detail/ActivityArticlePage";
-import { ApiError } from "@/services/api/client";
 import {
   fetchActivities,
   fetchActivity,
   mapApiActivity,
+  type ApiActivity,
 } from "@/services/api/activities";
 import type { SidebarActivity } from "@/types/activity";
 
@@ -39,17 +39,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string; id: string }>;
 }) {
   const { id } = await params;
-  try {
-    const apiActivity = await fetchActivity(id);
-    return {
-      title: apiActivity.title,
-      description:
-        apiActivity.short_description ??
-        apiActivity.description?.slice(0, 160),
-    };
-  } catch {
-    return {};
-  }
+  const result = await fetchActivity(id);
+  if (!result.ok) return {};
+  return {
+    title: result.data.title,
+    description:
+      result.data.short_description ?? result.data.description?.slice(0, 160),
+  };
 }
 
 export default async function ActivityDetailPage({
@@ -62,36 +58,16 @@ export default async function ActivityDetailPage({
 
   const t = await getTranslations("ActivityDetailPage");
 
-  let apiActivity: Awaited<ReturnType<typeof fetchActivity>>;
-  try {
-    apiActivity = await fetchActivity(id);
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) notFound();
-    console.error("[activities] failed to load:", error);
+  const result = await fetchActivity(id);
+  if (!result.ok) {
+    if (result.notFound) notFound();
     return <ContentUnavailablePage />;
   }
 
-  const activity = mapApiActivity(apiActivity);
+  const activity = mapApiActivity(result.data);
 
-  let recentActivities: SidebarActivity[] = [];
-  try {
-    const list = await fetchActivities({ page_size: 8 });
-    recentActivities = list.results
-      .filter((a) => String(a.id) !== activity.id)
-      .slice(0, 4)
-      .map((a) => {
-        const mapped = mapApiActivity(a);
-        return {
-          id: mapped.id,
-          title: mapped.title,
-          image: mapped.image,
-          date: mapped.dateLabel,
-          category: mapped.category,
-        } satisfies SidebarActivity;
-      });
-  } catch {
-    recentActivities = [];
-  }
+  const list = await fetchActivities({ page_size: 8 });
+  const recentActivities = toSidebar(list?.results ?? [], activity.id);
 
   return (
     <ActivityArticlePage
@@ -115,4 +91,20 @@ export default async function ActivityDetailPage({
       }}
     />
   );
+}
+
+function toSidebar(rows: ApiActivity[], excludeId: string): SidebarActivity[] {
+  return rows
+    .filter((a) => String(a.id) !== excludeId)
+    .slice(0, 4)
+    .map((a) => {
+      const mapped = mapApiActivity(a);
+      return {
+        id: mapped.id,
+        title: mapped.title,
+        image: mapped.image,
+        date: mapped.dateLabel,
+        category: mapped.category,
+      } satisfies SidebarActivity;
+    });
 }

@@ -29,6 +29,11 @@ export class ApiError extends Error {
   }
 }
 
+/** Discriminated result — never throws. Prefer this for SSR content reads. */
+export type ApiResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: Error; notFound: boolean };
+
 const REQUEST_TIMEOUT_MS = 10000;
 
 function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
@@ -132,12 +137,32 @@ async function requestJson<T>(
   return { data: data as T };
 }
 
+/** Never throws. Use for all SSR/public content reads. */
+export async function apiResult<T = unknown>(
+  url: string,
+  options: ApiRequestOptions = {},
+): Promise<ApiResult<T>> {
+  const result = await requestJson<T>(url, options);
+  if ("data" in result) return { ok: true, data: result.data };
+
+  const notFound =
+    result.error instanceof ApiError && result.error.status === 404;
+  if (!notFound) {
+    console.warn(`[api] ${result.error.message}`);
+  }
+  return { ok: false, error: result.error, notFound };
+}
+
+/**
+ * Hard client — throws. Avoid in Server Components; prefer `apiResult` /
+ * `apiSoft` so timeouts don't become Next route errors.
+ */
 export async function api<T = unknown>(
   url: string,
   options: ApiRequestOptions = {},
 ): Promise<T> {
-  const result = await requestJson<T>(url, options);
-  if ("error" in result) throw result.error;
+  const result = await apiResult<T>(url, options);
+  if (!result.ok) throw result.error;
   return result.data;
 }
 
@@ -146,6 +171,6 @@ export async function apiSoft<T = unknown>(
   url: string,
   options: ApiRequestOptions = {},
 ): Promise<T | null> {
-  const result = await requestJson<T>(url, options);
-  return "data" in result ? result.data : null;
+  const result = await apiResult<T>(url, options);
+  return result.ok ? result.data : null;
 }

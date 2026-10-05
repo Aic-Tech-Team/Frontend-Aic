@@ -4,7 +4,6 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 import { BlogExplorer } from "@/components/blog/BlogExplorer";
 import { BlogGrid } from "@/components/blog/BlogGrid";
-import { ApiError } from "@/services/api/client";
 import {
   fetchBlogPosts,
   mapApiBlogPost,
@@ -16,13 +15,6 @@ export const revalidate = 300;
 
 const PAGE_SIZE = 6;
 const DISCOVERY_SIZE = 20;
-
-const EMPTY: PaginatedResponse<ApiBlogPost> = {
-  count: 0,
-  next: null,
-  previous: null,
-  results: [],
-};
 
 function resultsOf(res: PaginatedResponse<ApiBlogPost>) {
   return Array.isArray(res?.results) ? res.results : [];
@@ -51,12 +43,12 @@ export default async function BlogPage({
 
   const t = await getTranslations("BlogPage");
 
-  let pageRes: PaginatedResponse<ApiBlogPost> | null = null;
-  try {
-    pageRes = await loadBlogPage({ category, search, page });
-  } catch (error) {
-    console.error("[blog] list failed:", error);
-  }
+  const pageRes = await fetchBlogPosts({
+    category: category === "all" ? undefined : category,
+    search: search || undefined,
+    page,
+    page_size: PAGE_SIZE,
+  });
 
   if (!pageRes) {
     return (
@@ -75,12 +67,8 @@ export default async function BlogPage({
     );
   }
 
-  let discoveryRes = pageRes;
-  try {
-    discoveryRes = await fetchBlogPosts({ page_size: DISCOVERY_SIZE });
-  } catch (error) {
-    console.warn("[blog] discovery failed:", error);
-  }
+  const discoveryRes =
+    (await fetchBlogPosts({ page_size: DISCOVERY_SIZE })) ?? pageRes;
 
   const discoveryPosts = resultsOf(discoveryRes).map(mapApiBlogPost);
   const categories = Array.from(
@@ -131,41 +119,4 @@ export default async function BlogPage({
       </div>
     </div>
   );
-}
-
-async function loadBlogPage({
-  category,
-  search,
-  page,
-}: {
-  category: string;
-  search: string;
-  page: number;
-}) {
-  try {
-    return await fetchBlogPosts({
-      category: category === "all" ? undefined : category,
-      search: search || undefined,
-      page,
-      page_size: PAGE_SIZE,
-    });
-  } catch (error) {
-    if (!(error instanceof ApiError)) throw error;
-    if (error.status === 404) return EMPTY;
-    if (error.status === 400 && category !== "all") {
-      try {
-        return await fetchBlogPosts({
-          search: search || undefined,
-          page,
-          page_size: PAGE_SIZE,
-        });
-      } catch (retryError) {
-        if (retryError instanceof ApiError && retryError.status === 404) {
-          return EMPTY;
-        }
-        throw retryError;
-      }
-    }
-    throw error;
-  }
 }
