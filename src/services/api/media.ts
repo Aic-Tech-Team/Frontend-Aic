@@ -1,29 +1,22 @@
-import { getApiConfig, getInternalApiBaseUrl } from "@/services/api/config";
+import { getApiConfig } from "@/services/api/config";
 
 const PLACEHOLDER_IMAGE = "/images/qq.jpg";
 
+/**
+ * Turn API image fields into browser-reachable URLs.
+ * Absolute http(s) URLs pass through; relative paths join the public API origin.
+ */
 export function resolveMediaUrl(image: string | null | undefined): string {
   if (!image) return PLACEHOLDER_IMAGE;
 
-  const { apiBaseUrl } = getApiConfig();
+  if (/^https?:\/\//i.test(image)) return image;
 
+  const { apiBaseUrl } = getApiConfig();
   let publicOrigin: string;
   try {
     publicOrigin = new URL(apiBaseUrl).origin;
   } catch {
     return image;
-  }
-
-  if (/^https?:\/\//i.test(image)) {
-    const internal = getInternalApiBaseUrl();
-    if (!internal) return image;
-    try {
-      if (new URL(image).origin !== new URL(internal).origin) return image;
-      const { pathname, search } = new URL(image);
-      return new URL(`${pathname}${search}`, `${publicOrigin}/`).toString();
-    } catch {
-      return image;
-    }
   }
 
   try {

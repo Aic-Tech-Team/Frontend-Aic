@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getApiConfig, getInternalApiBaseUrl } from "@/services/api/config";
+import { getApiConfig } from "@/services/api/config";
 
 /**
  * Shown in place of a section whose data could not be loaded.
@@ -18,7 +18,6 @@ export async function ContentUnavailable({
   const t = await getTranslations("ErrorState");
   const isDev = process.env.NODE_ENV === "development";
   const { apiBaseUrl } = getApiConfig();
-  const internal = getInternalApiBaseUrl();
 
   return (
     <div
@@ -38,8 +37,6 @@ export async function ContentUnavailable({
             Dev: API unreachable from this Node process.
             <br />
             public: {apiBaseUrl || "(unset)"}
-            <br />
-            internal: {internal || "(unset)"}
             <br />
             Run: pnpm api:check — logs are in the terminal, not the browser.
           </p>

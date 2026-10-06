@@ -1,5 +1,5 @@
 /**
- * Probe the API URL from .env the same way the Next server does (Node fetch).
+ * Probe the public API URL from .env the same way the Next server does (Node fetch).
  * Usage: pnpm api:check
  */
 import { readFileSync, existsSync } from "node:fs";
@@ -34,16 +34,11 @@ const publicBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(
   /\/$/,
   "",
 );
-const internalBase = (process.env.API_INTERNAL_BASE_URL || "").replace(
-  /\/$/,
-  "",
-);
 const versionRaw = (process.env.NEXT_PUBLIC_API_VERSION || "1.0").trim();
 const majorMatch = versionRaw.match(/^v?(\d+)/i);
 const version = `v${majorMatch ? majorMatch[1] : "1"}`;
-const fetchBase = internalBase || publicBase;
 
-if (!fetchBase) {
+if (!publicBase) {
   console.error("FAIL: NEXT_PUBLIC_API_BASE_URL is not set");
   process.exit(1);
 }
@@ -53,14 +48,12 @@ const endpoints = [
   "activities",
   "blogs",
   "organization/teams",
-].map((path) => `${fetchBase}/${version}/${path}/?page_size=1`);
+].map((path) => `${publicBase}/${version}/${path}/?page_size=1`);
 
-console.log("public :", publicBase || "(unset)");
-console.log("internal:", internalBase || "(unset)");
-console.log("fetch  :", fetchBase);
+console.log("public:", publicBase);
 console.log("---");
 
-const TIMEOUT_MS = 10000;
+const TIMEOUT_MS = 15000;
 let failed = 0;
 
 for (const url of endpoints) {
@@ -96,7 +89,7 @@ for (const url of endpoints) {
 console.log("---");
 if (failed) {
   console.error(
-    `RESULT: ${failed}/${endpoints.length} failed. Frontend soft-fails → empty / ContentUnavailable. Fix network or point .env at a reachable backend.`,
+    `RESULT: ${failed}/${endpoints.length} failed. Frontend soft-fails → empty / ContentUnavailable. Fix network or point NEXT_PUBLIC_API_BASE_URL at a reachable backend.`,
   );
   process.exit(1);
 }
