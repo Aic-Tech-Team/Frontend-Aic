@@ -1,29 +1,29 @@
-services:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
-        NEXT_PUBLIC_API_VERSION: ${NEXT_PUBLIC_API_VERSION}
-
-    image: aic-frontend
-    container_name: aic-frontend
-    restart: unless-stopped
-
-    ports:
-      - "127.0.0.1:8040:3000"
-
-    networks:
-      - app-network
-
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-networks:
-  app-network:
-    external: true
-    name: ${BACKEND_NETWORK_NAME}
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+        NEXT_PUBLIC_API_VERSION: ${NEXT_PUBLIC_API_VERSION}
+
+    image: aic-frontend
+    container_name: aic-frontend
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:8040:3000"
+
+    networks:
+      - app-network
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  app-network:
+    external: true
+    name: ${BACKEND_NETWORK_NAME}
