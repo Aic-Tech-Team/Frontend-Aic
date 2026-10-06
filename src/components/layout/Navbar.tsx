@@ -113,7 +113,7 @@ export function Navbar() {
               size="sm"
               className="hidden rounded-xl lg:inline-flex"
             >
-              <Link href="/#join">{tNav("join")}</Link>
+              <a href="https://panel.kaic.karaj.iau.ir/" target="_blank" rel="noopener noreferrer">{tNav("join")}</a>
             </Button>
 
             <Button
@@ -198,9 +198,9 @@ export function Navbar() {
 
         <div className="border-t border-border/50 px-4 py-8">
           <Button asChild size="sm" className="w-full rounded-xl">
-            <Link href="/#join" onClick={closeMenu}>
+            <a href="https://panel.kaic.karaj.iau.ir/" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
               {tNav("join")}
-            </Link>
+            </a>
           </Button>
         </div>
       </nav>
