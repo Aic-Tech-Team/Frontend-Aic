@@ -21,7 +21,7 @@ export async function fetchTeams(
 ): Promise<PaginatedResponse<ApiTeam> | null> {
   const result = await apiResult<PaginatedResponse<ApiTeam>>(
     apiEndpoints.teams.list(),
-    { params, revalidate: opts.revalidate },
+    { params, revalidate: opts.revalidate, tags: ["teams"] },
   );
   if (result.ok) return result.data;
   return null;

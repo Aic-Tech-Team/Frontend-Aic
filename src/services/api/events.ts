@@ -49,7 +49,7 @@ export async function fetchEvents(
 ): Promise<PaginatedResponse<ApiEvent> | null> {
   const result = await apiResult<PaginatedResponse<ApiEvent>>(
     apiEndpoints.events.list(),
-    { params, revalidate: opts.revalidate },
+    { params, revalidate: opts.revalidate, tags: ["events"] },
   );
   if (result.ok) return result.data;
   if (result.notFound) return EMPTY;
@@ -70,6 +70,7 @@ export async function fetchEvent(
 ) {
   return apiResult<ApiEvent>(apiEndpoints.events.detail(id), {
     revalidate: opts.revalidate,
+    tags: ["events"],
   });
 }
 

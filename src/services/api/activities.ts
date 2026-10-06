@@ -39,7 +39,7 @@ export async function fetchActivities(
 ): Promise<PaginatedResponse<ApiActivity> | null> {
   const result = await apiResult<PaginatedResponse<ApiActivity>>(
     apiEndpoints.activities.list(),
-    { params, revalidate: opts.revalidate },
+    { params, revalidate: opts.revalidate, tags: ["activities"] },
   );
   if (result.ok) return result.data;
   if (result.notFound) return EMPTY;
@@ -61,6 +61,7 @@ export async function fetchActivity(
 ) {
   return apiResult<ApiActivity>(apiEndpoints.activities.detail(id), {
     revalidate: opts.revalidate,
+    tags: ["activities"],
   });
 }
 

@@ -39,7 +39,7 @@ export async function fetchBlogPosts(
 ): Promise<PaginatedResponse<ApiBlogPost> | null> {
   const result = await apiResult<PaginatedResponse<ApiBlogPost>>(
     apiEndpoints.blogs.list(),
-    { params, revalidate: opts.revalidate },
+    { params, revalidate: opts.revalidate, tags: ["blogs"] },
   );
   if (result.ok) return result.data;
   if (result.notFound) return EMPTY;
@@ -60,6 +60,7 @@ export async function fetchBlogPost(
 ) {
   return apiResult<ApiBlogPost>(apiEndpoints.blogs.detail(id), {
     revalidate: opts.revalidate,
+    tags: ["blogs"],
   });
 }
 

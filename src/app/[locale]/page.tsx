@@ -8,6 +8,8 @@ import { CtaSection } from "@/components/landing-sections/CtaSection";
 import { AboutSection } from "@/components/landing-sections/AboutSection";
 import { WhatYouExperienceSection } from "@/components/landing-sections/WhatYouExperienceSection";
 
+export const revalidate = 300;
+
 export default async function HomePage({
   params,
 }: {
