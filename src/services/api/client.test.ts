@@ -36,6 +36,7 @@ describe("api client soft result", () => {
     const { apiSoft } = await import("./client");
     const data = await apiSoft("https://example.test/api/v1/events/", {
       timeoutMs: 50,
+      retries: 0,
       cache: "no-store",
     });
 
@@ -69,9 +70,52 @@ describe("api client soft result", () => {
     const { apiSoft } = await import("./client");
     await assert.doesNotReject(async () => {
       const data = await apiSoft("https://example.test/api/v1/blogs/", {
+        retries: 0,
         cache: "no-store",
       });
       assert.equal(data, null);
     });
+  });
+
+  it("apiResult retries once after network failure then succeeds", async () => {
+    let calls = 0;
+    mock.method(globalThis, "fetch", async () => {
+      calls += 1;
+      if (calls === 1) throw new TypeError("fetch failed");
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    });
+
+    const { apiResult } = await import("./client");
+    const result = await apiResult<{ ok: boolean }>(
+      "https://example.test/api/v1/events/",
+      { cache: "no-store", retries: 1 },
+    );
+
+    assert.equal(calls, 2);
+    assert.equal(result.ok, true);
+    if (result.ok) assert.equal(result.data.ok, true);
+  });
+
+  it("apiResult does not retry HTTP 500", async () => {
+    let calls = 0;
+    mock.method(globalThis, "fetch", async () => {
+      calls += 1;
+      return new Response(JSON.stringify({ detail: "boom" }), {
+        status: 500,
+        headers: { "content-type": "application/json" },
+      });
+    });
+
+    const { apiResult } = await import("./client");
+    const result = await apiResult("https://example.test/api/v1/events/", {
+      cache: "no-store",
+      retries: 2,
+    });
+
+    assert.equal(calls, 1);
+    assert.equal(result.ok, false);
   });
 });

@@ -3,8 +3,15 @@ export interface ApiRequestOptions extends Omit<RequestInit, "body" | "signal"> 
   body?: unknown;
   /** Next.js revalidate window (seconds). Omit for `cache: "no-store"`. */
   revalidate?: number;
+  /** Cache tags for on-demand `revalidateTag`. */
+  tags?: string[];
   /** Override default request timeout (ms). */
   timeoutMs?: number;
+  /**
+   * Extra attempts after timeout/network failure (not HTTP errors).
+   * Default 1 → up to 2 total tries. Set 0 to disable.
+   */
+  retries?: number;
 }
 
 export class ApiError extends Error {
@@ -34,7 +41,9 @@ export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: Error; notFound: boolean };
 
-const REQUEST_TIMEOUT_MS = 10000;
+/** Public remote APIs often need more headroom than a LAN Docker hop. */
+const REQUEST_TIMEOUT_MS = 15000;
+const DEFAULT_RETRIES = 1;
 
 function buildUrl(url: string, params?: ApiRequestOptions["params"]): string {
   if (!params) return url;
@@ -69,7 +78,7 @@ async function parseBody(response: Response): Promise<unknown> {
 
 /**
  * Race fetch vs timeout. Does not reject — callers choose throw vs soft-null.
- * Avoid AbortSignal with `next.revalidate` (conflicts in Next cache).
+ * Avoid AbortSignal with `next.revalidate` (conflicts in Next Data Cache).
  */
 async function fetchRace(
   url: string,
@@ -92,12 +101,20 @@ async function fetchRace(
   }
 }
 
-async function requestJson<T>(
+function isRetryableTransportError(error: Error): boolean {
+  return (
+    error.message.includes("timed out") ||
+    error.message.includes("could not be reached")
+  );
+}
+
+async function requestJsonOnce<T>(
   url: string,
   options: ApiRequestOptions,
 ): Promise<{ data: T } | { error: Error }> {
-  const { params, body, revalidate, headers, cache, timeoutMs, ...init } =
+  const { params, body, revalidate, tags, headers, cache, timeoutMs, retries, ...init } =
     options;
+  void retries;
   const finalUrl = buildUrl(url, params);
   const ms = timeoutMs ?? REQUEST_TIMEOUT_MS;
 
@@ -112,10 +129,14 @@ async function requestJson<T>(
     cache: revalidate !== undefined ? cache : (cache ?? "no-store"),
   };
 
+  const nextOpts: { revalidate?: number; tags?: string[] } = {};
+  if (revalidate !== undefined) nextOpts.revalidate = revalidate;
+  if (tags?.length) nextOpts.tags = tags;
+
   const fetchInit =
-    revalidate !== undefined
-      ? ({ ...baseInit, next: { revalidate } } as RequestInit & {
-          next: { revalidate: number };
+    revalidate !== undefined || tags?.length
+      ? ({ ...baseInit, next: nextOpts } as RequestInit & {
+          next: { revalidate?: number; tags?: string[] };
         })
       : baseInit;
 
@@ -135,6 +156,24 @@ async function requestJson<T>(
     return { error: new ApiError(raced.response.status, data, finalUrl) };
   }
   return { data: data as T };
+}
+
+async function requestJson<T>(
+  url: string,
+  options: ApiRequestOptions,
+): Promise<{ data: T } | { error: Error }> {
+  const retries = options.retries ?? DEFAULT_RETRIES;
+  let last: { data: T } | { error: Error } | undefined;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    last = await requestJsonOnce<T>(url, options);
+    if ("data" in last) return last;
+    if (!isRetryableTransportError(last.error) || attempt === retries) {
+      return last;
+    }
+  }
+
+  return last ?? { error: new Error(`API request to ${url} failed`) };
 }
 
 /** Never throws. Use for all SSR/public content reads. */
