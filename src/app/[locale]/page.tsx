@@ -8,7 +8,8 @@ import { CtaSection } from "@/components/landing-sections/CtaSection";
 import { AboutSection } from "@/components/landing-sections/AboutSection";
 import { WhatYouExperienceSection } from "@/components/landing-sections/WhatYouExperienceSection";
 
-export const revalidate = 300;
+// Dynamic: a failed fetch must not be stored as this page.
+export const dynamic = "force-dynamic";
 
 export default async function HomePage({
   params,

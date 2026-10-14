@@ -6,7 +6,7 @@ import { EventDetailTicket } from "@/components/events/EventDetailTicket";
 import { OtherEventsRow } from "@/components/events/OtherEventsRow";
 import { fetchEvent, fetchEvents, mapApiEvent } from "@/services/api/events";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

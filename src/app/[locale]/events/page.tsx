@@ -13,7 +13,7 @@ import {
 import type { PaginatedResponse } from "@/services/api/types";
 import type { EventStatus } from "@/types/events";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 6;
 const SPOTLIGHT_SIZE = 5;

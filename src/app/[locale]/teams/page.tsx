@@ -5,7 +5,7 @@ import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 import { TeamSlider } from "@/components/teams/TeamSlider";
 import { listTeams } from "@/services/api/teams";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export default async function TeamsPage({
   params,

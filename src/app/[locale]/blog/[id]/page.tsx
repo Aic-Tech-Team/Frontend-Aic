@@ -10,7 +10,7 @@ import {
 import { BlogArticlePage } from "@/components/blog/detail/BlogArticlePage";
 import type { SidebarPost } from "@/types/blog";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

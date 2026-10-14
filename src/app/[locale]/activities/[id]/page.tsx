@@ -10,7 +10,7 @@ import {
 } from "@/services/api/activities";
 import type { SidebarActivity } from "@/types/activity";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 function splitParagraphs(
   content: string | undefined,
