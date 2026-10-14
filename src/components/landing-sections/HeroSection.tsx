@@ -7,8 +7,9 @@ import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { Reveal } from "@/components/animations/Reveal";
-import { CountUp } from "../ui/count-up";
+import { GlareButton } from "@/components/ui/glare-button";
+import { Reveal, RevealGroup, RevealItem } from "@/components/animations/Reveal";
+import { PointerParallax } from "@/components/animations/PointerParallax";
 import ClickSpark from "@/components/animations/ClickSpark";
 import TextType from "@/components/animations/TextType";
 import Image from "next/image";
@@ -47,12 +48,6 @@ export function Hero() {
       ? "/images/PlanetLightMode.svg"
       : "/images/PlanetDarkMode.svg";
 
-  const stats = [
-    { label: t("statMembers"), value: 150, prefix: "", suffix: "+" },
-    { label: t("statEvents"), value: 300, prefix: "", suffix: "+" },
-    { label: t("statYears"), value: 10, prefix: "", suffix: "+" },
-  ];
-
   const line1 = t.raw("line1") as string[];
   const line2 = t.raw("line2") as string[];
   const line3 = t.raw("line3") as string[];
@@ -71,9 +66,9 @@ export function Hero() {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const visualRef = useRef<HTMLDivElement>(null);
   const [orbitsActive, setOrbitsActive] = useState(true);
-  const { isNarrow } = useMotionCapability();
-  /** Narrow viewport: softer blur / slower orbits — same visual, cheaper paint */
-  const heroLite = isNarrow;
+  const { isNarrow, isLowEnd } = useMotionCapability();
+  /** Narrow / low-end: softer blur / slower orbits — same visual, cheaper paint */
+  const heroLite = isNarrow || isLowEnd;
 
   useEffect(() => {
     const el = visualRef.current;
@@ -135,10 +130,10 @@ export function Hero() {
   ];
 
   return (
-    <section className="relative overflow-x-clip pb-12 pt-6 sm:pb-20 sm:pt-12 lg:pt-16">
-      <div className="container grid min-w-0 items-center gap-10 sm:gap-14 lg:grid-cols-2 lg:gap-16">
-        <Reveal direction="up" className="min-w-0 text-center lg:text-start">
-          <h1 className="mt-2 max-w-full text-3xl font-extrabold leading-snug tracking-tight wrap-break-words text-foreground sm:text-4xl md:text-5xl lg:text-[3rem]">
+    <section className="relative overflow-x-clip pb-14 pt-8 sm:pb-24 sm:pt-14 lg:min-h-[calc(100svh-5rem)] lg:pt-12">
+      <div className="container relative grid min-w-0 items-center gap-10 sm:gap-14 lg:grid-cols-2 lg:gap-16">
+        <RevealGroup stagger={0.12} className="min-w-0 text-center lg:text-start">
+          <RevealItem direction="up"><h1 className="mt-2 max-w-full text-4xl font-extrabold leading-[1.4] tracking-tight wrap-break-words text-foreground sm:text-5xl md:text-6xl lg:text-[3.6rem] xl:text-[4.2rem]">
             <span className="sr-only">{t("titleStatic")}</span>
             <span aria-hidden="true" className="grid min-w-0">
               <span className="invisible col-start-1 row-start-1 whitespace-pre-wrap">
@@ -162,13 +157,13 @@ export function Hero() {
                 />
               </span>
             </span>
-          </h1>
+          </h1></RevealItem>
 
-          <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-muted-foreground sm:mt-6 sm:text-base sm:leading-8 lg:mx-0">
+          <RevealItem direction="up"><p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-muted-foreground sm:mt-6 sm:text-base sm:leading-8 lg:mx-0">
             {t("subtitle")}
-          </p>
+          </p></RevealItem>
 
-          <ClickSpark
+          <RevealItem direction="up"><ClickSpark
             sparkColor="#8b5cf6"
             sparkSize={10}
             sparkRadius={15}
@@ -176,46 +171,32 @@ export function Hero() {
             duration={400}
           >
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:mt-9 sm:flex-row lg:justify-start">
-              <Button
-                asChild
-                size="lg"
-                className="w-full rounded-2xl shadow-glow sm:w-auto sm:rounded-full"
-              >
-                <Link href="/#events">
-                  {t("ctaEvents")}
-                  <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
-                </Link>
-              </Button>
+              <GlareButton className="w-full sm:w-auto">
+                <Button
+                  asChild
+                  size="lg"
+                  className="w-full rounded-2xl shadow-glow sm:w-auto sm:rounded-full"
+                >
+                  <Link href="/#events">
+                    {t("ctaEvents")}
+                    <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
+                  </Link>
+                </Button>
+              </GlareButton>
 
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="w-full rounded-2xl border-border/70 bg-card/40 sm:w-auto sm:rounded-full"
-              >
-                <Link href="/#teams">{t("ctaAbout")}</Link>
-              </Button>
+              <GlareButton className="w-full sm:w-auto">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="w-full rounded-2xl border-border/70 bg-card/40 sm:w-auto sm:rounded-full"
+                >
+                  <Link href="/#teams">{t("ctaAbout")}</Link>
+                </Button>
+              </GlareButton>
             </div>
-          </ClickSpark>
-
-          <div className="mt-10 grid grid-cols-3 gap-2 border-t border-border/50 pt-6 sm:mt-14 sm:gap-4 sm:pt-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="min-w-0">
-                <CountUp
-                  end={stat.value}
-                  prefix={stat.prefix}
-                  suffix={stat.suffix}
-                  duration={4}
-                  className="text-xl font-extrabold text-foreground sm:text-2xl md:text-3xl"
-                />
-
-                <p className="mt-1 text-[10px] leading-4 text-muted-foreground sm:text-xs sm:leading-5 md:text-sm">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </Reveal>
+          </ClickSpark></RevealItem>
+        </RevealGroup>
 
         <div
           ref={visualRef}
@@ -261,14 +242,16 @@ export function Hero() {
           </div>
 
           <div className="absolute left-1/2 top-1/2 z-1 w-[74%] -translate-x-1/2 -translate-y-1/2 sm:w-[80%] lg:w-[85%]">
-            <Image
-              src={globeSrc}
-              alt={t("imageAlt")}
-              width={900}
-              height={700}
-              priority
-              className="hero-globe h-auto w-full object-contain"
-            />
+            <PointerParallax strength={heroLite ? 0 : 16}>
+              <Image
+                src={globeSrc}
+                alt={t("imageAlt")}
+                width={900}
+                height={700}
+                priority
+                className="hero-globe h-auto w-full object-contain"
+              />
+            </PointerParallax>
           </div>
 
           <div className="absolute inset-[6%] z-2 sm:inset-0">

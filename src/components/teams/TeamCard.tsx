@@ -6,71 +6,80 @@ import type { TeamItem } from "@/types/team";
 
 interface TeamCardProps {
   team: TeamItem;
-  index: number;
+  /** Kept for API compatibility with callers. */
+  index?: number;
   ctaLabel: string;
   href?: string;
   className?: string;
 }
 
+/**
+ * Portrait card: framed photo up top, name + blurb + duty chips below.
+ * Shadow is tight so it never gets clipped by carousel overflow.
+ */
 export function TeamCard({
   team,
-  index,
   ctaLabel,
   href = "/teams",
   className,
 }: TeamCardProps) {
+  const duties = team.responsibilities.slice(0, 2);
+
   return (
     <Link
       href={href}
       className={cn(
-        "group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl",
-        "border border-border/70 bg-card text-card-foreground shadow-lg",
-        "transition-[border-color,box-shadow,transform] duration-300 ease-out",
-        "hover:border-primary/45 hover:shadow-glow",
+        "surface group flex h-full w-full cursor-pointer flex-col rounded-3xl p-2.5",
+        "transition-shadow duration-500 ease-out",
+        "hover:shadow-[0_16px_36px_-22px_color-mix(in_srgb,var(--primary)_60%,transparent)]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        "active:scale-[0.99]",
-        "motion-reduce:transition-none motion-reduce:active:scale-100",
         className,
       )}
     >
-      <div className="relative aspect-4/3 w-full shrink-0 overflow-hidden bg-card">
+      <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-2xl bg-muted">
         <Image
           src={team.image}
-          alt={team.name}
+          alt=""
           fill
+          unoptimized
           sizes="(max-width: 640px) 82vw, (max-width: 1024px) 40vw, 280px"
-          className="object-cover"
+          className="object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-linear-to-t from-card from-5% via-transparent via-40% to-black/25"
+          className="absolute inset-0 bg-linear-to-t from-primary-900/60 via-transparent to-transparent"
         />
-        <span className="absolute inset-e-3 top-3 z-10 rounded-full border border-white/20 bg-black/50 px-2.5 py-1 font-mono text-[11px] font-semibold tracking-wider text-white/90 backdrop-blur-md">
-          {String(index + 1).padStart(2, "0")}
-        </span>
       </div>
 
-      <div className="relative z-10 -mt-px flex flex-1 flex-col gap-2.5 bg-card px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-3.5">
-        <div className="space-y-1.5">
-          <h3 className="line-clamp-2 text-base font-bold leading-snug text-foreground sm:text-lg">
-            {team.name}
-          </h3>
-          {team.shortDescription ? (
-            <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-              {team.shortDescription}
-            </p>
-          ) : null}
-        </div>
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-4">
+        <h3 className="line-clamp-1 text-lg font-extrabold leading-8 text-foreground">
+          {team.name}
+        </h3>
+        {team.shortDescription ? (
+          <p className="mt-1 line-clamp-2 text-sm leading-7 text-muted-foreground">
+            {team.shortDescription}
+          </p>
+        ) : null}
 
-        <div className="mt-auto flex items-center justify-end border-t border-dashed border-border/70 pt-3">
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-foreground/90 transition-colors duration-200 group-hover:text-primary">
-            {ctaLabel}
-            <ArrowLeft
-              className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-translate-x-0.5 motion-reduce:transition-none"
-              aria-hidden
-            />
+        {duties.length > 0 ? (
+          <ul className="mt-3 flex flex-wrap gap-1.5">
+            {duties.map((d) => (
+              <li
+                key={d}
+                className="rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary-300"
+              >
+                {d}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        <span className="mt-auto flex items-center justify-between pt-4 text-sm font-bold text-foreground">
+          {ctaLabel}
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-primary-300 transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+            <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
           </span>
-        </div>
+        </span>
       </div>
     </Link>
   );

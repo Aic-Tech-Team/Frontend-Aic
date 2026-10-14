@@ -1,5 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { Hero } from "@/components/landing-sections/HeroSection";
+import { TopicsMarquee } from "@/components/landing-sections/TopicsMarquee";
+import { StatsSection } from "@/components/landing-sections/StatsSection";
 import { EventsSection } from "@/components/landing-sections/EventsSection";
 import { ActivitiesSection } from "@/components/landing-sections/ActivitiesSection";
 import { BlogSection } from "@/components/landing-sections/BlogSection";
@@ -22,6 +24,8 @@ export default async function HomePage({
   return (
     <>
       <Hero />
+      <StatsSection />
+      <TopicsMarquee />
       <WhatYouExperienceSection />
       <AboutSection />
       <EventsSection />

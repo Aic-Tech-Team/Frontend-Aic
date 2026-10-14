@@ -17,6 +17,8 @@ import { Footer } from "@/components/layout/Footer";
 import { AnimatedBackground } from "@/components/animations/AnimatedBackground";
 import { ThemeAwareParticles } from "@/components/animations/ThemeAwareParticles";
 import { ExperienceSplash } from "@/components/animations/ExperienceSplash";
+import { ScrollProgress } from "@/components/animations/ScrollProgress";
+import { SurfaceSpotlight } from "@/components/animations/SurfaceSpotlight";
 import { cn } from "@/lib/utils";
 
 export function generateStaticParams() {
@@ -73,9 +75,10 @@ export default async function LocaleLayout({
 
           <div className="pointer-events-none fixed inset-0 -z-10">
             <ThemeAwareParticles
-              particleSpread={20}
-              speed={0.2}
-              particleBaseSize={100}
+              particleSpread={18}
+              speed={0.08}
+              particleBaseSize={80}
+              sizeRandomness={0.8}
               moveParticlesOnHover={false}
               alphaParticles
               disableRotation
@@ -84,6 +87,8 @@ export default async function LocaleLayout({
           </div>
 
           <ExperienceSplash />
+          <ScrollProgress />
+          <SurfaceSpotlight />
 
           <NextIntlClientProvider messages={messages}>
             <div className="relative z-0 flex min-h-screen flex-col">

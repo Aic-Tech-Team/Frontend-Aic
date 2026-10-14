@@ -14,7 +14,7 @@ export async function TeamsSection() {
 
   if (teams === null) {
     return (
-      <section id="teams" className="py-14 sm:py-20">
+      <section id="teams" className="py-12 sm:py-20">
         <div className="container">
           <SectionHeading
             badge={t("badge")}
@@ -34,7 +34,7 @@ export async function TeamsSection() {
   if (teams.length === 0) return null;
 
   return (
-    <section id="teams" className="py-14 sm:py-20">
+    <section id="teams" className="py-12 sm:py-20">
       <div className="container">
         <SectionHeading
           badge={t("badge")}
@@ -48,7 +48,7 @@ export async function TeamsSection() {
 
         <Carousel
           ariaLabel={t("title")}
-          slideClassName="flex-[0_0_82%] sm:flex-[0_0_calc((100%-1.25rem)/2)] md:flex-[0_0_calc((100%-2.5rem)/3)] lg:flex-[0_0_calc((100%-3.75rem)/4)]"
+          slideClassName="flex-[0_0_100%] sm:flex-[0_0_calc((100%-1.25rem)/2)] md:flex-[0_0_calc((100%-2.5rem)/3)] lg:flex-[0_0_calc((100%-3.75rem)/4)]"
         >
           {teams.map((team, index) => (
             <RevealItem

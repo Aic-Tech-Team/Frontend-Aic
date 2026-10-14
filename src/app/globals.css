@@ -724,11 +724,21 @@
 
 @layer components {
   .surface {
-    background: linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--card) 58%, transparent) 0%,
-      color-mix(in srgb, var(--card) 32%, transparent) 100%
-    );
+    background:
+      radial-gradient(
+        280px circle at var(--mx, 50%) var(--my, 50%),
+        color-mix(
+          in srgb,
+          var(--primary) calc(var(--spot, 0) * 20%),
+          transparent
+        ),
+        transparent 70%
+      ),
+      linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--card) 58%, transparent) 0%,
+        color-mix(in srgb, var(--card) 32%, transparent) 100%
+      );
     -webkit-backdrop-filter: blur(28px) saturate(165%);
     backdrop-filter: blur(28px) saturate(165%);
     border: 1px solid color-mix(in srgb, var(--border) 48%, transparent);
@@ -739,18 +749,28 @@
   }
 
   [data-theme="light"] .surface {
-    background: linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--card) 72%, transparent) 0%,
-      color-mix(in srgb, var(--card) 48%, transparent) 100%
-    );
+    background:
+      radial-gradient(
+        280px circle at var(--mx, 50%) var(--my, 50%),
+        color-mix(
+          in srgb,
+          var(--primary) calc(var(--spot, 0) * 12%),
+          transparent
+        ),
+        transparent 70%
+      ),
+      linear-gradient(
+        145deg,
+        color-mix(in srgb, var(--card) 88%, transparent) 0%,
+        color-mix(in srgb, var(--card) 70%, transparent) 100%
+      );
     -webkit-backdrop-filter: blur(24px) saturate(150%);
     backdrop-filter: blur(24px) saturate(150%);
-    border-color: color-mix(in srgb, var(--border) 65%, transparent);
+    border-color: color-mix(in srgb, var(--primary) 16%, var(--border));
     box-shadow:
-      inset 0 1px 0 0 color-mix(in srgb, white 55%, transparent),
-      inset 0 -1px 0 0 color-mix(in srgb, var(--primary) 6%, transparent),
-      0 16px 40px -24px color-mix(in srgb, var(--primary) 16%, transparent);
+      inset 0 1px 0 0 color-mix(in srgb, white 80%, transparent),
+      0 1px 2px 0 color-mix(in srgb, var(--primary) 8%, transparent),
+      0 18px 44px -20px color-mix(in srgb, var(--primary) 28%, transparent);
   }
 
   .glass-footer {
@@ -792,8 +812,8 @@
       backdrop-filter: blur(12px) saturate(130%);
       background: linear-gradient(
         145deg,
-        color-mix(in srgb, var(--card) 82%, transparent) 0%,
-        color-mix(in srgb, var(--card) 62%, transparent) 100%
+        color-mix(in srgb, var(--card) 92%, transparent) 0%,
+        color-mix(in srgb, var(--card) 78%, transparent) 100%
       );
     }
 
@@ -1047,7 +1067,177 @@
   }
 }
 
+/* ---- GSAP reveal: hidden only when JS is on; failsafe shows after 3s ---- */
+@media (scripting: enabled) {
+  [data-reveal]:not([data-revealed]),
+  [data-reveal-item]:not([data-revealed]) {
+    opacity: 0;
+    animation: reveal-failsafe 0.01s 3s forwards;
+  }
+}
+
+@keyframes reveal-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Marquee: pure CSS transform loop; pauses on hover / off-screen / reduced */
+.marquee {
+  --dir: 1;
+  display: flex;
+  width: max-content;
+  animation: marquee 48s linear infinite;
+  will-change: transform;
+}
+
+html[dir="rtl"] .marquee {
+  --dir: -1;
+}
+
+.marquee-wrap:hover .marquee,
+.marquee-wrap[data-paused="true"] .marquee {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  to {
+    transform: translate3d(calc(var(--dir) * -50%), 0, 0);
+  }
+}
+
+/* Footer wordmark: vertical fade of the brand colour (top bright, bottom gone) */
+.wordmark-text {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--primary-400) 22%, transparent),
+    color-mix(in srgb, var(--primary-400) 2%, transparent)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0.7;
+}
+
+[data-theme="light"] .wordmark-text {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--primary) 20%, transparent),
+    color-mix(in srgb, var(--primary) 2%, transparent)
+  );
+}
+
+/* Footer top edge: a light packet travels while the footer is on screen */
+.signal-line {
+  position: relative;
+  height: 1px;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--primary-400) 40%, transparent) 20%,
+    color-mix(in srgb, var(--primary-400) 40%, transparent) 80%,
+    transparent
+  );
+}
+
+.signal-packet {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: 9%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary-300), #fff);
+  box-shadow: 0 0 12px 1px var(--primary-400);
+  animation: signal-travel 5s linear infinite;
+}
+
+.signal-line[data-paused] .signal-packet {
+  animation-play-state: paused;
+}
+
+html[dir="rtl"] .signal-packet {
+  background: linear-gradient(270deg, transparent, var(--primary-300), #fff);
+  animation-name: signal-travel-rtl;
+}
+
+@keyframes signal-travel {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(1200%);
+  }
+}
+
+@keyframes signal-travel-rtl {
+  from {
+    transform: translateX(120%);
+  }
+  to {
+    transform: translateX(-1200%);
+  }
+}
+
+.experience-progress {
+  transform: scaleX(0);
+  animation: experience-progress 6s linear forwards;
+}
+
+.group\/panels[data-paused="true"] .experience-progress {
+  animation-play-state: paused;
+}
+
+@keyframes experience-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.outline-text {
+  color: transparent;
+  -webkit-text-stroke: 1.5px
+    color-mix(in srgb, var(--foreground) 55%, transparent);
+}
+
+.scroll-progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 60;
+  height: 3px;
+  transform-origin: left center;
+  transform: scaleX(0);
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--primary-400),
+    var(--glow-2),
+    var(--glow-3)
+  );
+}
+
+html[dir="rtl"] .scroll-progress {
+  transform-origin: right center;
+}
 @media (prefers-reduced-motion: reduce) {
+  .scroll-progress {
+    display: none;
+  }
+
+  .marquee {
+    animation: none !important;
+  }
+
+  .experience-progress {
+    animation: none !important;
+    display: none;
+  }
+
+  .signal-packet {
+    display: none;
+  }
+
   .blob {
     animation: none !important;
   }

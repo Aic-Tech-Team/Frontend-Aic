@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useInView, useMotionValue, useSpring } from "motion/react";
+import { useRef } from "react";
+import { gsap, prefersReducedMotion, ScrollTrigger, useGSAP } from "@/lib/gsap";
 
 interface CountUpProps {
   end: number;
@@ -11,7 +11,7 @@ interface CountUpProps {
   className?: string;
 }
 
-/** SSR shows final value; animates 0→end after in-view (progressive enhancement). */
+/** SSR shows final value; animates 0→end once in view (progressive enhancement). */
 export function CountUp({
   end,
   prefix = "",
@@ -19,33 +19,34 @@ export function CountUp({
   duration = 1.6,
   className,
 }: CountUpProps) {
-  const ref = useRef<HTMLSpanElement | null>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.6 });
-  const didAnimate = useRef(false);
+  const ref = useRef<HTMLSpanElement>(null);
 
-  const motionValue = useMotionValue(end);
-  const springValue = useSpring(motionValue, {
-    duration: duration * 1000,
-    bounce: 0,
-  });
+  useGSAP(
+    () => {
+      const el = ref.current;
+      if (!el || prefersReducedMotion()) return;
 
-  useEffect(() => {
-    if (!isInView || didAnimate.current) return;
-    didAnimate.current = true;
-    motionValue.set(0);
-    requestAnimationFrame(() => {
-      motionValue.set(end);
-    });
-  }, [isInView, end, motionValue]);
+      const state = { v: 0 };
+      const render = () => {
+        el.textContent = `${prefix}${Math.round(state.v)}${suffix}`;
+      };
+      render();
 
-  useEffect(() => {
-    const unsubscribe = springValue.on("change", (latest) => {
-      if (ref.current) {
-        ref.current.textContent = `${prefix}${Math.round(latest)}${suffix}`;
-      }
-    });
-    return unsubscribe;
-  }, [springValue, prefix, suffix]);
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 92%",
+        once: true,
+        onEnter: () =>
+          gsap.to(state, {
+            v: end,
+            duration,
+            ease: "power3.out",
+            onUpdate: render,
+          }),
+      });
+    },
+    { scope: ref, dependencies: [end, prefix, suffix, duration] },
+  );
 
   return (
     <span ref={ref} className={className}>
