@@ -1,4 +1,4 @@
-export type BlobTier = "full" | "lite";
+export type BlobTier = "full" | "lite" | "off";
 export type BorderQuality = "full" | "lite";
 
 export type MotionCapability = {
@@ -7,19 +7,44 @@ export type MotionCapability = {
   prefersReducedMotion: boolean;
   isNarrow: boolean;
   isVisible: boolean;
-  /** Heavy FX should run (visible + not reduced-motion). */
+  isLowEnd: boolean;
   fxActive: boolean;
   particleCount: number;
   blobTier: BlobTier;
   borderQuality: BorderQuality;
+  allowSplash: boolean;
 };
 
 export const NARROW_MQ = "(max-width: 768px)";
 export const FINE_POINTER_MQ = "(pointer: fine)";
 export const REDUCED_MOTION_MQ = "(prefers-reduced-motion: reduce)";
 
-export const PARTICLE_COUNT_DESKTOP = 350;
-export const PARTICLE_COUNT_MOBILE = 300;
+export const PARTICLE_COUNT_DESKTOP = 72;
+export const PARTICLE_COUNT_MOBILE = 52;
+export const PARTICLE_COUNT_LOW_END = 28;
+
+function detectLowEnd(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const cores = navigator.hardwareConcurrency || 8;
+  const mem =
+    (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
+  const saveData =
+    (navigator as Navigator & { connection?: { saveData?: boolean } })
+      .connection?.saveData === true;
+  return saveData || cores <= 2 || mem <= 2;
+}
+
+function particleBudget(
+  prefersReducedMotion: boolean,
+  isNarrow: boolean,
+  isLowEnd: boolean,
+): number {
+  if (prefersReducedMotion) return 0;
+  if (isNarrow && isLowEnd) return PARTICLE_COUNT_LOW_END;
+  if (isNarrow) return PARTICLE_COUNT_MOBILE;
+  if (isLowEnd) return PARTICLE_COUNT_LOW_END;
+  return PARTICLE_COUNT_DESKTOP;
+}
 
 export function readMotionCapability(): Omit<MotionCapability, "mounted"> {
   if (typeof window === "undefined") {
@@ -28,10 +53,12 @@ export function readMotionCapability(): Omit<MotionCapability, "mounted"> {
       prefersReducedMotion: false,
       isNarrow: false,
       isVisible: true,
+      isLowEnd: false,
       fxActive: true,
       particleCount: PARTICLE_COUNT_DESKTOP,
       blobTier: "full",
       borderQuality: "full",
+      allowSplash: true,
     };
   }
 
@@ -39,16 +66,20 @@ export function readMotionCapability(): Omit<MotionCapability, "mounted"> {
   const isFinePointer = window.matchMedia(FINE_POINTER_MQ).matches;
   const isNarrow = window.matchMedia(NARROW_MQ).matches;
   const isVisible = document.visibilityState === "visible";
+  const isLowEnd = detectLowEnd();
   const fxActive = isVisible && !prefersReducedMotion;
+  const lite = isNarrow || isLowEnd;
 
   return {
     isFinePointer,
     prefersReducedMotion,
     isNarrow,
     isVisible,
+    isLowEnd,
     fxActive,
-    particleCount: isNarrow ? PARTICLE_COUNT_MOBILE : PARTICLE_COUNT_DESKTOP,
-    blobTier: isNarrow ? "lite" : "full",
-    borderQuality: isNarrow ? "lite" : "full",
+    particleCount: particleBudget(prefersReducedMotion, isNarrow, isLowEnd),
+    blobTier: prefersReducedMotion ? "off" : lite ? "lite" : "full",
+    borderQuality: lite ? "lite" : "full",
+    allowSplash: fxActive && isFinePointer && !isNarrow && !isLowEnd,
   };
 }
