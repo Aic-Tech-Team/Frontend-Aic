@@ -77,27 +77,29 @@ async function parseBody(response: Response): Promise<unknown> {
 }
 
 /**
- * Race fetch vs timeout. Does not reject — callers choose throw vs soft-null.
- * Avoid AbortSignal with `next.revalidate` (conflicts in Next Data Cache).
+ * Timeout aborts the same fetch the render is awaiting.
+ * A separate timer would render the fallback while Next's fetch later
+ * resolves and writes a different result into the Data Cache.
+ * Next only persists HTTP 200, and it drops `signal` on background
+ * revalidation, so an abort is not stored as a successful entry.
  */
-async function fetchRace(
+async function fetchWithTimeout(
   url: string,
   init: RequestInit,
   timeoutMs: number,
-): Promise<{ response: Response } | { timedOut: boolean }> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
+): Promise<Response> {
+  const signal = AbortSignal.timeout(timeoutMs);
   try {
-    return await Promise.race([
-      fetch(url, init).then(
-        (response) => ({ response }),
-        () => ({ timedOut: false as const }),
-      ),
-      new Promise<{ timedOut: true }>((resolve) => {
-        timer = setTimeout(() => resolve({ timedOut: true }), timeoutMs);
-      }),
-    ]);
-  } finally {
-    if (timer !== undefined) clearTimeout(timer);
+    return await fetch(url, { ...init, signal });
+  } catch (error) {
+    const timedOut =
+      signal.aborted ||
+      (error instanceof Error &&
+        (error.name === "TimeoutError" || error.name === "AbortError"));
+    if (timedOut) {
+      throw new Error(`API request to ${url} timed out after ${timeoutMs}ms`);
+    }
+    throw error;
   }
 }
 
@@ -140,20 +142,20 @@ async function requestJsonOnce<T>(
         })
       : baseInit;
 
-  const raced = await fetchRace(finalUrl, fetchInit, ms);
-  if (!("response" in raced)) {
-    return {
-      error: new Error(
-        `API request to ${finalUrl} ${
-          raced.timedOut ? `timed out after ${ms}ms` : "could not be reached"
-        }`,
-      ),
-    };
+  let response: Response;
+  try {
+    response = await fetchWithTimeout(finalUrl, fetchInit, ms);
+  } catch (error) {
+    const message =
+      error instanceof Error && error.message.includes("timed out after")
+        ? error.message
+        : `API request to ${finalUrl} could not be reached`;
+    return { error: new Error(message) };
   }
 
-  const data = await parseBody(raced.response);
-  if (!raced.response.ok) {
-    return { error: new ApiError(raced.response.status, data, finalUrl) };
+  const data = await parseBody(response);
+  if (!response.ok) {
+    return { error: new ApiError(response.status, data, finalUrl) };
   }
   return { data: data as T };
 }

@@ -28,8 +28,24 @@ describe("api client soft result", () => {
   });
 
   it("apiSoft returns null on timeout without throwing", async () => {
-    mock.method(globalThis, "fetch", async () => {
-      await new Promise(() => {});
+    mock.method(globalThis, "fetch", async (_url: string, init?: RequestInit) => {
+      await new Promise<never>((_resolve, reject) => {
+        const signal = init?.signal;
+        if (!signal) return;
+        const fail = () => {
+          const reason = signal.reason;
+          reject(
+            reason instanceof Error
+              ? reason
+              : new DOMException("The operation was aborted", "TimeoutError"),
+          );
+        };
+        if (signal.aborted) {
+          fail();
+          return;
+        }
+        signal.addEventListener("abort", fail, { once: true });
+      });
       return new Response();
     });
 
