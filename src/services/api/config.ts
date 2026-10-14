@@ -1,15 +1,24 @@
 const DEFAULT_API_VERSION = "1.0";
 
 /**
- * Public API base (no trailing slash), e.g. https://host/api
- *
- * Used for all Server Component fetches and for resolving media URLs for the
- * browser. There is no separate internal URL — callers without a Docker-network
- * backend must hit the same public origin (Next.js does not require dual URLs;
- * optional internal bases are an ops concern only when a private hostname exists).
+ * `NEXT_PUBLIC_*` is inlined at `next build`. Server fetches must not depend on
+ * that value: inside Docker the public origin often cannot be reached (hairpin).
+ * `API_BASE_URL` is read at runtime. Bracket access is intentional so the
+ * compiler does not inline it.
  */
-function getApiBaseUrl(): string {
+function readRuntimeEnv(name: string): string {
+  const value = process.env[name];
+  return typeof value === "string" ? value.trim().replace(/\/$/, "") : "";
+}
+
+/** Browser-facing origin for media URLs. */
+export function getPublicApiBaseUrl(): string {
   return process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "";
+}
+
+/** Origin the Next server uses for API fetches. Falls back to the public URL. */
+export function getServerApiBaseUrl(): string {
+  return readRuntimeEnv("API_BASE_URL") || getPublicApiBaseUrl();
 }
 
 function getApiVersionSegment(): string {
@@ -21,10 +30,10 @@ function getApiVersionSegment(): string {
 }
 
 function base(): string {
-  const baseUrl = getApiBaseUrl();
+  const baseUrl = getServerApiBaseUrl();
   if (!baseUrl) {
     throw new Error(
-      "NEXT_PUBLIC_API_BASE_URL is not set — API URL cannot be built.",
+      "API_BASE_URL / NEXT_PUBLIC_API_BASE_URL is not set — API URL cannot be built.",
     );
   }
   return `${baseUrl}/${getApiVersionSegment()}`;
@@ -32,7 +41,8 @@ function base(): string {
 
 export function getApiConfig() {
   return {
-    apiBaseUrl: getApiBaseUrl(),
+    apiBaseUrl: getPublicApiBaseUrl(),
+    serverApiBaseUrl: getServerApiBaseUrl(),
     apiVersion: getApiVersionSegment(),
   };
 }

@@ -17,7 +17,7 @@ export async function ContentUnavailable({
 }) {
   const t = await getTranslations("ErrorState");
   const isDev = process.env.NODE_ENV === "development";
-  const { apiBaseUrl } = getApiConfig();
+  const { apiBaseUrl, serverApiBaseUrl } = getApiConfig();
 
   return (
     <div
@@ -35,6 +35,8 @@ export async function ContentUnavailable({
         {isDev ? (
           <p className="mx-auto mt-3 max-w-md text-start font-mono text-[11px] leading-5 text-muted-foreground/90">
             Dev: API unreachable from this Node process.
+            <br />
+            server: {serverApiBaseUrl || "(unset)"}
             <br />
             public: {apiBaseUrl || "(unset)"}
             <br />

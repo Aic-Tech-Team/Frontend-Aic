@@ -34,12 +34,13 @@ const publicBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(
   /\/$/,
   "",
 );
+const serverBase = (process.env.API_BASE_URL || publicBase).replace(/\/$/, "");
 const versionRaw = (process.env.NEXT_PUBLIC_API_VERSION || "1.0").trim();
 const majorMatch = versionRaw.match(/^v?(\d+)/i);
 const version = `v${majorMatch ? majorMatch[1] : "1"}`;
 
-if (!publicBase) {
-  console.error("FAIL: NEXT_PUBLIC_API_BASE_URL is not set");
+if (!serverBase) {
+  console.error("FAIL: API_BASE_URL and NEXT_PUBLIC_API_BASE_URL are unset");
   process.exit(1);
 }
 
@@ -48,9 +49,10 @@ const endpoints = [
   "activities",
   "blogs",
   "organization/teams",
-].map((path) => `${publicBase}/${version}/${path}/?page_size=1`);
+].map((path) => `${serverBase}/${version}/${path}/?page_size=1`);
 
-console.log("public:", publicBase);
+console.log("server:", serverBase);
+console.log("public:", publicBase || "(unset)");
 console.log("---");
 
 const TIMEOUT_MS = 15000;
