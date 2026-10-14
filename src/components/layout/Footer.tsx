@@ -1,21 +1,75 @@
 "use client";
-import Image from "next/image";
 
-import { Mail, MapPin, Clock } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useRef, type ReactNode } from "react";
+import { ArrowUp, Clock, Mail, MapPin, type LucideIcon } from "lucide-react";
 import { SiInstagram, SiTelegram } from "@icons-pack/react-simple-icons";
 import { LinkedinIcon } from "@/components/icons/linkedin";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { RevealGroup, RevealItem } from "@/components/animations/Reveal";
+import { FooterWordmark } from "@/components/animations/FooterWordmark";
 import { getCopyrightYears } from "@/lib/utils";
+
+type NavLink = { label: string; href: string };
+
+function FooterLink({ href, label }: NavLink) {
+  return (
+    <Link
+      href={href}
+      className="group inline-flex items-center gap-2 py-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+    >
+      <span className="h-px w-0 bg-primary-400 transition-[width] duration-300 group-hover:w-4" />
+      {label}
+    </Link>
+  );
+}
+
+function LinkColumn({
+  title,
+  links,
+  className,
+}: {
+  title: string;
+  links: NavLink[];
+  className?: string;
+}) {
+  return (
+    <RevealItem direction="up" className={className}>
+      <h4 className="text-base font-extrabold text-foreground">{title}</h4>
+      <ul className="mt-4 space-y-1.5">
+        {links.map((link) => (
+          <li key={link.label}>
+            <FooterLink {...link} />
+          </li>
+        ))}
+      </ul>
+    </RevealItem>
+  );
+}
+
+function ContactRow({
+  icon: Icon,
+  children,
+}: {
+  icon: LucideIcon;
+  children: ReactNode;
+}) {
+  return (
+    <li className="flex items-start gap-2.5">
+      <Icon className="mt-1 h-4 w-4 shrink-0 text-primary-300" />
+      <span className="min-w-0 wrap-break-words leading-7">{children}</span>
+    </li>
+  );
+}
 
 export function Footer() {
   const tCommon = useTranslations("Common");
   const tFooter = useTranslations("Footer");
   const locale = useLocale();
-  const copyrightYears = getCopyrightYears(locale);
+  const footerRef = useRef<HTMLElement>(null);
 
-  const quickLinks = [
+  const quickLinks: NavLink[] = [
     { label: tFooter("home"), href: "/" },
     { label: tFooter("events"), href: "/events" },
     { label: tFooter("activities"), href: "/activities" },
@@ -23,7 +77,7 @@ export function Footer() {
     { label: tFooter("about"), href: "/about" },
   ];
 
-  const activityLinks = [
+  const activityLinks: NavLink[] = [
     { label: tFooter("workshops"), href: "/activities" },
     { label: tFooter("conferences"), href: "/events" },
     { label: tFooter("visits"), href: "/activities" },
@@ -32,35 +86,51 @@ export function Footer() {
   ];
 
   const social = [
-    {
-      label: tFooter("telegram"),
-      node: <SiTelegram color="currentColor" className="h-4 w-4" />,
-    },
-    {
-      label: tFooter("linkedin"),
-      node: <LinkedinIcon className="h-4 w-4" />,
-    },
-    {
-      label: tFooter("instagram"),
-      node: <SiInstagram color="currentColor" className="h-4 w-4" />,
-    },
+    { label: tFooter("telegram"), node: <SiTelegram color="currentColor" className="h-4 w-4" /> },
+    { label: tFooter("linkedin"), node: <LinkedinIcon className="h-4 w-4" /> },
+    { label: tFooter("instagram"), node: <SiInstagram color="currentColor" className="h-4 w-4" /> },
   ];
 
+  useEffect(() => {
+    const root = footerRef.current;
+    const line = root?.querySelector(".signal-line");
+    if (!root || !line) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => line.toggleAttribute("data-paused", !entry.isIntersecting),
+      { rootMargin: "80px" },
+    );
+    io.observe(root);
+    return () => io.disconnect();
+  }, []);
+
+  const toTop = () => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+  };
+
   return (
-    <footer className="glass-footer relative w-full overflow-hidden pb-6 pt-10 sm:pb-8 sm:pt-14">
-      <div className="container relative z-10">
-        <RevealGroup className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-16 xl:gap-24">
-          <RevealItem direction="up" className="lg:max-w-[18rem] lg:shrink-0 xl:max-w-[20rem]">
-            <div className="flex items-center gap-2.5">
+    <footer
+      ref={footerRef}
+      className="glass-footer relative isolate mt-auto w-full overflow-hidden pb-0"
+    >
+      <div className="signal-line" aria-hidden="true">
+        <span className="signal-packet" />
+      </div>
+
+      <div className="container relative z-10 pt-14 sm:pt-20">
+        <RevealGroup className="grid gap-12 lg:grid-cols-[1.2fr_2fr] lg:gap-20">
+          <RevealItem direction="up">
+            <div className="flex items-center gap-3">
               <Image
                 src="/logo/AIC_logo_notext.svg"
                 alt={tCommon("brandTitle")}
-                width={52}
-                height={52}
-                className="h-12 w-12 object-contain sm:h-16 sm:w-16"
+                width={64}
+                height={64}
+                className="h-14 w-14 object-contain sm:h-16 sm:w-16"
               />
               <span className="min-w-0">
-                <span className="block text-base font-bold text-foreground sm:text-lg">
+                <span className="block text-lg font-extrabold text-foreground sm:text-xl">
                   {tCommon("brandTitle")}
                 </span>
                 <span className="block text-sm text-muted-foreground sm:text-base">
@@ -68,15 +138,16 @@ export function Footer() {
                 </span>
               </span>
             </div>
-            <p className="mt-4 text-sm leading-7 text-muted-foreground">
+            <p className="mt-5 max-w-[40ch] text-sm leading-8 text-muted-foreground">
               {tFooter("blurb")}
             </p>
-            <div className="mt-5 flex items-center gap-2">
+            <div className="mt-6 flex items-center gap-2.5">
               {social.map(({ label, node }) => (
                 <span
                   key={label}
+                  role="img"
                   aria-label={label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 text-muted-foreground"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-border/60 text-muted-foreground transition-colors duration-300 hover:border-primary/60 hover:bg-primary/15 hover:text-foreground"
                 >
                   {node}
                 </span>
@@ -84,84 +155,56 @@ export function Footer() {
             </div>
           </RevealItem>
 
-          <div className="grid grid-cols-2 gap-x-6 gap-y-8 border-t border-border/40 pt-8 sm:grid-cols-3 sm:gap-x-6 lg:min-w-0 lg:flex-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1.45fr)] lg:gap-x-3 xl:gap-x-4 lg:border-t-0 lg:pt-0">
-            <RevealItem direction="up">
-              <h4 className="text-sm font-bold text-foreground">
-                {tFooter("quickTitle")}
-              </h4>
-              <ul className="mt-4 space-y-3">
-                {quickLinks.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="group relative inline-block pb-1.5 pt-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </RevealItem>
-
-            <RevealItem direction="up">
-              <h4 className="text-sm font-bold text-foreground">
-                {tFooter("activitiesTitle")}
-              </h4>
-              <ul className="mt-4 space-y-3">
-                {activityLinks.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="group relative inline-block pb-1.5 pt-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-center scale-x-0 rounded-full bg-linear-to-r from-primary-400 to-primary-600 transition-transform duration-300 ease-out group-hover:scale-x-100" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </RevealItem>
-
-            <RevealItem
-              direction="up"
-              className="col-span-2 sm:col-span-1"
-            >
-              <h4 className="text-sm font-bold text-foreground">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3">
+            <LinkColumn title={tFooter("quickTitle")} links={quickLinks} />
+            <LinkColumn title={tFooter("activitiesTitle")} links={activityLinks} />
+            <RevealItem direction="up" className="col-span-2 sm:col-span-1">
+              <h4 className="text-base font-extrabold text-foreground">
                 {tFooter("contactTitle")}
               </h4>
               <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2.5">
-                  <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary-300" />
-                  <span className="min-w-0 wrap-break-words">{tFooter("email")}</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary-300" />
-                  <span className="min-w-0 wrap-break-words">{tFooter("address")}</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-primary-300" />
-                  <span className="min-w-0">{tFooter("hours")}</span>
-                </li>
+                <ContactRow icon={Mail}>{tFooter("email")}</ContactRow>
+                <ContactRow icon={MapPin}>{tFooter("address")}</ContactRow>
+                <ContactRow icon={Clock}>{tFooter("hours")}</ContactRow>
               </ul>
             </RevealItem>
           </div>
         </RevealGroup>
 
-        <div className="relative mt-6 flex flex-col items-center justify-between gap-3 border-t border-border/50 pt-4 text-center text-xs text-muted-foreground sm:flex-row sm:text-start">
-          <p>{tFooter("copyright", { years: copyrightYears })}</p>
-
-          <figure className="pointer-events-none absolute inset-e-0 top-0 z-20 translate-y-[-75%]">
-            <Image
-              src="/images/CatTyping.svg"
-              alt="typing cat"
-              width={75}
-              height={75}
-              className="h-14 w-14 sm:h-18.75 sm:w-18.75"
-            />
-          </figure>
-        </div>
+        <FooterWordmark />
       </div>
+
+      <section className="relative z-10 border-t border-border/50 bg-background/40 py-4 sm:py-5">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 z-20"
+          aria-hidden="true"
+        >
+          <div className="container relative h-0">
+            {/* SVG bottom padding ~24% — nudge so ink sits on the border */}
+            <figure className="absolute inset-e-0 bottom-0 translate-y-[24%] leading-none">
+              <Image
+                src="/images/CatTyping.svg"
+                alt=""
+                width={75}
+                height={75}
+                className="block h-11 w-11 sm:h-14 sm:w-14 md:h-18.75 md:w-18.75"
+              />
+            </figure>
+          </div>
+        </div>
+
+        <div className="container relative flex flex-col items-center justify-between gap-3 text-center text-xs text-muted-foreground sm:flex-row sm:text-start">
+          <p>{tFooter("copyright", { years: getCopyrightYears(locale) })}</p>
+          <button
+            type="button"
+            onClick={toTop}
+            aria-label={tFooter("backToTop")}
+            className="group flex h-11 w-11 items-center justify-center rounded-full border border-border/60 text-foreground transition-colors duration-300 hover:border-primary/60 hover:bg-primary/15"
+          >
+            <ArrowUp className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5" />
+          </button>
+        </div>
+      </section>
     </footer>
   );
 }
