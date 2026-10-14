@@ -12,6 +12,17 @@
   display: block;
 }
 
+/* Wrap real buttons / links without forcing a fixed box.
+   Width comes from utilities (w-full / w-auto) — don't lock it here. */
+.glare-hover.glare-hover--fit {
+  display: inline-flex;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  border: none;
+  background: transparent;
+}
+
 @media (pointer: fine) {
   .glare-hover::before {
     content: '';

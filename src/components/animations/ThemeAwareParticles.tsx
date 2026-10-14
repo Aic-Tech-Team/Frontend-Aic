@@ -15,6 +15,7 @@ interface ThemeAwareParticlesProps {
   moveParticlesOnHover?: boolean;
   alphaParticles?: boolean;
   particleBaseSize?: number;
+  sizeRandomness?: number;
   disableRotation?: boolean;
   pixelRatio?: number;
 }
