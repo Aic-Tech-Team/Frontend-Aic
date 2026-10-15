@@ -11,13 +11,11 @@ services:
     container_name: aic-frontend
     restart: unless-stopped
 
-    environment:
-      # Runtime only. Not a build arg — NEXT_PUBLIC_* is already inlined.
-      # Point at the backend container, e.g. http://api:8000/api
-      API_BASE_URL: ${API_BASE_URL:-}
-
     ports:
       - "127.0.0.1:8040:3000"
+
+    extra_hosts:
+      - "kaic.karaj.iau.ir:host-gateway"
 
     networks:
       - app-network
