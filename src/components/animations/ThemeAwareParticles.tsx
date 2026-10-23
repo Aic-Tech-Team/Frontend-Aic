@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
+import { useIdleReady } from "@/hooks/useIdleReady";
 import { useMotionCapability } from "@/hooks/useMotionCapability";
 
 const Particles = dynamic(() => import("./Particles"), { ssr: false });
@@ -22,10 +23,11 @@ interface ThemeAwareParticlesProps {
 
 export function ThemeAwareParticles(props: ThemeAwareParticlesProps) {
   const { resolvedTheme } = useTheme();
+  const idle = useIdleReady();
   const { mounted, prefersReducedMotion, isVisible, particleCount } =
     useMotionCapability();
 
-  if (!mounted || prefersReducedMotion || particleCount <= 0) return null;
+  if (!idle || !mounted || prefersReducedMotion || particleCount <= 0) return null;
 
   const particleColors =
     resolvedTheme === "light" ? COLORS_LIGHT : COLORS_DARK;

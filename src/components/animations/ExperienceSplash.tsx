@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useIdleReady } from "@/hooks/useIdleReady";
 import { useMotionCapability } from "@/hooks/useMotionCapability";
 
 const SplashCursor = dynamic(() => import("@/components/animations/SplashCursor"), {
@@ -12,9 +13,10 @@ const SplashCursor = dynamic(() => import("@/components/animations/SplashCursor"
  * (`allowSplash`). Keep mounted across tab hides; opacity gates paint.
  */
 export function ExperienceSplash() {
+  const idle = useIdleReady();
   const { mounted, allowSplash, isVisible } = useMotionCapability();
 
-  if (!mounted || !allowSplash) return null;
+  if (!idle || !mounted || !allowSplash) return null;
 
   return (
     <div
