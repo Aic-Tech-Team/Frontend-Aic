@@ -25,7 +25,7 @@ const BLOBS: BlobDef[] = [
 
 function blobsForTier(tier: BlobTier) {
   if (tier === "off") return [];
-  if (tier === "lite") return BLOBS.filter((b) => !b.fullOnly);
+  // Lite keeps every orb, but CSS freezes them. Cutting orbs left mobile flat.
   return BLOBS;
 }
 
@@ -43,9 +43,12 @@ export function AnimatedBackground() {
   }, [blobTier]);
 
   useEffect(() => {
-    if (prefersReducedMotion || !fxActive || blobTier === "off") {
+    if (prefersReducedMotion || !fxActive || blobTier !== "full") {
       if (rafId.current) cancelAnimationFrame(rafId.current);
       rafId.current = null;
+      wrapperRefs.current.forEach((el) => {
+        if (el) el.style.transform = "";
+      });
       return;
     }
 

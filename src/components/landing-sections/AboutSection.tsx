@@ -48,7 +48,7 @@ export async function AboutSection() {
             <div className="relative mx-auto aspect-square w-full max-w-md lg:max-w-none">
               <span
                 aria-hidden="true"
-                className="absolute inset-0 rounded-full bg-radial from-primary-500/40 via-primary-500/10 to-transparent to-70% blur-3xl"
+                className="soft-glow absolute inset-0 rounded-full bg-radial from-primary-500/40 via-primary-500/10 to-transparent to-70% blur-3xl"
               />
               <span
                 aria-hidden="true"

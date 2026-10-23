@@ -10,6 +10,8 @@ interface ClickSparkProps {
   duration?: number;
   easing?: "linear" | "ease-in" | "ease-out" | "ease-in-out";
   extraScale?: number;
+  /** Skip the canvas. Children still render and receive clicks. */
+  disabled?: boolean;
   children?: React.ReactNode;
 }
 
@@ -28,6 +30,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
   duration = 400,
   easing = "ease-out",
   extraScale = 1.0,
+  disabled = false,
   children,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -90,7 +93,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
         animationIdRef.current = null;
       }
     };
-  }, []);
+  }, [disabled]);
 
   const draw = useCallback(
     (timestamp: number) => {
@@ -171,14 +174,16 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
       }}
       onClick={handleClick}
     >
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-        }}
-      />
+      {disabled ? null : (
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+          }}
+        />
+      )}
       {children}
     </div>
   );

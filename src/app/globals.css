@@ -796,31 +796,36 @@
     box-shadow: inset 0 1px 0 0 color-mix(in srgb, white 60%, transparent);
   }
 
-  /* Lighter glass on narrow viewports — keep translucency, cut blur cost */
+  /* Narrow: opaque fill. backdrop-filter resamples the animated
+     background on every scroll frame. */
   @media (max-width: 768px) {
     .surface {
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
-      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
       background: linear-gradient(
         145deg,
-        color-mix(in srgb, var(--card) 72%, transparent) 0%,
-        color-mix(in srgb, var(--card) 48%, transparent) 100%
+        color-mix(in srgb, var(--card) 58%, transparent) 0%,
+        color-mix(in srgb, var(--card) 34%, transparent) 100%
       );
+      box-shadow:
+        inset 0 1px 0 0 color-mix(in srgb, white 16%, transparent),
+        0 16px 40px -24px color-mix(in srgb, var(--primary) 40%, transparent);
     }
 
     [data-theme="light"] .surface {
-      -webkit-backdrop-filter: blur(12px) saturate(130%);
-      backdrop-filter: blur(12px) saturate(130%);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
       background: linear-gradient(
         145deg,
-        color-mix(in srgb, var(--card) 92%, transparent) 0%,
-        color-mix(in srgb, var(--card) 78%, transparent) 100%
+        color-mix(in srgb, var(--card) 84%, transparent) 0%,
+        color-mix(in srgb, var(--card) 70%, transparent) 100%
       );
     }
 
     .glass-footer {
-      -webkit-backdrop-filter: blur(16px) saturate(145%);
-      backdrop-filter: blur(16px) saturate(145%);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: color-mix(in srgb, var(--background) 96%, transparent);
     }
   }
 
@@ -1251,5 +1256,91 @@ html[dir="rtl"] .scroll-progress {
   .orbit-spin,
   .orbit-spin-rev {
     animation: none !important;
+  }
+}
+
+/* Compact devices: stop the effects that repaint the first screen every frame.
+   Applies before hydration, including landscape phones wider than 768px. */
+@media (max-width: 768px), ((hover: none) and (pointer: coarse)) {
+  .surface,
+  [data-theme="light"] .surface,
+  .glass-footer,
+  .site-bar,
+  .backdrop-blur-xs,
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl,
+  .backdrop-blur-3xl {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .site-bar {
+    background-color: color-mix(in srgb, var(--background) 72%, transparent);
+    box-shadow:
+      inset 0 1px 0 0 color-mix(in srgb, white 14%, transparent),
+      0 12px 32px -20px color-mix(in srgb, var(--primary) 50%, transparent);
+  }
+
+  [data-theme="light"] .site-bar {
+    background-color: color-mix(in srgb, var(--background) 86%, transparent);
+  }
+
+  /* Static glow. Blend stays (screen / multiply). No float = no per-frame blend. */
+  .blob {
+    animation: none !important;
+    filter: blur(64px);
+  }
+
+  .hero-glow {
+    animation: none !important;
+    filter: none !important;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--primary-500) 46%, transparent) 0%,
+      color-mix(in srgb, var(--glow-2) 16%, transparent) 40%,
+      transparent 72%
+    ) !important;
+  }
+
+  .soft-glow {
+    filter: none !important;
+  }
+
+  /* Unblurred radial was a hard disc over the watermark icon. */
+  .experience-panel[data-open="true"] .experience-glow {
+    opacity: 0.42;
+  }
+
+  .experience-panel[data-open="true"] .experience-mark {
+    opacity: 0.55;
+    stroke-width: 1.25;
+  }
+
+  .soft-glow {
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--primary-500) 42%, transparent) 0%,
+      color-mix(in srgb, var(--primary-500) 10%, transparent) 48%,
+      transparent 74%
+    ) !important;
+  }
+
+  .experience-panel {
+    transition-property: border-color;
+    transition-duration: 0.2s;
+  }
+
+  .hero-globe {
+    filter: drop-shadow(
+      0 0 22px color-mix(in srgb, var(--primary) 32%, transparent)
+    );
+    transition: none;
+  }
+
+  .marquee {
+    will-change: auto;
   }
 }

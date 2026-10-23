@@ -49,8 +49,8 @@ export function Hero() {
   );
   const globeSrc =
     mounted && resolvedTheme === "light"
-      ? "/images/PlanetLightMode.svg"
-      : "/images/PlanetDarkMode.svg";
+      ? "/images/PlanetLightMode.webp"
+      : "/images/PlanetDarkMode.webp";
 
   const line1 = t.raw("line1") as string[];
   const line2 = t.raw("line2") as string[];
@@ -153,9 +153,9 @@ export function Hero() {
                   <TextType
                     as="span"
                     text={fullTexts}
-                    typingSpeed={heroLite ? 100 : 95}
-                    deletingSpeed={heroLite ? 65 : 55}
-                    pauseDuration={heroLite ? 3700 : 3500}
+                    typingSpeed={heroLite ? 130 : 95}
+                    deletingSpeed={heroLite ? 80 : 55}
+                    pauseDuration={heroLite ? 4200 : 3500}
                     initialDelay={200}
                     loop={true}
                     showCursor
@@ -181,6 +181,7 @@ export function Hero() {
               sparkRadius={15}
               sparkCount={8}
               duration={400}
+              disabled={heroLite}
             >
               <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:mt-9 sm:flex-row lg:justify-start">
                 <GlareButton className="w-full sm:w-auto">
@@ -226,8 +227,8 @@ export function Hero() {
           >
             <div
               className={cn(
-                "pointer-events-none absolute inset-[8%] rounded-full bg-linear-to-br from-primary-500/20 via-glow-2/10 to-transparent",
-                heroLite ? "opacity-70 blur-xl" : "animate-pulse-glow blur-3xl",
+                "hero-glow pointer-events-none absolute inset-[8%] rounded-full bg-linear-to-br from-primary-500/20 via-glow-2/10 to-transparent",
+                heroLite ? "opacity-70" : "animate-pulse-glow blur-3xl",
               )}
             />
 
@@ -257,9 +258,10 @@ export function Hero() {
                 <Image
                   src={globeSrc}
                   alt={t("imageAlt")}
-                  width={900}
-                  height={700}
+                  width={1200}
+                  height={1218}
                   priority
+                  sizes="(max-width: 1024px) 78vw, 540px"
                   className="hero-globe h-auto w-full object-contain"
                 />
               </PointerParallax>

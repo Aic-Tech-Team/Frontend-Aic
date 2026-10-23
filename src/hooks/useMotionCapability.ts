@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  COARSE_MQ,
   FINE_POINTER_MQ,
   NARROW_MQ,
   REDUCED_MOTION_MQ,
@@ -56,6 +57,7 @@ export function useMotionCapability(): MotionCapability {
       window.matchMedia(REDUCED_MOTION_MQ),
       window.matchMedia(FINE_POINTER_MQ),
       window.matchMedia(NARROW_MQ),
+      window.matchMedia(COARSE_MQ),
     ];
 
     medias.forEach((mq) => mq.addEventListener("change", sync));

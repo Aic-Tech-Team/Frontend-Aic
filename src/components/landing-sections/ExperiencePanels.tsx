@@ -71,7 +71,7 @@ function Panel({
       onClick={onActivate}
       data-open={open}
       className={cn(
-        "surface group relative isolate flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-3xl border outline-none transition-[flex-grow,min-height,padding,border-color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] focus-visible:ring-2 focus-visible:ring-ring",
+        "experience-panel surface group relative isolate flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-3xl border outline-none transition-[border-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] focus-visible:ring-2 focus-visible:ring-ring md:transition-[flex-grow,min-height,padding,border-color] md:duration-700",
         open ? "max-md:min-h-40 max-md:p-5" : "max-md:p-4",
         "md:flex-[1_1_0%] md:p-7 md:data-[open=true]:flex-[3.2_1_0%]",
         tone.border,
@@ -87,7 +87,7 @@ function Panel({
       <span
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute -bottom-20 inset-e-[-4.5rem] -z-10 h-64 w-64 rounded-full bg-radial from-60% to-transparent to-70% opacity-0 blur-2xl transition-opacity duration-700 group-data-[open=true]:opacity-100 md:h-72 md:w-72",
+          "experience-glow pointer-events-none absolute -bottom-16 inset-e-[-3rem] -z-10 h-52 w-52 rounded-full bg-radial from-0% to-transparent to-80% opacity-0 transition-opacity duration-700 group-data-[open=true]:opacity-50 md:-bottom-20 md:inset-e-[-4.5rem] md:h-72 md:w-72 md:from-60% md:to-70% md:blur-2xl md:group-data-[open=true]:opacity-100",
           tone.glow,
         )}
       />
@@ -95,15 +95,15 @@ function Panel({
         aria-hidden="true"
         strokeWidth={0.8}
         className={cn(
-          "pointer-events-none absolute -bottom-6 inset-e-[-1.25rem] -z-10 h-36 w-36 opacity-0 transition-all duration-700 group-data-[open=true]:opacity-20 md:h-52 md:w-52 md:opacity-10 md:group-data-[open=true]:-rotate-6 md:group-data-[open=true]:opacity-20",
+          "experience-mark pointer-events-none absolute -bottom-4 inset-e-[-0.5rem] -z-10 h-32 w-32 opacity-0 transition-opacity duration-500 group-data-[open=true]:opacity-70 md:-bottom-6 md:inset-e-[-1.25rem] md:h-52 md:w-52 md:opacity-10 md:transition-all md:duration-700 md:group-data-[open=true]:-rotate-6 md:group-data-[open=true]:opacity-20",
           tone.text,
         )}
       />
 
-      <div className="flex items-center gap-3 md:contents">
+      <div className="relative z-10 flex items-center gap-3 md:contents">
         <span
           className={cn(
-            "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-current/30 bg-background/40 shadow-[0_0_28px_-8px_currentColor] backdrop-blur-sm transition-transform duration-700 md:h-14 md:w-14 md:group-data-[open=true]:-rotate-6 md:group-data-[open=true]:scale-110",
+            "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-current/30 bg-background/80 shadow-[0_0_28px_-8px_currentColor] transition-transform duration-700 md:h-14 md:w-14 md:bg-background/40 md:backdrop-blur-sm md:group-data-[open=true]:-rotate-6 md:group-data-[open=true]:scale-110",
             tone.text,
           )}
         >
@@ -114,7 +114,7 @@ function Panel({
         </h3>
       </div>
 
-      <div className="mt-auto max-md:mt-0">
+      <div className="relative z-10 mt-auto max-md:mt-0">
         <h3 className="hidden pt-10 text-2xl font-extrabold leading-snug text-foreground md:block">
           {item.title}
         </h3>

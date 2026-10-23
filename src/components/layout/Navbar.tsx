@@ -248,7 +248,7 @@ export function Navbar() {
           <div
             ref={pillRef}
             className={cn(
-              "group/pill flex items-center justify-between gap-2 rounded-full border border-border/40 bg-background/40 py-2 ps-3 pe-2 backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-500 sm:gap-4 sm:ps-4",
+              "site-bar group/pill flex items-center justify-between gap-2 rounded-full border border-border/40 bg-background/40 py-2 ps-3 pe-2 backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-500 sm:gap-4 sm:ps-4",
               "data-scrolled:border-border/70 data-scrolled:bg-background/80 data-scrolled:shadow-[0_18px_50px_-24px_color-mix(in_srgb,var(--primary)_55%,transparent)]",
             )}
           >
@@ -340,7 +340,7 @@ export function Navbar() {
         ref={menuRef}
         aria-hidden={!isOpen}
         inert={!isOpen}
-        className="invisible fixed inset-0 z-40 flex flex-col overflow-y-auto bg-background/95 px-6 pb-8 pt-28 opacity-0 backdrop-blur-2xl lg:hidden"
+        className="invisible fixed inset-0 z-40 flex flex-col overflow-y-auto bg-background px-6 pb-8 pt-28 opacity-0 lg:hidden"
       >
         <nav className="flex flex-1 flex-col justify-center gap-1">
           {LINKS.map((link) => {

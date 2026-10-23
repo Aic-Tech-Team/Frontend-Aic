@@ -16,12 +16,13 @@ export type MotionCapability = {
 };
 
 export const NARROW_MQ = "(max-width: 768px)";
+/** Phones / tablets, including landscape where width exceeds 768. */
+export const COARSE_MQ = "(hover: none) and (pointer: coarse)";
 export const FINE_POINTER_MQ = "(pointer: fine)";
 export const REDUCED_MOTION_MQ = "(prefers-reduced-motion: reduce)";
 
 export const PARTICLE_COUNT_DESKTOP = 72;
-export const PARTICLE_COUNT_MOBILE = 52;
-export const PARTICLE_COUNT_LOW_END = 28;
+export const PARTICLE_COUNT_LOW_END = 28
 
 function detectLowEnd(): boolean {
   if (typeof navigator === "undefined") return false;
@@ -39,9 +40,9 @@ function particleBudget(
   isNarrow: boolean,
   isLowEnd: boolean,
 ): number {
-  if (prefersReducedMotion) return 0;
-  if (isNarrow && isLowEnd) return PARTICLE_COUNT_LOW_END;
-  if (isNarrow) return PARTICLE_COUNT_MOBILE;
+  // Full-viewport WebGL canvas costs more than the point count.
+  // Compact devices skip the canvas entirely.
+  if (prefersReducedMotion || isNarrow) return 0;
   if (isLowEnd) return PARTICLE_COUNT_LOW_END;
   return PARTICLE_COUNT_DESKTOP;
 }
@@ -64,7 +65,9 @@ export function readMotionCapability(): Omit<MotionCapability, "mounted"> {
 
   const prefersReducedMotion = window.matchMedia(REDUCED_MOTION_MQ).matches;
   const isFinePointer = window.matchMedia(FINE_POINTER_MQ).matches;
-  const isNarrow = window.matchMedia(NARROW_MQ).matches;
+  const isNarrow =
+    window.matchMedia(NARROW_MQ).matches ||
+    window.matchMedia(COARSE_MQ).matches;
   const isVisible = document.visibilityState === "visible";
   const isLowEnd = detectLowEnd();
   const fxActive = isVisible && !prefersReducedMotion;
