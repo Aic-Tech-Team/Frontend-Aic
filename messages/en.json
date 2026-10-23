@@ -13,11 +13,13 @@
     "home": "Home",
     "events": "Events",
     "activities": "Activities",
-    "teams": "Teams",
+    "teams": "Departments",
     "blog": "Blog",
     "join": "Join AIC",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "about": "About",
+    "contact": "Contact"
   },
   "Hero": {
     "titleStatic": "Build the future with artificial intelligence!",
@@ -73,7 +75,7 @@
   "AboutSection": {
     "badge": "About AIC",
     "title": "A community for AI enthusiasts",
-    "description": "The Artificial Intelligence Community (AIC) was founded in 2019 to create a scientific space for students interested in AI, under the Faculty of Computer Engineering.",
+    "description": "The Artificial Intelligence Community (AIC) was founded in 2024 to create a scientific space for students interested in AI, under the Faculty of Computer Engineering.",
     "body": "From educational workshops and scientific conferences to industry collaboration and research projects, members grow in a dynamic and creative environment.",
     "cta": "More about AIC",
     "imageAlt": "AIC illustration"
@@ -96,9 +98,9 @@
   },
   "Teams": {
     "badge": "Structure",
-    "title": "AIC specialized teams",
-    "description": "Each team works with expertise and drive to advance AIC’s scientific and organizational goals.",
-    "exploreTeam": "Enter team",
+    "title": "AIC specialized departments",
+    "description": "Each department works with expertise and drive to advance AIC’s scientific and organizational goals.",
+    "exploreTeam": "Enter department",
     "responsibilitiesLabel": "Responsibilities"
   },
   "Cta": {
@@ -110,19 +112,52 @@
   },
   "AboutPage": {
     "title": "About AIC",
-    "description": "The Artificial Intelligence Community (AIC) is a place for learning, research, and collaboration among students passionate about the field.",
-    "archTitle": "Mission",
-    "archDesc": "Create a specialized scientific space for student growth and meaningful links with industry and research.",
-    "techTitle": "Focus areas",
-    "focusAreas": [
-      "Machine learning",
-      "Natural language processing",
-      "Computer vision",
-      "Deep learning",
-      "Robotics",
-      "Applied research"
+    "headline": "Where we learn AI, build with it, and teach it to each other",
+    "lede": "Since 2024, the Artificial Intelligence Community has brought students together under the Faculty of Computer Engineering to grow through workshops, projects, and research.",
+    "graphLabel": "Map of AIC focus areas",
+    "areas": [
+      {
+        "title": "Machine learning",
+        "desc": "The base of everything: from regression and decision trees to evaluating models on real data."
+      },
+      {
+        "title": "Natural language processing",
+        "desc": "Machines that read and write text, from tokenizers to transformers."
+      },
+      {
+        "title": "Computer vision",
+        "desc": "Teaching computers to see: detection, segmentation, and understanding images and video."
+      },
+      {
+        "title": "Deep learning",
+        "desc": "Neural networks from scratch: build, train, and tune models in PyTorch. The other areas stand on this one."
+      },
+      {
+        "title": "Robotics",
+        "desc": "Where a model meets the physical world: control, sensors, and reinforcement learning."
+      },
+      {
+        "title": "Applied research",
+        "desc": "From idea to paper to prototype, with faculty and industry partners."
+      }
     ],
-    "backToHome": "Back to home"
+    "manifesto": "We believe you understand AI by building it. That is why AIC is where we step out of the classroom, build projects together, and teach what we have learned to the next person.",
+    "facts": [
+      {
+        "label": "Founded",
+        "value": "2024"
+      },
+      {
+        "label": "Part of",
+        "value": "Faculty of Computer Engineering"
+      },
+      {
+        "label": "Ways to take part",
+        "value": "Contests, conferences, workshops, visits"
+      }
+    ],
+    "pillarsTitle": "Four ways to grow at AIC",
+    "pillarsDescription": "Each one is a different kind of learning, from solving problems side by side to seeing real work in industry."
   },
   "EventsPage": {
     "badge": "Events & workshops",
@@ -169,14 +204,14 @@
       {
         "id": "teams-kickoff",
         "category": "Meetup",
-        "title": "AIC teams kickoff",
+        "title": "AIC departments kickoff",
         "location": "AIC Common Room, Main Building",
         "dateLabel": "Jun 15 · 16:00–18:00",
         "startAt": "2026-06-15T16:00:00+03:30",
         "endAt": "2026-06-15T18:00:00+03:30",
         "seatsLeft": null,
         "image": "/images/668010557261534380.jpg",
-        "desc": "New semester, new teams. Meet the working groups behind AIC's research and events, and find where your skills fit best."
+        "desc": "New semester, new departments. Meet the working groups behind AIC's research and events, and find where your skills fit best."
       },
       {
         "id": "pytorch-deep-learning",
@@ -349,7 +384,8 @@
     "instagram": "Instagram",
     "linkedin": "LinkedIn",
     "telegram": "Telegram",
-    "backToTop": "Back to top"
+    "backToTop": "Back to top",
+    "contact": "Contact"
   },
   "Carousel": {
     "prevSlide": "Previous slide",
@@ -365,5 +401,49 @@
     "description": "We can't load this section right now. Please try again in a moment.",
     "retry": "Try again",
     "backHome": "Back to home"
+  },
+  "ContactPage": {
+    "title": "Contact us",
+    "headline": "Got a question, a suggestion, or an idea? Write to us",
+    "lede": "Membership, partnerships, or a simple question: your message is filed as a ticket for the AIC team.",
+    "channelsTitle": "Other ways to reach us",
+    "channels": {
+      "email": "Email",
+      "address": "Address",
+      "hours": "Hours"
+    },
+    "form": {
+      "title": "Send a message",
+      "name": "Full name",
+      "namePlaceholder": "e.g. Maryam Ahmadi",
+      "email": "Email",
+      "emailPlaceholder": "name@example.com",
+      "phone": "Phone",
+      "optional": "optional",
+      "phonePlaceholder": "09121234567",
+      "subject": "Subject",
+      "message": "Message",
+      "messagePlaceholder": "Write your message here…",
+      "submit": "Send message",
+      "sending": "Sending…"
+    },
+    "subjects": [
+      "Membership request",
+      "Partnership",
+      "Feedback",
+      "General question"
+    ],
+    "errors": {
+      "required": "Please fill in this field",
+      "email": "That email address doesn't look right",
+      "phone": "Enter the number like 09121234567",
+      "messageShort": "That message is a bit short; write at least 10 characters",
+      "failed": "Couldn't send your message. Check your connection and try again."
+    },
+    "success": {
+      "title": "Message received",
+      "description": "The AIC team will read it and reply by email or on the number you entered.",
+      "again": "Send another message"
+    }
   }
 }

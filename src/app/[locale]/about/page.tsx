@@ -1,14 +1,23 @@
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
-import { buttonVariants } from "@/components/ui/button-variants";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { AboutHero } from "@/components/about/AboutHero";
+import { AboutManifesto } from "@/components/about/AboutManifesto";
+import { AboutPillars } from "@/components/about/AboutPillars";
+import { TeamsSection } from "@/components/landing-sections/TeamsSection";
+import { CtaSection } from "@/components/landing-sections/CtaSection";
+
+// Teams come from the API; a failed fetch must not be stored as this page.
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "AboutPage" });
+  return { title: t("title"), description: t("lede") };
+}
 
 export default async function AboutPage({
   params,
@@ -17,44 +26,14 @@ export default async function AboutPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("AboutPage");
-  const focusAreas = t.raw("focusAreas") as string[];
 
   return (
-    <div className="mx-auto max-w-3xl animate-fade-in px-6 py-16">
-      <h1 className="text-3xl font-bold text-primary">{t("title")}</h1>
-      <p className="mt-4 leading-relaxed text-muted-foreground">
-        {t("description")}
-      </p>
-
-      <Card className="mt-10">
-        <CardHeader>
-          <CardTitle>{t("archTitle")}</CardTitle>
-          <CardDescription>{t("archDesc")}</CardDescription>
-        </CardHeader>
-      </Card>
-
-      <div className="mt-10">
-        <h2 className="mb-4 text-xl font-semibold">{t("techTitle")}</h2>
-        <div className="flex flex-wrap gap-3">
-          {focusAreas.map((area) => (
-            <span
-              key={area}
-              className="rounded-full border border-border bg-primary-50 px-4 py-2 text-sm text-primary-700"
-            >
-              {area}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <Link
-        href="/"
-        className={cn(buttonVariants({ variant: "outline" }), "mt-10")}
-      >
-        {t("backToHome")}
-        <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-      </Link>
-    </div>
+    <>
+      <AboutHero />
+      <AboutManifesto />
+      <AboutPillars />
+      <TeamsSection />
+      <CtaSection />
+    </>
   );
 }

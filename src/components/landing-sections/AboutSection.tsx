@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/animations/Reveal";
 import { Parallax } from "@/components/animations/Parallax";
 import { ScrollText } from "@/components/animations/ScrollText";
@@ -29,11 +30,14 @@ export async function AboutSection() {
             />
             <GlareButton className="mt-9 w-full sm:w-auto">
               <Button
+                asChild
                 size="lg"
                 className="h-12 w-full rounded-full px-8 shadow-glow sm:w-auto"
               >
-                {t("cta")}
-                <ChevronLeft className="h-4 w-4 ltr:rotate-180" />
+                <Link href="/about">
+                  {t("cta")}
+                  <ChevronLeft className="h-4 w-4 ltr:rotate-180" />
+                </Link>
               </Button>
             </GlareButton>
           </div>

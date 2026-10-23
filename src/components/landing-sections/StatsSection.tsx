@@ -2,6 +2,7 @@ import { CalendarCheck, Hourglass, Users } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/animations/Reveal";
 import { CountUp } from "@/components/ui/count-up";
+import { getYearsActive } from "@/lib/utils";
 
 export async function StatsSection() {
   const t = await getTranslations("Hero");
@@ -9,7 +10,7 @@ export async function StatsSection() {
   const stats = [
     { label: t("statMembers"), value: 150, icon: Users },
     { label: t("statEvents"), value: 300, icon: CalendarCheck },
-    { label: t("statYears"), value: 10, icon: Hourglass },
+    { label: t("statYears"), value: getYearsActive(), icon: Hourglass },
   ];
 
   return (
