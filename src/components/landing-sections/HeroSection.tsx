@@ -8,7 +8,11 @@ import { useTheme } from "next-themes";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { GlareButton } from "@/components/ui/glare-button";
-import { Reveal, RevealGroup, RevealItem } from "@/components/animations/Reveal";
+import {
+  Reveal,
+  RevealGroup,
+  RevealItem,
+} from "@/components/animations/Reveal";
 import { PointerParallax } from "@/components/animations/PointerParallax";
 import ClickSpark from "@/components/animations/ClickSpark";
 import TextType from "@/components/animations/TextType";
@@ -75,7 +79,7 @@ export function Hero() {
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => setOrbitsActive(entry.isIntersecting),
-      { rootMargin: "120px", threshold: 0 }
+      { rootMargin: "120px", threshold: 0 },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -132,70 +136,79 @@ export function Hero() {
   return (
     <section className="relative overflow-x-clip pb-14 pt-8 sm:pb-24 sm:pt-14 lg:min-h-[calc(100svh-5rem)] lg:pt-12">
       <div className="container relative grid min-w-0 items-center gap-10 sm:gap-14 lg:grid-cols-2 lg:gap-16">
-        <RevealGroup stagger={0.12} className="min-w-0 text-center lg:text-start">
-          <RevealItem direction="up"><h1 className="mt-2 max-w-full text-4xl font-extrabold leading-[1.4] tracking-tight wrap-break-words text-foreground sm:text-5xl md:text-6xl lg:text-[3.6rem] xl:text-[4.2rem]">
-            <span className="sr-only">{t("titleStatic")}</span>
-            <span aria-hidden="true" className="grid min-w-0">
-              <span className="invisible col-start-1 row-start-1 whitespace-pre-wrap">
-                {phrases[phraseIndex]?.pre}
-                {"\n"}
-                {phrases[phraseIndex]?.mid} {phrases[phraseIndex]?.post}
+        <RevealGroup
+          stagger={0.12}
+          className="min-w-0 text-center lg:text-start"
+        >
+          <RevealItem direction="up">
+            <h1 className="mt-2 max-w-full text-4xl font-extrabold leading-[1.4] tracking-tight wrap-break-words text-foreground sm:text-5xl md:text-6xl lg:text-[3.6rem] xl:text-[4.2rem]">
+              <span className="sr-only">{t("titleStatic")}</span>
+              <span aria-hidden="true" className="grid min-w-0">
+                <span className="invisible col-start-1 row-start-1 whitespace-pre-wrap">
+                  {phrases[phraseIndex]?.pre}
+                  {"\n"}
+                  {phrases[phraseIndex]?.mid} {phrases[phraseIndex]?.post}
+                </span>
+                <span className="col-start-1 row-start-1 min-w-0">
+                  <TextType
+                    as="span"
+                    text={fullTexts}
+                    typingSpeed={heroLite ? 100 : 95}
+                    deletingSpeed={heroLite ? 65 : 55}
+                    pauseDuration={heroLite ? 3700 : 3500}
+                    initialDelay={200}
+                    loop={true}
+                    showCursor
+                    startOnVisible
+                    renderText={renderHeroText}
+                    onTextIndexChange={setPhraseIndex}
+                  />
+                </span>
               </span>
-              <span className="col-start-1 row-start-1 min-w-0">
-                <TextType
-                  as="span"
-                  text={fullTexts}
-                  typingSpeed={heroLite ? 100 : 95}
-                  deletingSpeed={heroLite ? 65 : 55}
-                  pauseDuration={heroLite ? 3700 : 3500}
-                  initialDelay={200}
-                  loop={true}
-                  showCursor
-                  startOnVisible
-                  renderText={renderHeroText}
-                  onTextIndexChange={setPhraseIndex}
-                />
-              </span>
-            </span>
-          </h1></RevealItem>
+            </h1>
+          </RevealItem>
 
-          <RevealItem direction="up"><p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-muted-foreground sm:mt-6 sm:text-base sm:leading-8 lg:mx-0">
-            {t("subtitle")}
-          </p></RevealItem>
+          <RevealItem direction="up">
+            <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-muted-foreground sm:mt-6 sm:text-base sm:leading-8 lg:mx-0">
+              {t("subtitle")}
+            </p>
+          </RevealItem>
 
-          <RevealItem direction="up"><ClickSpark
-            sparkColor="#8b5cf6"
-            sparkSize={10}
-            sparkRadius={15}
-            sparkCount={8}
-            duration={400}
-          >
-            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:mt-9 sm:flex-row lg:justify-start">
-              <GlareButton className="w-full sm:w-auto">
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full rounded-2xl shadow-glow sm:w-auto sm:rounded-full"
-                >
-                  <Link href="/#events">
-                    {t("ctaEvents")}
-                    <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
-                  </Link>
-                </Button>
-              </GlareButton>
+          <RevealItem direction="up">
+            <ClickSpark
+              sparkColor="#8b5cf6"
+              sparkSize={10}
+              sparkRadius={15}
+              sparkCount={8}
+              duration={400}
+            >
+              <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:mt-9 sm:flex-row lg:justify-start">
+                <GlareButton className="w-full sm:w-auto">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full rounded-2xl shadow-glow sm:w-auto sm:rounded-full"
+                  >
+                    <Link href="/#events">
+                      {t("ctaEvents")}
+                      <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
+                    </Link>
+                  </Button>
+                </GlareButton>
 
-              <GlareButton className="w-full sm:w-auto">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="w-full rounded-2xl border-border/70 bg-card/40 sm:w-auto sm:rounded-full"
-                >
-                  <Link href="/#teams">{t("ctaAbout")}</Link>
-                </Button>
-              </GlareButton>
-            </div>
-          </ClickSpark></RevealItem>
+                <GlareButton className="w-full sm:w-auto">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="w-full rounded-2xl border-border/70 bg-card/40 sm:w-auto sm:rounded-full"
+                  >
+                    <Link href="/#teams">{t("ctaAbout")}</Link>
+                  </Button>
+                </GlareButton>
+              </div>
+            </ClickSpark>
+          </RevealItem>
         </RevealGroup>
 
         <div
@@ -203,115 +216,116 @@ export function Hero() {
           className={cn(
             "relative mx-auto aspect-square w-full max-w-85 overflow-visible sm:max-w-115 lg:max-w-135",
             !orbitsActive && "hero-visual--paused",
-            heroLite && "hero-visual--lite"
+            heroLite && "hero-visual--lite",
           )}
         >
-        <Reveal
-          direction="left"
-          delay={0.15}
-          className="relative h-full w-full overflow-visible"
-        >
-          <div
-            className={cn(
-              "pointer-events-none absolute inset-[8%] rounded-full bg-linear-to-br from-primary-500/20 via-glow-2/10 to-transparent",
-              heroLite
-                ? "opacity-70 blur-xl"
-                : "animate-pulse-glow blur-3xl"
-            )}
-          />
+          <Reveal
+            direction="left"
+            delay={0.15}
+            className="relative h-full w-full overflow-visible"
+          >
+            <div
+              className={cn(
+                "pointer-events-none absolute inset-[8%] rounded-full bg-linear-to-br from-primary-500/20 via-glow-2/10 to-transparent",
+                heroLite ? "opacity-70 blur-xl" : "animate-pulse-glow blur-3xl",
+              )}
+            />
 
-          <div className="pointer-events-none absolute inset-[6%] sm:inset-0">
-            {ORBITS.map((orbit) => (
-              <div
-                key={orbit.size}
-                className={cn(
-                  "absolute left-1/2 top-1/2 rounded-full border",
-                  heroLite ? "border-primary/30" : "border-primary/40",
-                  !heroLite && "orbit-ring"
-                )}
-                style={{
-                  width: `${orbit.size}%`,
-                  height: `${orbit.size}%`,
-                  translate: "-50% -50%",
-                  animationDelay: heroLite ? undefined : orbit.delay,
-                  borderStyle: orbit.dashed ? "dashed" : "solid",
-                  borderWidth: orbit.dashed ? 1.5 : 1.25,
-                }}
-              />
-            ))}
-          </div>
-
-          <div className="absolute left-1/2 top-1/2 z-1 w-[74%] -translate-x-1/2 -translate-y-1/2 sm:w-[80%] lg:w-[85%]">
-            <PointerParallax strength={heroLite ? 0 : 16}>
-              <Image
-                src={globeSrc}
-                alt={t("imageAlt")}
-                width={900}
-                height={700}
-                priority
-                className="hero-globe h-auto w-full object-contain"
-              />
-            </PointerParallax>
-          </div>
-
-          <div className="absolute inset-[6%] z-2 sm:inset-0">
-            {floats.map((item) => {
-              const Icon = item.icon;
-              const offset = (100 - item.orbit) / 2;
-
-              return (
+            <div className="pointer-events-none absolute inset-[6%] sm:inset-0">
+              {ORBITS.map((orbit) => (
                 <div
-                  key={item.key}
-                  className="pointer-events-none absolute inset-0"
-                  style={{ transform: `rotate(${item.start}deg)` }}
-                >
+                  key={orbit.size}
+                  className={cn(
+                    "absolute left-1/2 top-1/2 rounded-full border",
+                    heroLite ? "border-primary/30" : "border-primary/40",
+                    !heroLite && "orbit-ring",
+                  )}
+                  style={{
+                    width: `${orbit.size}%`,
+                    height: `${orbit.size}%`,
+                    translate: "-50% -50%",
+                    animationDelay: heroLite ? undefined : orbit.delay,
+                    borderStyle: orbit.dashed ? "dashed" : "solid",
+                    borderWidth: orbit.dashed ? 1.5 : 1.25,
+                  }}
+                />
+              ))}
+            </div>
+
+            <div className="absolute left-1/2 top-1/2 z-1 w-[74%] -translate-x-1/2 -translate-y-1/2 sm:w-[80%] lg:w-[85%]">
+              <PointerParallax strength={heroLite ? 0 : 16}>
+                <Image
+                  src={globeSrc}
+                  alt={t("imageAlt")}
+                  width={900}
+                  height={700}
+                  priority
+                  className="hero-globe h-auto w-full object-contain"
+                />
+              </PointerParallax>
+            </div>
+
+            <div className="absolute inset-[6%] z-2 sm:inset-0">
+              {floats.map((item) => {
+                const Icon = item.icon;
+                const offset = (100 - item.orbit) / 2;
+
+                return (
                   <div
-                    className="orbit-spin absolute inset-0"
-                    style={
-                      {
-                        "--orbit-duration": heroLite
-                          ? ORBIT_DURATION_LITE
-                          : ORBIT_DURATION,
-                      } as React.CSSProperties
-                    }
+                    key={item.key}
+                    className="pointer-events-none absolute inset-0"
+                    style={{ transform: `rotate(${item.start}deg)` }}
                   >
                     <div
-                      className="absolute"
-                      style={{
-                        width: `${item.orbit}%`,
-                        height: `${item.orbit}%`,
-                        left: `${offset}%`,
-                        top: `${offset}%`,
-                      }}
+                      className="orbit-spin absolute inset-0"
+                      style={
+                        {
+                          "--orbit-duration": heroLite
+                            ? ORBIT_DURATION_LITE
+                            : ORBIT_DURATION,
+                        } as React.CSSProperties
+                      }
                     >
-                      <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
-                        <div style={{ transform: `rotate(${-item.start}deg)` }}>
+                      <div
+                        className="absolute"
+                        style={{
+                          width: `${item.orbit}%`,
+                          height: `${item.orbit}%`,
+                          left: `${offset}%`,
+                          top: `${offset}%`,
+                        }}
+                      >
+                        <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
                           <div
-                            className="orbit-spin-rev pointer-events-auto"
-                            style={
-                              {
-                                "--orbit-duration": heroLite
-                                  ? ORBIT_DURATION_LITE
-                                  : ORBIT_DURATION,
-                              } as React.CSSProperties
-                            }
+                            style={{ transform: `rotate(${-item.start}deg)` }}
                           >
                             <div
-                              className={cn(
-                                "flex scale-90 flex-row items-center gap-2 rounded-2xl px-2.5 py-2 sm:scale-100 sm:gap-2.5 sm:px-3.5 sm:py-2.5",
-                                heroLite ? "hero-orbit-chip" : "surface"
-                              )}
+                              className="orbit-spin-rev pointer-events-auto"
+                              style={
+                                {
+                                  "--orbit-duration": heroLite
+                                    ? ORBIT_DURATION_LITE
+                                    : ORBIT_DURATION,
+                                } as React.CSSProperties
+                              }
                             >
-                              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary sm:h-9 sm:w-9">
-                                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                              </span>
-                              <div className="text-start">
-                                <span className="block whitespace-nowrap text-xs font-bold text-foreground sm:text-sm">
-                                  {item.title}
+                              <div
+                                className={cn(
+                                  "flex scale-90 flex-row items-center gap-2 rounded-2xl px-2.5 py-2 sm:scale-100 sm:gap-2.5 sm:px-3.5 sm:py-2.5",
+                                  heroLite ? "hero-orbit-chip" : "surface",
+                                )}
+                              >
+                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary sm:h-9 sm:w-9">
+                                  <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                 </span>
-                                <span className="block whitespace-nowrap text-[10px] text-muted-foreground sm:text-[11px]">
-                                  {item.sub}
-                                </span>
+                                <div className="text-start">
+                                  <span className="block whitespace-nowrap text-xs font-bold text-foreground sm:text-sm">
+                                    {item.title}
+                                  </span>
+                                  <span className="block whitespace-nowrap text-[10px] text-muted-foreground sm:text-[11px]">
+                                    {item.sub}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -319,11 +333,10 @@ export function Hero() {
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </Reveal>
+                );
+              })}
+            </div>
+          </Reveal>
         </div>
       </div>
     </section>
