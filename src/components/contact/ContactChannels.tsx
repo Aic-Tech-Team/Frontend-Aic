@@ -1,70 +1,95 @@
-import { Clock, Mail, MapPin, type LucideIcon } from "lucide-react";
-import { getTranslations } from "next-intl/server";
-import { RevealGroup, RevealItem } from "@/components/animations/Reveal";
+"use client";
 
-type Channel = {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  href?: string;
-};
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
-export async function ContactChannels() {
-  const t = await getTranslations("ContactPage");
-  const footer = await getTranslations("Footer");
+const WEEK = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"] as const;
 
-  const channels: Channel[] = [
-    {
-      icon: Mail,
-      label: t("channels.email"),
-      value: footer("email"),
-      href: `mailto:${footer("email")}`,
-    },
-    { icon: MapPin, label: t("channels.address"), value: footer("address") },
-    { icon: Clock, label: t("channels.hours"), value: footer("hours") },
-  ];
+function tehranNow() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Tehran",
+    weekday: "short",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+  const bag = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  const day = WEEK.indexOf(bag.weekday as (typeof WEEK)[number]);
+  const hour = Number(bag.hour);
+  return { day, open: day >= 0 && day < 5 && hour >= 10 && hour < 16 };
+}
+
+export function ContactChannels() {
+  const t = useTranslations("ContactPage");
+  const footer = useTranslations("Footer");
+  const days = t.raw("weekdays") as string[];
+  const shorts = t.raw("weekdayShort") as string[];
+  const email = footer("email");
+  const [now, setNow] = useState<{ day: number; open: boolean } | null>(null);
+
+  useEffect(() => {
+    setNow(tehranNow());
+  }, []);
 
   return (
-    <div>
-      <h2 className="text-sm font-bold text-muted-foreground">
-        {t("channelsTitle")}
-      </h2>
-      <RevealGroup className="mt-4 border-b border-border/60" stagger={0.08}>
-        {channels.map(({ icon: Icon, label, value, href }) => {
-          const body = (
-            <>
-              <Icon
-                aria-hidden="true"
-                className="mt-1 h-5 w-5 shrink-0 text-primary-300"
-              />
-              <span className="min-w-0">
-                <span className="block text-xs text-muted-foreground">
-                  {label}
-                </span>
-                <span className="mt-1 block break-words text-base font-bold leading-8 text-foreground">
-                  {value}
-                </span>
+    <section className="py-8 sm:py-16">
+      <div className="container grid min-w-0 gap-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-end lg:gap-16">
+        <div className="min-w-0">
+          <h2 className="text-3xl font-extrabold leading-snug text-foreground sm:text-5xl">
+            {t("visitTitle")}
+          </h2>
+          <p className="mt-4 text-2xl font-extrabold leading-snug text-foreground sm:text-3xl">
+            {footer("address")}
+          </p>
+          <p className="mt-5 max-w-[48ch] text-base leading-8 text-muted-foreground">
+            {t("visitExpect")}
+          </p>
+          <p className="mt-4 text-sm font-bold text-primary-300">
+            {now?.open ? t("visitOpen") : t("visitClosed")}
+            {now?.open ? (
+              <span className="ms-2 font-medium text-muted-foreground">
+                {footer("hours")}
               </span>
-            </>
-          );
-          const row =
-            "group relative isolate flex items-start gap-4 overflow-hidden border-t border-border/60 px-2 py-5 sm:px-4";
-          return (
-            <RevealItem key={label} direction="up">
-              {href ? (
-                <a
-                  href={href}
-                  className={`${row} outline-none transition-colors hover:bg-primary/10 focus-visible:ring-2 focus-visible:ring-ring`}
+            ) : null}
+          </p>
+
+          <ol className="mt-8 grid grid-cols-7 gap-1.5 sm:gap-2">
+            {days.map((day, i) => {
+              const open = i < 5;
+              const current = now?.day === i;
+              return (
+                <li
+                  key={day}
+                  aria-label={day}
+                  aria-current={current ? "date" : undefined}
+                  className={cn(
+                    "flex min-h-14 items-center justify-center rounded-2xl border px-1 py-3 text-center",
+                    open
+                      ? "border-primary/40 bg-primary/10 text-foreground"
+                      : "border-border/50 text-muted-foreground/70",
+                    current && "ring-2 ring-ring",
+                  )}
                 >
-                  {body}
-                </a>
-              ) : (
-                <div className={row}>{body}</div>
-              )}
-            </RevealItem>
-          );
-        })}
-      </RevealGroup>
-    </div>
+                  <span className="text-sm font-extrabold sm:text-base">{shorts[i]}</span>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-muted-foreground">{t("emailLabel")}</p>
+          <a
+            href={`mailto:${email}`}
+            className="mt-3 block break-all text-2xl font-extrabold leading-snug text-foreground outline-none transition-colors hover:text-primary-300 focus-visible:ring-2 focus-visible:ring-ring sm:text-4xl"
+          >
+            {email}
+          </a>
+          <p className="mt-5 max-w-[40ch] text-sm leading-8 text-muted-foreground">
+            {t("socialNote")}
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

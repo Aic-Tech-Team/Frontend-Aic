@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition, type ReactNode } from "react";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import Image from "next/image";
 import { Check, Loader2, Send } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -59,7 +59,13 @@ function Field({
   );
 }
 
-export function ContactForm() {
+export function ContactForm({
+  subject: subjectProp,
+  onSubjectChange,
+}: {
+  subject?: string;
+  onSubjectChange?: (subject: string) => void;
+} = {}) {
   const t = useTranslations("ContactPage");
   const subjects = t.raw("subjects") as string[];
 
@@ -67,7 +73,7 @@ export function ContactForm() {
     name: "",
     email: "",
     phone: "",
-    subject: subjects[0],
+    subject: subjectProp ?? subjects[0],
     message: "",
   });
   const [errors, setErrors] = useState<ContactErrors>({});
@@ -78,8 +84,16 @@ export function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const doneRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (!subjectProp) return;
+    setValues((v) =>
+      v.subject === subjectProp ? v : { ...v, subject: subjectProp },
+    );
+  }, [subjectProp]);
+
   const set = (field: ContactField, value: string) => {
     setValues((v) => ({ ...v, [field]: value }));
+    if (field === "subject") onSubjectChange?.(value);
     if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
   };
 
@@ -123,7 +137,9 @@ export function ContactForm() {
   };
 
   const reset = () => {
-    setValues({ name: "", email: "", phone: "", subject: subjects[0], message: "" });
+    const next = subjects[0];
+    setValues({ name: "", email: "", phone: "", subject: next, message: "" });
+    onSubjectChange?.(next);
     setErrors({});
     setSent(false);
   };
@@ -150,7 +166,7 @@ export function ContactForm() {
   );
 
   return (
-    <div className="relative">
+    <div className="relative transition-transform duration-300 focus-within:-translate-y-1 motion-reduce:transform-none">
       {/* Same cat as the footer, perched on the card edge */}
       <Image
         src="/images/CatTyping.svg"
@@ -224,6 +240,7 @@ export function ContactForm() {
                 className="absolute -start-2499.75 h-0 w-0 opacity-0"
               />
 
+              {subjectProp === undefined ? (
               <div role="radiogroup" aria-label={t("form.subject")}>
                 <p className="mb-2.5 text-sm font-bold text-foreground">
                   {t("form.subject")}
@@ -252,8 +269,9 @@ export function ContactForm() {
                   })}
                 </div>
               </div>
+              ) : null}
 
-              <div className="grid gap-5 sm:grid-cols-2">
+              <div className="grid gap-5 lg:grid-cols-2">
                 <Field id="contact-name" label={t("form.name")} error={message("name")}>
                   <Input
                     {...fieldProps("name")}

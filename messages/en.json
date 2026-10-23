@@ -463,9 +463,38 @@
   },
   "ContactPage": {
     "title": "Contact us",
-    "headline": "Got a question, a suggestion, or an idea? Write to us",
-    "lede": "Membership, partnerships, or a simple question: your message is filed as a ticket for the AIC team.",
+    "headline": "What brings you here?",
+    "lede": "Pick a subject. Membership, a partnership, feedback, or a simple question is filed as a ticket for the AIC team.",
+    "afterLabel": "After you send",
+    "response": "The team reads the message and replies by email or on the number you entered.",
     "channelsTitle": "Other ways to reach us",
+    "visitTitle": "You can also come by",
+    "visitExpect": "Visit to learn about the association, ask about joining, or talk through a partnership. If you need a focused conversation, send a message first so it is easier to coordinate.",
+    "visitOpen": "Open now",
+    "visitClosed": "Saturday–Wednesday, 10:00–16:00",
+    "weekdays": [
+      "Saturday",
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ],
+    "weekdayShort": [
+      "Sa",
+      "Su",
+      "Mo",
+      "Tu",
+      "We",
+      "Th",
+      "Fr"
+    ],
+    "emailLabel": "Email",
+    "socialNote": "Follow the association on Instagram, LinkedIn, and Telegram for events and workshops.",
+    "partnerTitle": "An organization? Build with us",
+    "partnerBody": "A workshop, an industry visit, or a research project. Describe the collaboration in your message.",
+    "partnerCta": "Propose a partnership",
     "channels": {
       "email": "Email",
       "address": "Address",
@@ -491,6 +520,28 @@
       "Partnership",
       "Feedback",
       "General question"
+    ],
+    "intents": [
+      {
+        "title": "Membership request",
+        "body": "Workshops, contests, projects, or the work behind them.",
+        "after": "The team reads your message and writes or calls to continue the conversation."
+      },
+      {
+        "title": "Partnership",
+        "body": "A student group, faculty, lab, or company.",
+        "after": "We read the proposal and follow up to clarify the idea and whether we can take it forward."
+      },
+      {
+        "title": "Feedback",
+        "body": "About an event, a workshop, or any part of the work.",
+        "after": "We review the note and contact you if we need more context."
+      },
+      {
+        "title": "General question",
+        "body": "Anything that does not fit the subjects above.",
+        "after": "The team reads the question and replies to the email or number you left."
+      }
     ],
     "errors": {
       "required": "Please fill in this field",
