@@ -87,7 +87,7 @@ function Panel({
       <span
         aria-hidden="true"
         className={cn(
-          "experience-glow pointer-events-none absolute -bottom-16 inset-e-[-3rem] -z-10 h-52 w-52 rounded-full bg-radial from-0% to-transparent to-80% opacity-0 transition-opacity duration-700 group-data-[open=true]:opacity-50 md:-bottom-20 md:inset-e-[-4.5rem] md:h-72 md:w-72 md:from-60% md:to-70% md:blur-2xl md:group-data-[open=true]:opacity-100",
+          "experience-glow pointer-events-none absolute -bottom-16 inset-e-[-3rem] -z-10 h-52 w-52 rounded-full bg-radial from-0% to-transparent to-80% opacity-0 blur-2xl transition-opacity duration-700 group-data-[open=true]:opacity-45 md:-bottom-20 md:inset-e-[-4.5rem] md:h-72 md:w-72",
           tone.glow,
         )}
       />
@@ -95,7 +95,7 @@ function Panel({
         aria-hidden="true"
         strokeWidth={0.8}
         className={cn(
-          "experience-mark pointer-events-none absolute -bottom-4 inset-e-[-0.5rem] -z-10 h-32 w-32 opacity-0 transition-opacity duration-500 group-data-[open=true]:opacity-70 md:-bottom-6 md:inset-e-[-1.25rem] md:h-52 md:w-52 md:opacity-10 md:transition-all md:duration-700 md:group-data-[open=true]:-rotate-6 md:group-data-[open=true]:opacity-20",
+          "experience-mark pointer-events-none absolute -z-10 opacity-0 transition-all duration-700 max-md:bottom-2 max-md:inset-e-3 max-md:h-20 max-md:w-20 max-md:group-data-[open=true]:opacity-[0.16] md:-bottom-6 md:inset-e-[-1.25rem] md:h-52 md:w-52 md:opacity-[0.14] md:group-data-[open=true]:-rotate-6 md:group-data-[open=true]:opacity-20",
           tone.text,
         )}
       />
@@ -115,7 +115,7 @@ function Panel({
       </div>
 
       <div className="relative z-10 mt-auto max-md:mt-0">
-        <h3 className="hidden pt-10 text-2xl font-extrabold leading-snug text-foreground md:block">
+        <h3 className="relative z-10 hidden pt-10 text-2xl font-extrabold leading-snug text-foreground md:block">
           {item.title}
         </h3>
         <div
