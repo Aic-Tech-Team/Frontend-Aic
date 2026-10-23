@@ -7,27 +7,16 @@ import { EventsGrid } from "@/components/events/EventsGrid";
 import {
   fetchEvents,
   mapApiEvent,
-  type ApiEvent,
   type ApiEventStatus,
 } from "@/services/api/events";
-import type { PaginatedResponse } from "@/services/api/types";
+import { pageRows } from "@/services/api/types";
+import { pageHref, pageNumber, param, searchQuery } from "@/lib/search-params";
 import type { EventStatus } from "@/types/events";
 
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 6;
 const SPOTLIGHT_SIZE = 5;
-
-const EMPTY: PaginatedResponse<ApiEvent> = {
-  count: 0,
-  next: null,
-  previous: null,
-  results: [],
-};
-
-function resultsOf(res: PaginatedResponse<ApiEvent>) {
-  return Array.isArray(res?.results) ? res.results : [];
-}
 
 type FilterKey = "all" | EventStatus;
 
@@ -48,29 +37,26 @@ export default async function EventsPage({
   setRequestLocale(locale);
 
   const sp = await searchParams;
-  const page = Math.max(
-    1,
-    Number(Array.isArray(sp.page) ? sp.page[0] : (sp.page ?? "1")) || 1,
-  );
-  const rawFilter =
-    (Array.isArray(sp.filter) ? sp.filter[0] : sp.filter) ?? "all";
+  const page = pageNumber(sp);
+  const rawFilter = param(sp, "filter") || "all";
   const filter: FilterKey = ["all", "ongoing", "upcoming", "past"].includes(
     rawFilter,
   )
     ? (rawFilter as FilterKey)
     : "all";
-  const search = ((Array.isArray(sp.q) ? sp.q[0] : sp.q) ?? "")
-    .trim()
-    .slice(0, 100);
+  const search = searchQuery(sp);
 
   const t = await getTranslations("EventsPage");
 
-  const pageRes = await fetchEvents({
-    status: filter === "all" ? undefined : filterToApiStatus[filter],
-    search: search || undefined,
-    page,
-    page_size: PAGE_SIZE,
-  });
+  const [pageRes, spotlightFetched] = await Promise.all([
+    fetchEvents({
+      status: filter === "all" ? undefined : filterToApiStatus[filter],
+      search: search || undefined,
+      page,
+      page_size: PAGE_SIZE,
+    }),
+    fetchEvents({ page_size: SPOTLIGHT_SIZE }),
+  ]);
 
   if (!pageRes) {
     return (
@@ -89,23 +75,21 @@ export default async function EventsPage({
     );
   }
 
-  const spotlightRes =
-    (await fetchEvents({ page_size: SPOTLIGHT_SIZE })) ?? EMPTY;
-
   const totalCount = pageRes.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const events = resultsOf(pageRes).map((r) => mapApiEvent(r, locale));
-  const spotlightEvents = resultsOf(spotlightRes).map((r) =>
+  const events = pageRows(pageRes).map((r) => mapApiEvent(r, locale));
+  const spotlightEvents = pageRows(spotlightFetched).map((r) =>
     mapApiEvent(r, locale),
   );
 
-  function buildPageHref(pageNumber: number): string {
-    const params = new URLSearchParams();
-    if (search) params.set("q", search);
-    if (filter !== "all") params.set("filter", filter);
-    if (pageNumber !== 1) params.set("page", String(pageNumber));
-    const qs = params.toString();
-    return qs ? `?${qs}` : "?";
+  function buildPageHref(nextPage: number): string {
+    return pageHref(
+      {
+        q: search || undefined,
+        filter: filter === "all" ? undefined : filter,
+      },
+      nextPage,
+    );
   }
 
   return (

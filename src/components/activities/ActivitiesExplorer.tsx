@@ -6,6 +6,7 @@ import { Search, X } from "lucide-react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
 import { sanitizeSearchInput } from "@/lib/sanitize";
+import { withQuery } from "@/lib/search-params";
 import { cn } from "@/lib/utils";
 
 const SEARCH_MAX_LENGTH = 100;
@@ -43,11 +44,10 @@ export function ActivitiesExplorer({
     const trimmedSearch = nextSearch.trim();
     if (nextCategory === category && trimmedSearch === search.trim()) return;
 
-    const params = new URLSearchParams();
-    if (trimmedSearch) params.set("q", trimmedSearch);
-    if (nextCategory !== ALL_CATEGORY) params.set("category", nextCategory);
-    const qs = params.toString();
-    const href = qs ? `${pathname}?${qs}` : pathname;
+    const href = withQuery(pathname, {
+      q: trimmedSearch || undefined,
+      category: nextCategory !== ALL_CATEGORY ? nextCategory : undefined,
+    });
     if (lastPushedRef.current === href) return;
     lastPushedRef.current = href;
     router.push(href);

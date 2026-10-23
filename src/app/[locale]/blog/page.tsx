@@ -4,21 +4,14 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 import { BlogExplorer } from "@/components/blog/BlogExplorer";
 import { BlogGrid } from "@/components/blog/BlogGrid";
-import {
-  fetchBlogPosts,
-  mapApiBlogPost,
-  type ApiBlogPost,
-} from "@/services/api/blogs";
-import type { PaginatedResponse } from "@/services/api/types";
+import { fetchBlogPosts, mapApiBlogPost } from "@/services/api/blogs";
+import { pageRows } from "@/services/api/types";
+import { pageHref, pageNumber, param, searchQuery } from "@/lib/search-params";
 
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 6;
 const DISCOVERY_SIZE = 20;
-
-function resultsOf(res: PaginatedResponse<ApiBlogPost>) {
-  return Array.isArray(res?.results) ? res.results : [];
-}
 
 export default async function BlogPage({
   params,
@@ -31,24 +24,21 @@ export default async function BlogPage({
   setRequestLocale(locale);
 
   const sp = await searchParams;
-  const page = Math.max(
-    1,
-    Number(Array.isArray(sp.page) ? sp.page[0] : (sp.page ?? "1")) || 1,
-  );
-  const category =
-    (Array.isArray(sp.category) ? sp.category[0] : sp.category) ?? "all";
-  const search = ((Array.isArray(sp.q) ? sp.q[0] : sp.q) ?? "")
-    .trim()
-    .slice(0, 100);
+  const page = pageNumber(sp);
+  const category = param(sp, "category") || "all";
+  const search = searchQuery(sp);
 
   const t = await getTranslations("BlogPage");
 
-  const pageRes = await fetchBlogPosts({
-    category: category === "all" ? undefined : category,
-    search: search || undefined,
-    page,
-    page_size: PAGE_SIZE,
-  });
+  const [pageRes, discoveryFetched] = await Promise.all([
+    fetchBlogPosts({
+      category: category === "all" ? undefined : category,
+      search: search || undefined,
+      page,
+      page_size: PAGE_SIZE,
+    }),
+    fetchBlogPosts({ page_size: DISCOVERY_SIZE }),
+  ]);
 
   if (!pageRes) {
     return (
@@ -67,15 +57,14 @@ export default async function BlogPage({
     );
   }
 
-  const discoveryRes =
-    (await fetchBlogPosts({ page_size: DISCOVERY_SIZE })) ?? pageRes;
+  const discoveryRes = discoveryFetched ?? pageRes;
 
-  const discoveryPosts = resultsOf(discoveryRes).map((r) =>
+  const discoveryPosts = pageRows(discoveryRes).map((r) =>
     mapApiBlogPost(r, locale),
   );
   const categories = Array.from(
     new Set(
-      resultsOf(discoveryRes)
+      pageRows(discoveryRes)
         .map((p) => p.category)
         .filter((c): c is string => Boolean(c)),
     ),
@@ -83,15 +72,16 @@ export default async function BlogPage({
 
   const totalCount = pageRes.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const posts = resultsOf(pageRes).map((r) => mapApiBlogPost(r, locale));
+  const posts = pageRows(pageRes).map((r) => mapApiBlogPost(r, locale));
 
-  function buildPageHref(pageNumber: number): string {
-    const params = new URLSearchParams();
-    if (search) params.set("q", search);
-    if (category !== "all") params.set("category", category);
-    if (pageNumber !== 1) params.set("page", String(pageNumber));
-    const qs = params.toString();
-    return qs ? `?${qs}` : "?";
+  function buildPageHref(nextPage: number): string {
+    return pageHref(
+      {
+        q: search || undefined,
+        category: category === "all" ? undefined : category,
+      },
+      nextPage,
+    );
   }
 
   return (

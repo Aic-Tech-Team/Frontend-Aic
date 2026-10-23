@@ -4,21 +4,14 @@ import { SectionHeading } from "@/components/common/SectionHeading";
 import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 import { ActivitiesExplorer } from "@/components/activities/ActivitiesExplorer";
 import { ActivitiesGrid } from "@/components/activities/ActivitiesGrid";
-import {
-  fetchActivities,
-  mapApiActivity,
-  type ApiActivity,
-} from "@/services/api/activities";
-import type { PaginatedResponse } from "@/services/api/types";
+import { fetchActivities, mapApiActivity } from "@/services/api/activities";
+import { pageRows } from "@/services/api/types";
+import { pageHref, pageNumber, param, searchQuery } from "@/lib/search-params";
 
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 8;
 const DISCOVERY_SIZE = 20;
-
-function resultsOf(res: PaginatedResponse<ApiActivity>) {
-  return Array.isArray(res?.results) ? res.results : [];
-}
 
 export default async function ActivitiesPage({
   params,
@@ -31,24 +24,21 @@ export default async function ActivitiesPage({
   setRequestLocale(locale);
 
   const sp = await searchParams;
-  const page = Math.max(
-    1,
-    Number(Array.isArray(sp.page) ? sp.page[0] : (sp.page ?? "1")) || 1,
-  );
-  const category =
-    (Array.isArray(sp.category) ? sp.category[0] : sp.category) ?? "all";
-  const search = ((Array.isArray(sp.q) ? sp.q[0] : sp.q) ?? "")
-    .trim()
-    .slice(0, 100);
+  const page = pageNumber(sp);
+  const category = param(sp, "category") || "all";
+  const search = searchQuery(sp);
 
   const t = await getTranslations("ActivitiesPage");
 
-  const pageRes = await fetchActivities({
-    category: category === "all" ? undefined : category,
-    search: search || undefined,
-    page,
-    page_size: PAGE_SIZE,
-  });
+  const [pageRes, discoveryFetched] = await Promise.all([
+    fetchActivities({
+      category: category === "all" ? undefined : category,
+      search: search || undefined,
+      page,
+      page_size: PAGE_SIZE,
+    }),
+    fetchActivities({ page_size: DISCOVERY_SIZE }),
+  ]);
 
   if (!pageRes) {
     return (
@@ -67,12 +57,11 @@ export default async function ActivitiesPage({
     );
   }
 
-  const discoveryRes =
-    (await fetchActivities({ page_size: DISCOVERY_SIZE })) ?? pageRes;
+  const discoveryRes = discoveryFetched ?? pageRes;
 
   const categories = Array.from(
     new Set(
-      resultsOf(discoveryRes)
+      pageRows(discoveryRes)
         .map((a) => a.category)
         .filter((c): c is string => Boolean(c)),
     ),
@@ -80,15 +69,16 @@ export default async function ActivitiesPage({
 
   const totalCount = pageRes.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const activities = resultsOf(pageRes).map((r) => mapApiActivity(r, locale));
+  const activities = pageRows(pageRes).map((r) => mapApiActivity(r, locale));
 
-  function buildPageHref(pageNumber: number): string {
-    const params = new URLSearchParams();
-    if (search) params.set("q", search);
-    if (category !== "all") params.set("category", category);
-    if (pageNumber !== 1) params.set("page", String(pageNumber));
-    const qs = params.toString();
-    return qs ? `?${qs}` : "?";
+  function buildPageHref(nextPage: number): string {
+    return pageHref(
+      {
+        q: search || undefined,
+        category: category === "all" ? undefined : category,
+      },
+      nextPage,
+    );
   }
 
   return (

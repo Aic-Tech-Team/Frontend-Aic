@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
 import { Carousel } from "@/components/common/Carousel";
 import { sanitizeSearchInput } from "@/lib/sanitize";
+import { withQuery } from "@/lib/search-params";
 import { cn } from "@/lib/utils";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
 
@@ -48,11 +49,10 @@ export function EventsExplorer({
     const trimmedSearch = nextSearch.trim();
     if (nextFilter === filter && trimmedSearch === search.trim()) return;
 
-    const params = new URLSearchParams();
-    if (trimmedSearch) params.set("q", trimmedSearch);
-    if (nextFilter !== "all") params.set("filter", nextFilter);
-    const qs = params.toString();
-    const href = qs ? `${pathname}?${qs}` : pathname;
+    const href = withQuery(pathname, {
+      q: trimmedSearch || undefined,
+      filter: nextFilter !== "all" ? nextFilter : undefined,
+    });
     if (lastPushedRef.current === href) return;
     lastPushedRef.current = href;
     router.push(href);
