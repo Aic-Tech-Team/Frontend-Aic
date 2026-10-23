@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BookMarked, BookOpen, Microscope, Trophy, type LucideIcon } from "lucide-react";
+import {
+  BookMarked,
+  BookOpen,
+  Microscope,
+  Trophy,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ICONS = [Trophy, BookMarked, BookOpen, Microscope] as const;
@@ -150,10 +156,9 @@ export function ExperiencePanels({ items }: { items: PanelItem[] }) {
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
-    const io = new IntersectionObserver(
-      ([e]) => setInView(e.isIntersecting),
-      { threshold: 0.25 },
-    );
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), {
+      threshold: 0.25,
+    });
     io.observe(el);
     return () => io.disconnect();
   }, []);

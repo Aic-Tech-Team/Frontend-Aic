@@ -1,4 +1,7 @@
-export interface ApiRequestOptions extends Omit<RequestInit, "body" | "signal"> {
+export interface ApiRequestOptions extends Omit<
+  RequestInit,
+  "body" | "signal"
+> {
   params?: Record<string, string | number | boolean | undefined | null>;
   body?: unknown;
   /** Next.js revalidate window (seconds). Omit for `cache: "no-store"`. */
@@ -38,8 +41,7 @@ export class ApiError extends Error {
 
 /** Discriminated result — never throws. Prefer this for SSR content reads. */
 export type ApiResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: Error; notFound: boolean };
+  { ok: true; data: T } | { ok: false; error: Error; notFound: boolean };
 
 /** Public remote APIs often need more headroom than a LAN Docker hop. */
 const REQUEST_TIMEOUT_MS = 15000;
@@ -114,8 +116,17 @@ async function requestJsonOnce<T>(
   url: string,
   options: ApiRequestOptions,
 ): Promise<{ data: T } | { error: Error }> {
-  const { params, body, revalidate, tags, headers, cache, timeoutMs, retries, ...init } =
-    options;
+  const {
+    params,
+    body,
+    revalidate,
+    tags,
+    headers,
+    cache,
+    timeoutMs,
+    retries,
+    ...init
+  } = options;
   void retries;
   const finalUrl = buildUrl(url, params);
   const ms = timeoutMs ?? REQUEST_TIMEOUT_MS;

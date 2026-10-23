@@ -15,10 +15,10 @@ describe("api client soft result", () => {
     });
 
     const { apiResult } = await import("./client");
-    const result = await apiResult<{ results: { id: number }[]; count: number }>(
-      "https://example.test/api/v1/events/",
-      { cache: "no-store" },
-    );
+    const result = await apiResult<{
+      results: { id: number }[];
+      count: number;
+    }>("https://example.test/api/v1/events/", { cache: "no-store" });
 
     assert.equal(result.ok, true);
     if (result.ok) {
@@ -28,26 +28,30 @@ describe("api client soft result", () => {
   });
 
   it("apiSoft returns null on timeout without throwing", async () => {
-    mock.method(globalThis, "fetch", async (_url: string, init?: RequestInit) => {
-      await new Promise<never>((_resolve, reject) => {
-        const signal = init?.signal;
-        if (!signal) return;
-        const fail = () => {
-          const reason = signal.reason;
-          reject(
-            reason instanceof Error
-              ? reason
-              : new DOMException("The operation was aborted", "TimeoutError"),
-          );
-        };
-        if (signal.aborted) {
-          fail();
-          return;
-        }
-        signal.addEventListener("abort", fail, { once: true });
-      });
-      return new Response();
-    });
+    mock.method(
+      globalThis,
+      "fetch",
+      async (_url: string, init?: RequestInit) => {
+        await new Promise<never>((_resolve, reject) => {
+          const signal = init?.signal;
+          if (!signal) return;
+          const fail = () => {
+            const reason = signal.reason;
+            reject(
+              reason instanceof Error
+                ? reason
+                : new DOMException("The operation was aborted", "TimeoutError"),
+            );
+          };
+          if (signal.aborted) {
+            fail();
+            return;
+          }
+          signal.addEventListener("abort", fail, { once: true });
+        });
+        return new Response();
+      },
+    );
 
     const { apiSoft } = await import("./client");
     const data = await apiSoft("https://example.test/api/v1/events/", {

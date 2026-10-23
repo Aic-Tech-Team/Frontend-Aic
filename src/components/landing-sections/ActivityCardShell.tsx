@@ -16,7 +16,9 @@ export function ActivityCardShell({
 
   if (!mounted || isNarrow) {
     return (
-      <div className="h-full w-full overflow-hidden rounded-3xl">{children}</div>
+      <div className="h-full w-full overflow-hidden rounded-3xl">
+        {children}
+      </div>
     );
   }
 
