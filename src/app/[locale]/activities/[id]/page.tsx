@@ -39,15 +39,16 @@ export default async function ActivityDetailPage({
 
   const t = await getTranslations("ActivityDetailPage");
 
-  const result = await fetchActivity(id);
+  const [result, list] = await Promise.all([
+    fetchActivity(id),
+    fetchActivities({ page_size: 8 }),
+  ]);
   if (!result.ok) {
     if (result.notFound) notFound();
     return <ContentUnavailablePage />;
   }
 
   const activity = mapApiActivity(result.data, locale);
-
-  const list = await fetchActivities({ page_size: 8 });
   const recentActivities = toSidebar(list?.results ?? [], activity.id, locale);
 
   return (

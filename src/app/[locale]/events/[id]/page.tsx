@@ -34,15 +34,16 @@ export default async function EventDetailPage({
   const td = await getTranslations("EventDetailPage");
   const tNav = await getTranslations("Nav");
 
-  const result = await fetchEvent(id);
+  const [result, list] = await Promise.all([
+    fetchEvent(id),
+    fetchEvents({ page_size: 7 }),
+  ]);
   if (!result.ok) {
     if (result.notFound) notFound();
     return <ContentUnavailablePage />;
   }
 
   const event = mapApiEvent(result.data, locale);
-
-  const list = await fetchEvents({ page_size: 7 });
   const otherEvents = (list?.results ?? [])
     .filter((item) => String(item.id) !== event.id)
     .slice(0, 6)

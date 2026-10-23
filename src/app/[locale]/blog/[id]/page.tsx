@@ -41,9 +41,13 @@ export default async function BlogPostPage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
+
   const t = await getTranslations("BlogDetailPage");
 
-  const result = await fetchBlogPost(id);
+  const [result, list] = await Promise.all([
+    fetchBlogPost(id),
+    fetchBlogPosts({ page_size: 8 }),
+  ]);
   if (!result.ok) {
     if (result.notFound) notFound();
     return <ContentUnavailablePage />;
@@ -52,8 +56,6 @@ export default async function BlogPostPage({
   const post = mapApiBlogPost(result.data, locale);
   const readTime = (content: string | undefined) =>
     t("readTime", { minutes: estimateReadMinutes(content) });
-
-  const list = await fetchBlogPosts({ page_size: 8 });
   const sidebar = toSidebar(list?.results ?? [], id, locale, readTime);
 
   return (
