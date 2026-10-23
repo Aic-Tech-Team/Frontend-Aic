@@ -1,4 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
+import { DeferredSection } from "@/components/common/LandingSectionFallback";
 import { Hero } from "@/components/landing-sections/HeroSection";
 import { TopicsMarquee } from "@/components/landing-sections/TopicsMarquee";
 import { StatsSection } from "@/components/landing-sections/StatsSection";
@@ -28,10 +29,18 @@ export default async function HomePage({
       <TopicsMarquee />
       <WhatYouExperienceSection />
       <AboutSection />
-      <EventsSection />
-      <ActivitiesSection />
-      <BlogSection />
-      <TeamsSection />
+      <DeferredSection id="events">
+        <EventsSection />
+      </DeferredSection>
+      <DeferredSection id="activities">
+        <ActivitiesSection />
+      </DeferredSection>
+      <DeferredSection id="blog">
+        <BlogSection />
+      </DeferredSection>
+      <DeferredSection id="teams">
+        <TeamsSection />
+      </DeferredSection>
       <CtaSection />
     </>
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { DeferredSection } from "@/components/common/LandingSectionFallback";
 import { AboutAudience } from "@/components/about/AboutAudience";
 import { AboutHero } from "@/components/about/AboutHero";
 import { AboutManifesto } from "@/components/about/AboutManifesto";
@@ -36,7 +37,9 @@ export default async function AboutPage({
       <AboutOrigin />
       <AboutPillars />
       <AboutAudience />
-      <TeamsSection />
+      <DeferredSection id="teams">
+        <TeamsSection />
+      </DeferredSection>
       <CtaSection />
     </>
   );
