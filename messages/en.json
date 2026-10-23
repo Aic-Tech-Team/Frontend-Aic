@@ -75,7 +75,7 @@
   "AboutSection": {
     "badge": "About AIC",
     "title": "A community for AI enthusiasts",
-    "description": "The Artificial Intelligence Community (AIC) was founded in 2024 to create a scientific space for students interested in AI, under the Faculty of Computer Engineering.",
+    "description": "The Artificial Intelligence Community (AIC) was founded in 2024 to create a scientific space for students interested in AI, under the Faculty of Artificial Intelligence.",
     "body": "From educational workshops and scientific conferences to industry collaboration and research projects, members grow in a dynamic and creative environment.",
     "cta": "More about AIC",
     "imageAlt": "AIC illustration"
@@ -112,13 +112,13 @@
   },
   "AboutPage": {
     "title": "About AIC",
-    "headline": "Where we learn AI, build with it, and teach it to each other",
-    "lede": "Since 2024, the Artificial Intelligence Community has brought students together under the Faculty of Computer Engineering to grow through workshops, projects, and research.",
+    "headline": "Where we learn AI and technology, build with it, and teach it to each other",
+    "lede": "Since 2024, the Artificial Intelligence Community has brought students together under the Faculty of Artificial Intelligence. AI is our core, but not our limit: web, security, networks, and IoT are part of the path too.",
     "graphLabel": "Map of AIC focus areas",
     "areas": [
       {
-        "title": "Machine learning",
-        "desc": "The base of everything: from regression and decision trees to evaluating models on real data."
+        "title": "Machine and deep learning",
+        "desc": "From regression to neural networks in PyTorch; the base of most AI work."
       },
       {
         "title": "Natural language processing",
@@ -129,19 +129,19 @@
         "desc": "Teaching computers to see: detection, segmentation, and understanding images and video."
       },
       {
-        "title": "Deep learning",
-        "desc": "Neural networks from scratch: build, train, and tune models in PyTorch. The other areas stand on this one."
+        "title": "Web development",
+        "desc": "Front end and back end; building real products that put ideas and models in users' hands."
       },
       {
-        "title": "Robotics",
-        "desc": "Where a model meets the physical world: control, sensors, and reinforcement learning."
+        "title": "Security and networks",
+        "desc": "Networks, security, and infrastructure; knowing how what we build stays safe and reliable."
       },
       {
-        "title": "Applied research",
-        "desc": "From idea to paper to prototype, with faculty and industry partners."
+        "title": "IoT and robotics",
+        "desc": "Where software meets hardware and the physical world: sensors, control, and smart systems."
       }
     ],
-    "manifesto": "We believe you understand AI by building it. That is why AIC is where we step out of the classroom, build projects together, and teach what we have learned to the next person.",
+    "manifesto": "We believe you understand AI, and any other technology, by building it. That is why we step out of the classroom, build projects together, and teach what we learn to the next person.",
     "facts": [
       {
         "label": "Founded",
@@ -149,15 +149,74 @@
       },
       {
         "label": "Part of",
-        "value": "Faculty of Computer Engineering"
+        "value": "Faculty of Artificial Intelligence"
       },
       {
         "label": "Ways to take part",
         "value": "Contests, conferences, workshops, visits"
       }
     ],
-    "pillarsTitle": "Four ways to grow at AIC",
-    "pillarsDescription": "Each one is a different kind of learning, from solving problems side by side to seeing real work in industry."
+    "principles": [
+      {
+        "title": "Build to understand",
+        "body": "An idea gets clearer when we implement it, test it, and see where it fails."
+      },
+      {
+        "title": "Move the project together",
+        "body": "Shared work gives us a reason to ask, explain, and complete each other’s understanding."
+      },
+      {
+        "title": "Teach the next person",
+        "body": "What we learn does not stop with us. We pass it on in a way the next student can use."
+      }
+    ],
+    "originYear": "2024",
+    "originTitle": "A young association, still writing its path",
+    "origin": [
+      "The Artificial Intelligence Association was founded in 2024 under the Faculty of Artificial Intelligence.",
+      "Students needed a place to build, test, and talk about AI and the technologies around it outside class.",
+      "That continues through workshops, conferences, student contests, industry and lab visits, and research projects. The story is still being written."
+    ],
+    "pillarsTitle": "What a semester here feels like",
+    "pillarsDescription": "Each path is another way out of the classroom, from solving a problem together to seeing real work up close.",
+    "semester": [
+      {
+        "title": "Contest",
+        "body": "We start with a clear problem and build and test a solution as a team. A contest is where ideas, shared work, and the result all get a turn."
+      },
+      {
+        "title": "Conference",
+        "body": "We hear new topics, viewpoints, and directions up close. Asking questions makes both the research and the applications easier to see."
+      },
+      {
+        "title": "Workshop",
+        "body": "Machine learning, language, vision, and deep learning are practiced, not only described. We build something, find the failure, and learn why it works."
+      },
+      {
+        "title": "Visit",
+        "body": "Industry and lab visits show how a team works on a real problem. The gap between coursework, research, and implementation gets concrete."
+      }
+    ],
+    "semesterNext": {
+      "title": "The next step is yours",
+      "body": "The next semester is not written yet. See what is on the calendar and take your first step.",
+      "cta": "See events"
+    },
+    "audienceTitle": "If this is you, there is a place here",
+    "audience": [
+      {
+        "title": "You are just starting",
+        "body": "If you are still finding a way into AI, this is a place to ask, try things, and pick a starting point."
+      },
+      {
+        "title": "You want to build",
+        "body": "If you want to turn what you know into an exercise, a contest entry, or a research project, you can work on it with other students."
+      },
+      {
+        "title": "You want to teach",
+        "body": "If you are ready to pass on what you know, or to carry part of an activity, there is room for you to take it on."
+      }
+    ]
   },
   "EventsPage": {
     "badge": "Events & workshops",
@@ -376,7 +435,7 @@
     "research": "Research projects",
     "contactTitle": "Contact us",
     "email": "aic@university.ac.ir",
-    "address": "Faculty of Computer Engineering, Academic Building 2",
+    "address": "Faculty of Artificial Intelligence, Academic Building 2",
     "hours": "Sat–Wed, 10:00–16:00",
     "copyright": "© {years} Artificial Intelligence Community (AIC). All rights reserved.",
     "privacy": "Privacy",

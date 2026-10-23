@@ -40,7 +40,15 @@ const AUTOPLAY_MS = 3800;
  * Focus areas as a small neural graph. Hover / focus / tap a node to read it;
  * until the visitor picks one, the graph walks through the areas on its own.
  */
-export function FocusGraph({ areas, label }: { areas: Area[]; label: string }) {
+export function FocusGraph({
+  areas,
+  label,
+  className,
+}: {
+  areas: Area[];
+  label: string;
+  className?: string;
+}) {
   const [active, setActive] = useState(0);
   const [picked, setPicked] = useState(false);
   const [inView, setInView] = useState(false);
@@ -106,7 +114,7 @@ export function FocusGraph({ areas, label }: { areas: Area[]; label: string }) {
   const target = NODES[active];
 
   return (
-    <div ref={rootRef} className="mx-auto w-full max-w-lg">
+    <div ref={rootRef} className={cn("mx-auto w-full max-w-xl lg:max-w-none", className)}>
       <div
         role="group"
         aria-label={label}
