@@ -75,6 +75,7 @@ export function Footer() {
     { label: tFooter("activities"), href: "/activities" },
     { label: tFooter("blog"), href: "/blog" },
     { label: tFooter("about"), href: "/about" },
+    { label: tFooter("contact"), href: "/contact" },
   ];
 
   const activityLinks: NavLink[] = [

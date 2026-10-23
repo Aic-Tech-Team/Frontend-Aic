@@ -22,6 +22,8 @@ const LINKS = [
   { href: "/activities", key: "activities" },
   { href: "/teams", key: "teams" },
   { href: "/blog", key: "blog" },
+  { href: "/about", key: "about" },
+  { href: "/contact", key: "contact" },
 ] as const;
 
 function menuOrigin() {
@@ -263,7 +265,7 @@ export function Navbar() {
                 priority
                 className="h-9 w-9 shrink-0 object-contain sm:h-10 sm:w-10"
               />
-              <span className="min-w-0 max-sm:hidden">
+              <span className="min-w-0 max-sm:hidden lg:max-xl:hidden">
                 <span className="block truncate text-sm font-extrabold leading-tight">
                   {tCommon("brandTitle")}
                 </span>
@@ -293,7 +295,7 @@ export function Navbar() {
                     data-active={active}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "relative z-10 rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                      "relative z-10 whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium transition-colors xl:px-4",
                       active
                         ? "text-foreground"
                         : "text-foreground/65 hover:text-foreground",
@@ -338,7 +340,7 @@ export function Navbar() {
         ref={menuRef}
         aria-hidden={!isOpen}
         inert={!isOpen}
-        className="invisible fixed inset-0 z-40 flex flex-col bg-background/95 px-6 pb-8 pt-28 opacity-0 backdrop-blur-2xl lg:hidden"
+        className="invisible fixed inset-0 z-40 flex flex-col overflow-y-auto bg-background/95 px-6 pb-8 pt-28 opacity-0 backdrop-blur-2xl lg:hidden"
       >
         <nav className="flex flex-1 flex-col justify-center gap-1">
           {LINKS.map((link) => {
@@ -350,7 +352,7 @@ export function Navbar() {
                   data-menu-item
                   onClick={closeMenu}
                   className={cn(
-                    "block text-4xl font-extrabold leading-snug tracking-tight transition-colors sm:text-5xl",
+                    "block text-3xl font-extrabold leading-snug tracking-tight transition-colors sm:text-5xl",
                     active
                       ? "text-gradient"
                       : "text-foreground/80 hover:text-foreground",

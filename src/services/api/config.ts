@@ -22,7 +22,9 @@ export function getServerApiBaseUrl(): string {
 }
 
 function getApiVersionSegment(): string {
-  const raw = (process.env.NEXT_PUBLIC_API_VERSION ?? DEFAULT_API_VERSION).trim();
+  const raw = (
+    process.env.NEXT_PUBLIC_API_VERSION ?? DEFAULT_API_VERSION
+  ).trim();
   // Accept "1", "1.0", "v1" — backend only serves v1 (anything else 404s).
   const match = raw.match(/^v?(\d+)/i);
   const major = match ? Number(match[1]) : NaN;
@@ -67,5 +69,8 @@ export const apiEndpoints = {
     list: () => `${base()}/organization/teams/`,
     detail: (id: number | string) =>
       `${base()}/organization/teams/${encodeURIComponent(String(id))}/`,
+  },
+  contact: {
+    createTicket: () => `${base()}/contact/create-ticket/`,
   },
 } as const;
