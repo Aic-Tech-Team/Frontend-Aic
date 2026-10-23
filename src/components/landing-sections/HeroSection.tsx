@@ -4,7 +4,6 @@ import { useSyncExternalStore, useState, useEffect, useRef } from "react";
 import { ArrowLeft, Sparkles, Users2, Activity } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { GlareButton } from "@/components/ui/glare-button";
@@ -35,22 +34,34 @@ type FloatStat = {
   start: number;
 };
 
+const GLOBE_LIGHT = "/images/PlanetLightMode.webp";
+const GLOBE_DARK = "/images/PlanetDarkMode.webp";
+
+function subscribeTheme(onStoreChange: () => void) {
+  const obs = new MutationObserver(onStoreChange);
+  obs.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+  return () => obs.disconnect();
+}
+
+/** Client snapshot. Server passes `null` so HTML doesn't prefetch the wrong planet. */
+function themeSnapshot(): "light" | "dark" {
+  return document.documentElement.getAttribute("data-theme") === "light"
+    ? "light"
+    : "dark";
+}
+
 const ORBIT_DURATION = "36s";
 /** Mobile: slower orbit = less perceived jank while keeping motion */
 const ORBIT_DURATION_LITE = "56s";
 
 export function Hero() {
   const t = useTranslations("Hero");
-  const { resolvedTheme } = useTheme();
-  const mounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
+  const theme = useSyncExternalStore(subscribeTheme, themeSnapshot, () => null);
   const globeSrc =
-    mounted && resolvedTheme === "light"
-      ? "/images/PlanetLightMode.webp"
-      : "/images/PlanetDarkMode.webp";
+    theme === "light" ? GLOBE_LIGHT : theme === "dark" ? GLOBE_DARK : null;
 
   const line1 = t.raw("line1") as string[];
   const line2 = t.raw("line2") as string[];
@@ -255,15 +266,19 @@ export function Hero() {
 
             <div className="absolute left-1/2 top-1/2 z-1 w-[74%] -translate-x-1/2 -translate-y-1/2 sm:w-[80%] lg:w-[85%]">
               <PointerParallax strength={heroLite ? 0 : 16}>
-                <Image
-                  src={globeSrc}
-                  alt={t("imageAlt")}
-                  width={1200}
-                  height={1218}
-                  priority
-                  sizes="(max-width: 1024px) 78vw, 540px"
-                  className="hero-globe h-auto w-full object-contain"
-                />
+                {globeSrc ? (
+                  <Image
+                    src={globeSrc}
+                    alt={t("imageAlt")}
+                    width={1200}
+                    height={1218}
+                    priority
+                    sizes="(max-width: 1024px) 78vw, 540px"
+                    className="hero-globe h-auto w-full object-contain"
+                  />
+                ) : (
+                  <div aria-hidden className="aspect-[1200/1218] w-full" />
+                )}
               </PointerParallax>
             </div>
 
