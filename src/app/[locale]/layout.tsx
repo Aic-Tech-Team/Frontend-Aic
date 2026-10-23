@@ -18,6 +18,7 @@ import { AnimatedBackground } from "@/components/animations/AnimatedBackground";
 import { ThemeAwareParticles } from "@/components/animations/ThemeAwareParticles";
 import { ExperienceSplash } from "@/components/animations/ExperienceSplash";
 import { ScrollProgress } from "@/components/animations/ScrollProgress";
+import { ScrollTriggerRefresh } from "@/components/animations/ScrollTriggerRefresh";
 import { SurfaceSpotlight } from "@/components/animations/SurfaceSpotlight";
 import { cn } from "@/lib/utils";
 
@@ -91,6 +92,7 @@ export default async function LocaleLayout({
           <SurfaceSpotlight />
 
           <NextIntlClientProvider messages={messages}>
+            <ScrollTriggerRefresh />
             <div className="relative z-0 flex min-h-screen flex-col">
               <Navbar />
               <main className="flex-1">{children}</main>

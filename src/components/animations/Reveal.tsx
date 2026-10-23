@@ -45,7 +45,13 @@ function trigger(
 ) {
   // amount ≈ fraction of the element that must be visible → top-anchored start.
   const start = `top ${Math.round((1 - Math.min(amount, 0.5) * 0.5) * 92)}%`;
-  ScrollTrigger.create({ trigger: el, start, once: true, onEnter: play });
+  ScrollTrigger.create({
+    trigger: el,
+    start,
+    once: true,
+    invalidateOnRefresh: true,
+    onEnter: play,
+  });
 }
 
 interface RevealProps {

@@ -15,6 +15,7 @@ export function FooterWordmark({ text = "AIC" }: { text?: string }) {
       if (!box || !word || prefersReducedMotion()) return;
 
       const footer = box.closest("footer") ?? box;
+      // Keep yPercent ≥ 0 so glyph tops stay inside overflow-hidden crop.
       const scrub = (from: number, to: number) =>
         gsap.fromTo(
           word,
@@ -27,13 +28,14 @@ export function FooterWordmark({ text = "AIC" }: { text?: string }) {
               start: "top 95%",
               end: "bottom bottom",
               scrub: 0.35,
+              invalidateOnRefresh: true,
             },
           },
         );
 
       const mm = gsap.matchMedia();
-      mm.add("(min-width: 769px)", () => scrub(40, -4));
-      mm.add("(max-width: 768px)", () => scrub(22, 0));
+      mm.add("(min-width: 769px)", () => scrub(48, 8));
+      mm.add("(max-width: 768px)", () => scrub(32, 10));
       return () => mm.revert();
     },
     { scope: boxRef },
@@ -44,7 +46,7 @@ export function FooterWordmark({ text = "AIC" }: { text?: string }) {
       ref={boxRef}
       aria-hidden="true"
       dir="ltr"
-      className="pointer-events-none relative z-0 mt-6 mb-0 h-[clamp(4.75rem,28vw,8.5rem)] select-none overflow-hidden [mask-image:linear-gradient(to_bottom,#000_55%,transparent_100%)] sm:mt-8"
+      className="pointer-events-none relative z-0 mt-6 mb-0 h-[clamp(5.25rem,30vw,9.5rem)] select-none overflow-hidden [mask-image:linear-gradient(to_bottom,#000_55%,transparent_100%)] sm:mt-8"
     >
       <span
         ref={textRef}
