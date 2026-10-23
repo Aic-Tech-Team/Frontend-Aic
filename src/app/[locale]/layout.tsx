@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import {
   getMessages,
@@ -20,6 +20,7 @@ import { ExperienceSplash } from "@/components/animations/ExperienceSplash";
 import { ScrollProgress } from "@/components/animations/ScrollProgress";
 import { ScrollTriggerRefresh } from "@/components/animations/ScrollTriggerRefresh";
 import { SurfaceSpotlight } from "@/components/animations/SurfaceSpotlight";
+import { NavigationProgress } from "@/components/common/NavigationProgress";
 import { cn } from "@/lib/utils";
 
 export function generateStaticParams() {
@@ -92,6 +93,9 @@ export default async function LocaleLayout({
           <SurfaceSpotlight />
 
           <NextIntlClientProvider messages={messages}>
+            <Suspense fallback={null}>
+              <NavigationProgress />
+            </Suspense>
             <ScrollTriggerRefresh />
             <div className="relative z-0 flex min-h-screen flex-col">
               <Navbar />
