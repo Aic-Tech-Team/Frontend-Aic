@@ -95,7 +95,7 @@ export function EventsExplorer({
                     {event.title}
                   </h3>
                   <p className="mt-1 text-xs text-white/70 sm:text-sm">
-                    {event.dateLabel}
+                    {event.dateTimeLabel}
                   </p>
                   <div className="mt-3 flex items-center gap-2 text-[11px] text-white/80">
                     <span className="rounded-full bg-white/10 px-2 py-1">

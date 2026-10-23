@@ -2,13 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import {
-  CalendarDays,
-  MapPin,
-  User,
-  Ticket,
-  CircleSlash,
-} from "lucide-react";
+import { CalendarDays, MapPin, User, Ticket, CircleSlash } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -95,7 +89,7 @@ export function EventTicketCard({
           {/* Date Tag */}
           <div className="absolute bottom-3 inset-s-3 rounded-lg border border-white/20 bg-black/50 px-2.5 py-1 backdrop-blur-md">
             <p className="text-[10px] font-bold uppercase tracking-wider text-white">
-              {event.dateLabel.split("·")[0]?.trim()}
+              {event.dateLabel}
             </p>
           </div>
         </div>
@@ -145,7 +139,7 @@ export function EventTicketCard({
               <span className="flex items-center gap-1.5">
                 <CalendarDays className="h-3.5 w-3.5 shrink-0 text-primary" />
                 <span className="font-medium text-foreground/90">
-                  {event.dateLabel}
+                  {event.dateTimeLabel}
                 </span>
               </span>
               <span className="flex items-center gap-1.5">

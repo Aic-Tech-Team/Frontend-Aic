@@ -2,14 +2,11 @@ import { apiResult, ApiError } from "@/services/api/client";
 import { apiEndpoints } from "@/services/api/config";
 import { resolveMediaUrl } from "@/services/api/media";
 import type { PaginatedResponse } from "@/services/api/types";
+import { formatDate, formatDateTime, formatTime } from "@/lib/date-time";
 import type { EventItemWithStatus, EventStatus } from "@/types/events";
 
 export type ApiEventType =
-  | "competition"
-  | "workshop"
-  | "seminar"
-  | "meeting"
-  | "course";
+  "competition" | "workshop" | "seminar" | "meeting" | "course";
 
 export type ApiEventStatus = "upcoming" | "ongoing" | "finished";
 
@@ -74,19 +71,30 @@ export async function fetchEvent(
   });
 }
 
+const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+};
+
 const apiStatusToStatus: Record<ApiEventStatus, EventStatus> = {
   upcoming: "upcoming",
   ongoing: "ongoing",
   finished: "past",
 };
 
-export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
+export function mapApiEvent(
+  event: ApiEvent,
+  locale: string,
+): EventItemWithStatus {
   return {
     id: String(event.id),
     category: event.event_type,
     title: event.title,
     location: event.location ?? "",
-    dateLabel: buildDateLabel(event.event_date),
+    dateLabel: formatDate(locale, event.event_date, DATE_OPTIONS),
+    timeLabel: formatTime(locale, event.event_date),
+    dateTimeLabel: formatDateTime(locale, event.event_date, DATE_OPTIONS),
     startAt: event.event_date,
     endAt: event.event_date,
     image: resolveMediaUrl(event.image),
@@ -95,14 +103,4 @@ export function mapApiEvent(event: ApiEvent): EventItemWithStatus {
     registrationLink: event.registration_link ?? undefined,
     status: apiStatusToStatus[event.status],
   };
-}
-
-function buildDateLabel(eventDate: string): string {
-  const date = new Date(eventDate);
-  const dateStr = date.toLocaleDateString();
-  const timeStr = date.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return `${dateStr} · ${timeStr}`;
 }

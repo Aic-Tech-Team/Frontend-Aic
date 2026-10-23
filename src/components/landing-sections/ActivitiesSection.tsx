@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { ArrowLeft, CalendarClock, LayoutGrid } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { RevealItem } from "@/components/animations/Reveal";
 import { SectionHeading } from "@/components/common/SectionHeading";
@@ -14,7 +14,8 @@ const ICONS = [LayoutGrid, CalendarClock] as const;
 
 function chunk<T>(arr: T[], size: number): T[][] {
   const groups: T[][] = [];
-  for (let i = 0; i < arr.length; i += size) groups.push(arr.slice(i, i + size));
+  for (let i = 0; i < arr.length; i += size)
+    groups.push(arr.slice(i, i + size));
   return groups;
 }
 
@@ -67,7 +68,7 @@ function ActivityCard({ item, index }: { item: ActivityItem; index: number }) {
 export async function ActivitiesSection() {
   const t = await getTranslations("Activities");
   const common = await getTranslations("Common");
-  const items = await getLandingActivities();
+  const items = await getLandingActivities(await getLocale());
 
   const heading = (
     <SectionHeading

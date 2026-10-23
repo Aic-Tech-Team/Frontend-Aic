@@ -3,6 +3,8 @@ import { apiEndpoints } from "@/services/api/config";
 import { resolveMediaUrl } from "@/services/api/media";
 import type { PaginatedResponse } from "@/services/api/types";
 import type { ActivityItem } from "@/types/activity";
+import { stripMarkdown } from "@/lib/utils";
+import { formatDate } from "@/lib/date-time";
 
 export type ListActivitiesParams = {
   category?: string;
@@ -65,7 +67,10 @@ export async function fetchActivity(
   });
 }
 
-export function mapApiActivity(activity: ApiActivity): ActivityItem {
+export function mapApiActivity(
+  activity: ApiActivity,
+  locale: string,
+): ActivityItem {
   const startAt = activity.start_date ?? activity.created_at ?? "";
 
   return {
@@ -74,15 +79,13 @@ export function mapApiActivity(activity: ApiActivity): ActivityItem {
     title: activity.title,
     image: resolveMediaUrl(activity.image),
     summary:
-      activity.short_description ?? activity.description?.slice(0, 160) ?? "",
+      activity.short_description ??
+      stripMarkdown(activity.description ?? "").slice(0, 160),
     content: activity.description ?? undefined,
-    dateLabel: formatActivityDate(startAt),
+    dateLabel: formatDate(locale, startAt, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }),
   };
-}
-
-function formatActivityDate(value: string): string {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString();
 }

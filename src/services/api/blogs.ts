@@ -3,6 +3,8 @@ import { apiEndpoints } from "@/services/api/config";
 import { resolveMediaUrl } from "@/services/api/media";
 import type { PaginatedResponse } from "@/services/api/types";
 import type { BlogPostItem } from "@/types/blog";
+import { stripMarkdown } from "@/lib/utils";
+import { formatDate } from "@/lib/date-time";
 
 export type ListBlogsParams = {
   category?: string;
@@ -64,7 +66,10 @@ export async function fetchBlogPost(
   });
 }
 
-export function mapApiBlogPost(post: ApiBlogPost): BlogPostItem {
+export function mapApiBlogPost(
+  post: ApiBlogPost,
+  locale: string,
+): BlogPostItem {
   const publishedAt = post.published_at ?? post.created_at ?? "";
 
   return {
@@ -73,16 +78,13 @@ export function mapApiBlogPost(post: ApiBlogPost): BlogPostItem {
     title: post.title,
     author: post.author ?? undefined,
     image: resolveMediaUrl(post.cover_image),
-    summary: post.summary ?? post.content?.slice(0, 160) ?? "",
+    summary: post.summary ?? stripMarkdown(post.content ?? "").slice(0, 160),
     content: post.content ?? undefined,
-    publishedLabel: formatPublishedDate(publishedAt),
+    publishedLabel: formatDate(locale, publishedAt, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }),
     publishedAt,
   };
-}
-
-function formatPublishedDate(value: string): string {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString();
 }

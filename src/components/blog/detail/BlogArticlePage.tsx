@@ -16,7 +16,7 @@ interface BlogArticlePageProps {
   meta: ArticleMetaItem;
   heroImage: string;
   heroAlt: string;
-  paragraphs: string[];
+  content: string;
   latestPosts: SidebarPost[];
   labels: BlogDetailLabels;
 }
@@ -28,7 +28,7 @@ export function BlogArticlePage({
   meta,
   heroImage,
   heroAlt,
-  paragraphs,
+  content,
   latestPosts,
   labels,
 }: BlogArticlePageProps) {
@@ -50,7 +50,7 @@ export function BlogArticlePage({
             </div>
 
             <div className="mt-7">
-              <BlogContent paragraphs={paragraphs} />
+              <BlogContent content={content} />
             </div>
           </article>
 

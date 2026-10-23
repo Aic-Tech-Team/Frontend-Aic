@@ -56,7 +56,8 @@ export function EventDetailTicket({ event }: { event: EventItemWithStatus }) {
   const gallery = event.gallery?.length ? event.gallery : [event.image];
   const [activeImage, setActiveImage] = useState(0);
 
-  const [datePart, timePart] = event.dateLabel.split("·").map((s) => s.trim());
+  const datePart = event.dateLabel;
+  const timePart = event.timeLabel;
 
   return (
     <article

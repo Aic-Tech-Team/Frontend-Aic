@@ -7,39 +7,50 @@ import { mapTeamRows } from "./teams";
 
 describe("content mappers", () => {
   it("mapApiEvent maps status finished → past", () => {
-    const mapped = mapApiEvent({
-      id: 7,
-      title: "Demo",
-      event_type: "workshop",
-      event_date: "2026-01-01T10:00:00Z",
-      status: "finished",
-      short_description: "hi",
-      location: "Hall",
-    });
+    const mapped = mapApiEvent(
+      {
+        id: 7,
+        title: "Demo",
+        event_type: "workshop",
+        event_date: "2026-01-01T10:00:00Z",
+        status: "finished",
+        short_description: "hi",
+        location: "Hall",
+      },
+      "en",
+    );
 
     assert.equal(mapped.id, "7");
     assert.equal(mapped.status, "past");
     assert.equal(mapped.category, "workshop");
+    assert.ok(mapped.dateLabel.length > 0);
+    assert.ok(mapped.timeLabel.length > 0);
   });
 
   it("mapApiActivity falls back summary from description", () => {
-    const mapped = mapApiActivity({
-      id: "a1",
-      title: "Act",
-      description: "Long text about the activity",
-    });
+    const mapped = mapApiActivity(
+      {
+        id: "a1",
+        title: "Act",
+        description: "Long text about the activity",
+      },
+      "en",
+    );
 
     assert.equal(mapped.id, "a1");
     assert.match(mapped.summary, /Long text/);
   });
 
   it("mapApiBlogPost uses published_at label", () => {
-    const mapped = mapApiBlogPost({
-      id: 3,
-      title: "Post",
-      summary: "sum",
-      published_at: "2026-02-02T00:00:00Z",
-    });
+    const mapped = mapApiBlogPost(
+      {
+        id: 3,
+        title: "Post",
+        summary: "sum",
+        published_at: "2026-02-02T00:00:00Z",
+      },
+      "en",
+    );
 
     assert.equal(mapped.id, "3");
     assert.ok(mapped.publishedLabel.length > 0);

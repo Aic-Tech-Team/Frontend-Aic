@@ -80,7 +80,7 @@ export default async function ActivitiesPage({
 
   const totalCount = pageRes.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const activities = resultsOf(pageRes).map(mapApiActivity);
+  const activities = resultsOf(pageRes).map((r) => mapApiActivity(r, locale));
 
   function buildPageHref(pageNumber: number): string {
     const params = new URLSearchParams();

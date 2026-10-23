@@ -16,10 +16,7 @@ const PAGE_SIZE = 6;
  * `null` = API unreachable / soft-fail.
  * `[]` = reachable but empty.
  */
-async function fetchList<T>(
-  url: string,
-  tag: string,
-): Promise<T[] | null> {
+async function fetchList<T>(url: string, tag: string): Promise<T[] | null> {
   const page = await apiSoft<PaginatedResponse<T>>(url, {
     params: { page_size: PAGE_SIZE },
     revalidate: 300,
@@ -29,25 +26,31 @@ async function fetchList<T>(
   return Array.isArray(page.results) ? page.results : [];
 }
 
-export async function getLandingEvents(): Promise<EventItemWithStatus[] | null> {
+export async function getLandingEvents(
+  locale: string,
+): Promise<EventItemWithStatus[] | null> {
   const rows = await fetchList<ApiEvent>(apiEndpoints.events.list(), "events");
   if (rows === null) return null;
-  return rows.map(mapApiEvent);
+  return rows.map((r) => mapApiEvent(r, locale));
 }
 
-export async function getLandingActivities(): Promise<ActivityItem[] | null> {
+export async function getLandingActivities(
+  locale: string,
+): Promise<ActivityItem[] | null> {
   const rows = await fetchList<ApiActivity>(
     apiEndpoints.activities.list(),
     "activities",
   );
   if (rows === null) return null;
-  return rows.map(mapApiActivity);
+  return rows.map((r) => mapApiActivity(r, locale));
 }
 
-export async function getLandingBlogPosts(): Promise<BlogPostItem[] | null> {
+export async function getLandingBlogPosts(
+  locale: string,
+): Promise<BlogPostItem[] | null> {
   const rows = await fetchList<ApiBlogPost>(apiEndpoints.blogs.list(), "blogs");
   if (rows === null) return null;
-  return rows.map(mapApiBlogPost);
+  return rows.map((r) => mapApiBlogPost(r, locale));
 }
 
 export async function getLandingTeams(): Promise<TeamItem[] | null> {

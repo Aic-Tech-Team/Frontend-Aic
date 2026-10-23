@@ -7,7 +7,12 @@ export interface EventItem {
   speaker?: string;
   organizer?: string;
   location: string;
+  /** Date only, localized. */
   dateLabel: string;
+  /** Time only, localized. */
+  timeLabel: string;
+  /** Date and time, localized. */
+  dateTimeLabel: string;
   startAt: string;
   endAt: string;
   image: string;

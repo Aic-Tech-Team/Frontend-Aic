@@ -16,7 +16,7 @@ interface ActivityArticlePageProps {
   meta: ActivityMetaItem;
   heroImage: string;
   heroAlt: string;
-  paragraphs: string[];
+  content: string;
   recentActivities: SidebarActivity[];
   labels: ActivityDetailLabels;
 }
@@ -28,7 +28,7 @@ export function ActivityArticlePage({
   meta,
   heroImage,
   heroAlt,
-  paragraphs,
+  content,
   recentActivities,
   labels,
 }: ActivityArticlePageProps) {
@@ -50,7 +50,7 @@ export function ActivityArticlePage({
             </div>
 
             <div className="mt-7">
-              <ActivityContent paragraphs={paragraphs} />
+              <ActivityContent content={content} />
             </div>
           </article>
 

@@ -94,8 +94,10 @@ export default async function EventsPage({
 
   const totalCount = pageRes.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const events = resultsOf(pageRes).map(mapApiEvent);
-  const spotlightEvents = resultsOf(spotlightRes).map(mapApiEvent);
+  const events = resultsOf(pageRes).map((r) => mapApiEvent(r, locale));
+  const spotlightEvents = resultsOf(spotlightRes).map((r) =>
+    mapApiEvent(r, locale),
+  );
 
   function buildPageHref(pageNumber: number): string {
     const params = new URLSearchParams();

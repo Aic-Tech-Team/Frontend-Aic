@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { ArrowLeft, CalendarDays, Clock } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { RevealItem } from "@/components/animations/Reveal";
 import { SectionHeading } from "@/components/common/SectionHeading";
@@ -17,7 +17,7 @@ export async function BlogSection() {
   const t = await getTranslations("Blog");
   const tDetail = await getTranslations("BlogDetailPage");
   const common = await getTranslations("Common");
-  const posts = await getLandingBlogPosts();
+  const posts = await getLandingBlogPosts(await getLocale());
 
   const heading = (
     <SectionHeading

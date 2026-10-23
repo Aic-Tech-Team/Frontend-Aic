@@ -70,7 +70,9 @@ export default async function BlogPage({
   const discoveryRes =
     (await fetchBlogPosts({ page_size: DISCOVERY_SIZE })) ?? pageRes;
 
-  const discoveryPosts = resultsOf(discoveryRes).map(mapApiBlogPost);
+  const discoveryPosts = resultsOf(discoveryRes).map((r) =>
+    mapApiBlogPost(r, locale),
+  );
   const categories = Array.from(
     new Set(
       resultsOf(discoveryRes)
@@ -81,7 +83,7 @@ export default async function BlogPage({
 
   const totalCount = pageRes.count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const posts = resultsOf(pageRes).map(mapApiBlogPost);
+  const posts = resultsOf(pageRes).map((r) => mapApiBlogPost(r, locale));
 
   function buildPageHref(pageNumber: number): string {
     const params = new URLSearchParams();

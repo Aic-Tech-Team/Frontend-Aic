@@ -16,6 +16,14 @@ export function getJalaliYear(date = new Date()): number {
   return Number(year);
 }
 
+/** Founding year of AIC (Jalali). */
+export const FOUNDED_YEAR_JALALI = 1403;
+
+/** Whole years of activity, at least 1. */
+export function getYearsActive(date = new Date()): number {
+  return Math.max(1, getJalaliYear(date) - FOUNDED_YEAR_JALALI);
+}
+
 const COPYRIGHT_START_JALALI = 1405;
 const COPYRIGHT_START_GREGORIAN = 2026;
 
@@ -34,4 +42,16 @@ export function getCopyrightYears(locale: string, date = new Date()): string {
   }
 
   return format(start);
+}
+
+/** Strips markdown syntax so text can be used as a plain-text excerpt. */
+export function stripMarkdown(value: string): string {
+  return value
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^\s{0,3}(#{1,6}|>|[-*+]|\d+\.)\s+/gm, "")
+    .replace(/(\*\*|__|\*|_|`|~~)/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }

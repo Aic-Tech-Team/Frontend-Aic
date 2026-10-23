@@ -1,18 +1,9 @@
+import { MarkdownContent } from "@/components/common/MarkdownContent";
+
 interface BlogContentProps {
-  paragraphs: string[];
+  content: string;
 }
 
-export function BlogContent({ paragraphs }: BlogContentProps) {
-  return (
-    <div dir="rtl" className="w-full text-right">
-      {paragraphs.map((paragraph, index) => (
-        <p
-          key={index}
-          className="mb-5 text-[15px] font-normal leading-[2.1] text-card-foreground/90 last:mb-0 sm:text-[15.5px]"
-        >
-          {paragraph}
-        </p>
-      ))}
-    </div>
-  );
+export function BlogContent({ content }: BlogContentProps) {
+  return <MarkdownContent content={content} />;
 }

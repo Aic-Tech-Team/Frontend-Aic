@@ -15,7 +15,7 @@ export function EventDetailHero({
   homeLabel: string;
   eventsLabel: string;
 }) {
-  const [datePart] = event.dateLabel.split("·").map((s) => s.trim());
+  const datePart = event.dateLabel;
 
   return (
     <div className="relative -mx-[calc(50vw-50%)] h-[260px] w-screen overflow-hidden bg-[#1a1430] sm:h-[340px]">

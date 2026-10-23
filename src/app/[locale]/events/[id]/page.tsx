@@ -40,13 +40,13 @@ export default async function EventDetailPage({
     return <ContentUnavailablePage />;
   }
 
-  const event = mapApiEvent(result.data);
+  const event = mapApiEvent(result.data, locale);
 
   const list = await fetchEvents({ page_size: 7 });
   const otherEvents = (list?.results ?? [])
     .filter((item) => String(item.id) !== event.id)
     .slice(0, 6)
-    .map(mapApiEvent);
+    .map((r) => mapApiEvent(r, locale));
 
   return (
     <div className="relative overflow-hidden">

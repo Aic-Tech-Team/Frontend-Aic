@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { ArrowLeft, CalendarDays, MapPin, User } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { RevealItem } from "@/components/animations/Reveal";
 import { SectionHeading } from "@/components/common/SectionHeading";
@@ -51,7 +51,7 @@ function EventCard({
 
         <span className="absolute inset-s-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
           <CalendarDays className="h-3.5 w-3.5" />
-          {event.dateLabel}
+          {event.dateTimeLabel}
         </span>
 
         <div className="m-3 rounded-2xl border border-white/15 bg-black/55 p-4 text-white backdrop-blur-xl">
@@ -88,7 +88,7 @@ function EventCard({
 export async function EventsSection() {
   const t = await getTranslations("Events");
   const common = await getTranslations("Common");
-  const events = await getLandingEvents();
+  const events = await getLandingEvents(await getLocale());
 
   const heading = (
     <SectionHeading

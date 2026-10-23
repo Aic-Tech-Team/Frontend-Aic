@@ -68,9 +68,7 @@ export function OtherEventsRow({
                 </h3>
                 <p className="mt-auto flex items-center gap-1.5 text-xs text-muted-foreground">
                   <CalendarDays className="h-3.5 w-3.5 shrink-0 text-primary-300" />
-                  <span className="truncate">
-                    {event.dateLabel.split("·")[0]?.trim()}
-                  </span>
+                  <span className="truncate">{event.dateLabel}</span>
                 </p>
               </div>
             </Link>
