@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { NAVIGATION_START_EVENT } from "@/lib/begin-navigation";
 
 const SHOW_DELAY_MS = 160;
-const FAILSAFE_MS = 20_000;
+const FAILSAFE_MS = 8_000;
 
 /** Top bar for client navigations. Renders nothing until a navigation is actually slow. */
 export function NavigationProgress() {
@@ -15,16 +15,30 @@ export function NavigationProgress() {
   const t = useTranslations("Common");
   const [pending, setPending] = useState(false);
   const [visible, setVisible] = useState(false);
+  // the address the page is showing now: a step that lands on it is not a navigation
+  const committed = useRef(`${pathname}?${search}`);
 
-  useEffect(() => {
+  // a new address ends the bar: reset while rendering, not in an effect
+  const key = `${pathname}?${search}`;
+  const [seenKey, setSeenKey] = useState(key);
+  if (key !== seenKey) {
+    setSeenKey(key);
     setPending(false);
     setVisible(false);
-  }, [pathname, search]);
+  }
+
+  useEffect(() => {
+    committed.current = key;
+  }, [key]);
 
   useEffect(() => {
     if (!pending) return;
     const show = window.setTimeout(() => setVisible(true), SHOW_DELAY_MS);
-    const failsafe = window.setTimeout(() => setPending(false), FAILSAFE_MS);
+    // if the route never settles, drop the bar as well as the pending flag
+    const failsafe = window.setTimeout(() => {
+      setPending(false);
+      setVisible(false);
+    }, FAILSAFE_MS);
     return () => {
       window.clearTimeout(show);
       window.clearTimeout(failsafe);
@@ -38,14 +52,20 @@ export function NavigationProgress() {
       if (isInternalNavigation(event)) start();
     };
 
+    // popstate also fires for a change of #hash, where the address stays and nothing would end the bar
+    const onPopState = () => {
+      const now = `${window.location.pathname}?${new URLSearchParams(window.location.search).toString()}`;
+      if (now !== committed.current) start();
+    };
+
     window.addEventListener(NAVIGATION_START_EVENT, start);
     document.addEventListener("click", onClick, true);
-    window.addEventListener("popstate", start);
+    window.addEventListener("popstate", onPopState);
 
     return () => {
       window.removeEventListener(NAVIGATION_START_EVENT, start);
       document.removeEventListener("click", onClick, true);
-      window.removeEventListener("popstate", start);
+      window.removeEventListener("popstate", onPopState);
     };
   }, []);
 
