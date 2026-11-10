@@ -3,6 +3,8 @@ import remarkGfm from "remark-gfm";
 
 interface MarkdownContentProps {
   content: string;
+  /** Give each `##` heading the id `section-<n>`, for a table of contents to link to. */
+  headingIds?: boolean;
 }
 
 /**
@@ -10,7 +12,8 @@ interface MarkdownContentProps {
  * (react-markdown escapes it), so no sanitizer is needed. Links are limited
  * to safe protocols by react-markdown's default urlTransform.
  */
-export function MarkdownContent({ content }: MarkdownContentProps) {
+export function MarkdownContent({ content, headingIds }: MarkdownContentProps) {
+  let n = 0;
   return (
     <div
       dir="rtl"
@@ -31,6 +34,15 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
+          ...(headingIds
+            ? {
+                h2: ({ children }) => (
+                  <h2 id={`section-${n++}`} className="scroll-mt-28">
+                    {children}
+                  </h2>
+                ),
+              }
+            : {}),
           a: ({ href, children }) => {
             const external = /^https?:\/\//i.test(href ?? "");
             return (

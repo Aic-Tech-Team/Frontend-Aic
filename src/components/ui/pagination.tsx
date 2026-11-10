@@ -4,14 +4,16 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
 import type { ComponentProps } from "react";
 
-// Base classes extracted from buttonVariants so the SSR anchor components
-// below can be used in server components without calling buttonVariants().
+// One look for every control: a rounded square with a hairline border; the current page is filled
+// with the brand colour and glows; previous / next are the same square, wider, with a word beside
+// the arrow from `sm` up. Plain class strings so the anchors work in server components.
 const BTN_BASE =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50";
-const BTN_GHOST = "hover:bg-primary/10";
-const BTN_DEFAULT =
-  "bg-primary text-primary-foreground hover:bg-primary-600 active:bg-primary-700";
-const BTN_ICON = "h-10 w-10";
+  "inline-flex h-10 min-w-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl border px-3 text-sm font-bold tabular-nums transition-[color,background-color,border-color,box-shadow,opacity] duration-200 outline-none focus-visible:ring-2 focus-visible:ring-ring";
+const BTN_IDLE =
+  "border-border/50 bg-card/40 text-muted-foreground hover:border-primary/50 hover:bg-primary/10 hover:text-foreground";
+const BTN_ACTIVE =
+  "border-primary bg-primary text-primary-foreground shadow-glow";
+const BTN_OFF = "pointer-events-none opacity-40";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -77,14 +79,7 @@ function PaginationNavLink({
   return (
     <a
       aria-current={isActive ? "page" : undefined}
-      className={cn(
-        BTN_BASE,
-        isActive ? BTN_DEFAULT : BTN_GHOST,
-        BTN_ICON,
-        "h-9 w-9 text-sm",
-        isActive && "shadow-glow",
-        className,
-      )}
+      className={cn(BTN_BASE, isActive ? BTN_ACTIVE : BTN_IDLE, className)}
       {...props}
     />
   );
@@ -92,39 +87,53 @@ function PaginationNavLink({
 
 type PaginationNavPreviousProps = ComponentProps<"a"> & { label?: string };
 
-function PaginationNavPrevious({ className, label, ...props }: PaginationNavPreviousProps) {
+function PaginationNavPrevious({
+  className,
+  label,
+  children,
+  ...props
+}: PaginationNavPreviousProps) {
+  const disabled = props["aria-disabled"] === true || props["aria-disabled"] === "true";
   return (
     <a
       aria-label={label ?? "Go to previous page"}
       className={cn(
         BTN_BASE,
-        BTN_GHOST,
-        BTN_ICON,
-        "h-9 w-9 gap-1 px-0 text-sm",
+        BTN_IDLE,
+        "px-3 sm:px-4",
+        disabled && BTN_OFF,
         className,
       )}
       {...props}
     >
       <ChevronRight className="h-4 w-4 ltr:rotate-180" />
+      <span className="max-sm:hidden">{children}</span>
     </a>
   );
 }
 
 type PaginationNavNextProps = ComponentProps<"a"> & { label?: string };
 
-function PaginationNavNext({ className, label, ...props }: PaginationNavNextProps) {
+function PaginationNavNext({
+  className,
+  label,
+  children,
+  ...props
+}: PaginationNavNextProps) {
+  const disabled = props["aria-disabled"] === true || props["aria-disabled"] === "true";
   return (
     <a
       aria-label={label ?? "Go to next page"}
       className={cn(
         BTN_BASE,
-        BTN_GHOST,
-        BTN_ICON,
-        "h-9 w-9 gap-1 px-0 text-sm",
+        BTN_IDLE,
+        "px-3 sm:px-4",
+        disabled && BTN_OFF,
         className,
       )}
       {...props}
     >
+      <span className="max-sm:hidden">{children}</span>
       <ChevronLeft className="h-4 w-4 ltr:rotate-180" />
     </a>
   );
@@ -170,7 +179,7 @@ function PaginationEllipsis({
     <span
       aria-hidden
       className={cn(
-        "flex h-9 w-9 items-center justify-center text-muted-foreground",
+        "flex h-10 w-8 items-center justify-center text-muted-foreground",
         className,
       )}
       {...props}

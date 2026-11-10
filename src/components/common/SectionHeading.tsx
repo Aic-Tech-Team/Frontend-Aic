@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Reveal } from "@/components/animations/Reveal";
 import { ScrollText } from "@/components/animations/ScrollText";
+import { SectionEyebrow } from "@/components/common/SectionEyebrow";
 import GlareHover from "@/components/animations/GlareHover";
 import { Link } from "@/i18n/navigation";
 
@@ -63,11 +64,14 @@ export function SectionHeading({
   const hasMore = Boolean(moreHref && moreLabel);
 
   return (
-    <Reveal direction="up" className={cn("mb-8 sm:mb-10", className)}>
+    <Reveal direction="up" className={cn("mb-10 sm:mb-14", className)}>
       <div className={isCenter ? "text-center" : "text-center lg:text-start"}>
+        <SectionEyebrow startAligned={!isCenter} className="mb-4">
+          {badge}
+        </SectionEyebrow>
         <div
           className={cn(
-            "flex flex-col gap-4",
+            "flex flex-col gap-5",
             isCenter
               ? "items-center"
               : hasMore
@@ -75,8 +79,7 @@ export function SectionHeading({
                 : "items-center lg:items-start",
           )}
         >
-          <span className="sr-only">{badge}</span>
-          <h2 className="min-w-0 text-pretty text-2xl font-extrabold leading-snug tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+          <h2 className="min-w-0 text-balance text-3xl font-extrabold leading-[1.35] tracking-tight text-foreground sm:text-4xl lg:text-5xl">
             {title}
           </h2>
           {hasMore ? (
@@ -84,12 +87,23 @@ export function SectionHeading({
           ) : null}
         </div>
 
+        {/* lamp line under the title (Yelloname section head) */}
+        <span
+          aria-hidden="true"
+          className={cn(
+            "mt-5 block h-px w-40 shadow-[0_0_22px_2px_color-mix(in_srgb,var(--primary)_55%,transparent)]",
+            isCenter
+              ? "mx-auto bg-linear-to-r from-transparent via-primary to-transparent"
+              : "mx-auto bg-linear-to-r from-transparent via-primary to-transparent lg:mx-0 lg:from-primary lg:via-primary/50 rtl:lg:bg-linear-to-l",
+          )}
+        />
+
         {description ? (
           <ScrollText
             text={description}
             className={cn(
-              "mt-3 w-full text-pretty text-sm leading-8 text-muted-foreground sm:text-base sm:leading-8",
-              isCenter && "mx-auto max-w-2xl",
+              "mt-6 w-full text-pretty text-base leading-8 text-muted-foreground sm:text-lg sm:leading-9",
+              isCenter ? "mx-auto max-w-4xl" : "mx-auto max-w-4xl lg:mx-0",
             )}
           />
         ) : null}
