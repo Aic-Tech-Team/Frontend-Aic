@@ -42,11 +42,20 @@ const EMPTY: PaginatedResponse<ApiEvent> = {
 
 export async function fetchEvents(
   params: ListEventsParams = {},
-  opts: { revalidate?: number } = { revalidate: 300 },
+  opts: { revalidate?: number; timeoutMs?: number; retries?: number } = {
+    revalidate: 300,
+  },
 ): Promise<PaginatedResponse<ApiEvent> | null> {
+  const { timeoutMs, retries, ...cacheOpts } = opts;
   const result = await apiResult<PaginatedResponse<ApiEvent>>(
     apiEndpoints.events.list(),
-    { params, revalidate: opts.revalidate, tags: ["events"] },
+    {
+      params,
+      revalidate: cacheOpts.revalidate,
+      tags: ["events"],
+      timeoutMs,
+      retries,
+    },
   );
   if (result.ok) return result.data;
   if (result.notFound) return EMPTY;
@@ -55,8 +64,17 @@ export async function fetchEvents(
     result.error.status === 400 &&
     (params.status || params.event_type)
   ) {
-    const { status: _s, event_type: _t, ...rest } = params;
-    return fetchEvents(rest, opts);
+    // the API refused a filter: ask without it, then apply that filter here so the page never
+    // shows events from the wrong tab
+    const { status, event_type, ...rest } = params;
+    const all = await fetchEvents(rest, opts);
+    if (!all) return null;
+    const rows = all.results.filter(
+      (e) =>
+        (!status || e.status === status) &&
+        (!event_type || e.event_type === event_type),
+    );
+    return { ...all, count: rows.length, next: null, previous: null, results: rows };
   }
   return null;
 }

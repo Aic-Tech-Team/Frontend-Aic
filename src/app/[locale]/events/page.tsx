@@ -1,31 +1,23 @@
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Ticket } from "lucide-react";
-import { SectionHeading } from "@/components/common/SectionHeading";
-import { ContentUnavailable } from "@/components/common/ContentUnavailable";
+import { Suspense } from "react";
+import { setRequestLocale } from "next-intl/server";
 import { EventsExplorer } from "@/components/events/EventsExplorer";
-import { EventsGrid } from "@/components/events/EventsGrid";
-import {
-  fetchEvents,
-  mapApiEvent,
-  type ApiEventStatus,
-} from "@/services/api/events";
-import { pageRows } from "@/services/api/types";
-import { pageHref, pageNumber, param, searchQuery } from "@/lib/search-params";
+import { EventFeaturedSkeleton } from "@/components/events/EventFeaturedSkeleton";
+import { EventsFeatured } from "@/components/events/EventsFeatured";
+import { EventsHero } from "@/components/events/EventsHero";
+import { EventsResults } from "@/components/events/EventsResults";
+import { EventsResultsSkeleton } from "@/components/events/EventsResultsSkeleton";
+import { pageNumber, param, searchQuery } from "@/lib/search-params";
 import type { EventStatus } from "@/types/events";
 
 export const dynamic = "force-dynamic";
 
-const PAGE_SIZE = 6;
-const SPOTLIGHT_SIZE = 5;
-
 type FilterKey = "all" | EventStatus;
 
-const filterToApiStatus: Record<Exclude<FilterKey, "all">, ApiEventStatus> = {
-  ongoing: "ongoing",
-  upcoming: "upcoming",
-  past: "finished",
-};
-
+/**
+ * The shell (header, filters) renders without waiting on the API. The highlighted event and the
+ * list each stream in inside their own Suspense, and the list's is keyed on filter, search and page
+ * so changing any of them shows a skeleton at once instead of freezing the old list.
+ */
 export default async function EventsPage({
   params,
   searchParams,
@@ -46,74 +38,30 @@ export default async function EventsPage({
     : "all";
   const search = searchQuery(sp);
 
-  const t = await getTranslations("EventsPage");
-
-  const [pageRes, spotlightFetched] = await Promise.all([
-    fetchEvents({
-      status: filter === "all" ? undefined : filterToApiStatus[filter],
-      search: search || undefined,
-      page,
-      page_size: PAGE_SIZE,
-    }),
-    fetchEvents({ page_size: SPOTLIGHT_SIZE }),
-  ]);
-
-  if (!pageRes) {
-    return (
-      <div className="py-10 sm:py-16">
-        <div className="container">
-          <SectionHeading
-            badge={t("badge")}
-            icon={Ticket}
-            title={t("title")}
-            description={t("description")}
-            align="center"
-          />
-          <ContentUnavailable className="mt-8" />
-        </div>
-      </div>
-    );
-  }
-
-  const totalCount = pageRes.count ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const events = pageRows(pageRes).map((r) => mapApiEvent(r, locale));
-  const spotlightEvents = pageRows(spotlightFetched).map((r) =>
-    mapApiEvent(r, locale),
-  );
-
-  function buildPageHref(nextPage: number): string {
-    return pageHref(
-      {
-        q: search || undefined,
-        filter: filter === "all" ? undefined : filter,
-      },
-      nextPage,
-    );
-  }
+  // the highlight belongs to the unfiltered first view only
+  const showFeatured = filter === "all" && !search && page === 1;
 
   return (
     <div className="py-10 sm:py-16">
       <div className="container">
-        <SectionHeading
-          badge={t("badge")}
-          icon={Ticket}
-          title={t("title")}
-          description={t("description")}
-          align="center"
-        />
+        <EventsHero />
         <EventsExplorer
-          spotlightEvents={spotlightEvents}
           search={search}
           selectedFilter={filter}
+          featured={
+            showFeatured ? (
+              <Suspense fallback={<EventFeaturedSkeleton />}>
+                <EventsFeatured />
+              </Suspense>
+            ) : null
+          }
         >
-          <EventsGrid
-            events={events}
-            totalCount={totalCount}
-            currentPage={Math.min(page, totalPages)}
-            pageSize={PAGE_SIZE}
-            buildPageHref={buildPageHref}
-          />
+          <Suspense
+            key={`${filter}|${search}|${page}`}
+            fallback={<EventsResultsSkeleton />}
+          >
+            <EventsResults filter={filter} search={search} page={page} />
+          </Suspense>
         </EventsExplorer>
       </div>
     </div>
