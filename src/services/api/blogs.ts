@@ -86,5 +86,12 @@ export function mapApiBlogPost(
       day: "numeric",
     }),
     publishedAt,
+    updatedLabel: post.updated_at
+      ? formatDate(locale, post.updated_at, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : undefined,
   };
 }

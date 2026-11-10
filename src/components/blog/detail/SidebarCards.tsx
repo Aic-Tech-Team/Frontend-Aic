@@ -15,12 +15,12 @@ function SidebarCardShell({
   children,
 }: SidebarCardShellProps) {
   return (
-    <section dir="rtl" className="surface w-full rounded-[18px] p-5 sm:p-6">
+    <section dir="rtl" className="surface w-full rounded-[18px] p-5 shadow-none sm:p-6">
       <div className="mb-5 flex items-center justify-between">
         <h2 className="text-[15px] font-bold text-card-foreground">{title}</h2>
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1 text-[12px] font-medium text-muted-foreground transition-colors hover:text-primary-300"
+          className="-my-2.5 inline-flex items-center gap-1 py-2.5 text-[12px] font-medium text-muted-foreground transition-colors hover:text-primary-300"
         >
           {linkLabel}
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />

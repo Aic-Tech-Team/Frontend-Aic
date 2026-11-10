@@ -10,6 +10,8 @@ import {
 } from "@/services/api/blogs";
 import { BlogArticlePage } from "@/components/blog/detail/BlogArticlePage";
 import type { SidebarPost } from "@/types/blog";
+import { Reveal } from "@/components/animations/Reveal";
+import { markdownHeadings } from "@/lib/markdown-headings";
 
 export const dynamic = "force-dynamic";
 
@@ -59,34 +61,46 @@ export default async function BlogPostPage({
   const sidebar = toSidebar(list?.results ?? [], id, locale, readTime);
 
   return (
-    <BlogArticlePage
-      breadcrumb={[
-        { label: t("breadcrumbHome"), href: "/" },
-        { label: t("breadcrumbBlog"), href: "/blog" },
-        { label: post.title },
-      ]}
-      category={post.category}
-      title={post.title}
-      meta={{
-        author: post.author ?? "",
-        publishedAt: post.publishedLabel,
-        updatedAt: post.publishedLabel,
-        readTime: readTime(post.content ?? post.summary),
-      }}
-      heroImage={post.image}
-      heroAlt={post.title}
-      content={post.content ?? post.summary}
-      latestPosts={sidebar.slice(0, 4)}
-      labels={{
-        breadcrumbLabel: t("breadcrumbLabel"),
-        latestPostsTitle: t("latestPostsTitle"),
-        viewAll: t("viewAll"),
-        authorLabel: t("authorLabel"),
-        publishedLabel: t("publishedLabel"),
-        updatedLabel: t("updatedLabel"),
-        readTimeLabel: t("readTimeLabel"),
-      }}
-    />
+    <Reveal direction="up" duration={1.1}>
+      <BlogArticlePage
+        breadcrumb={[
+          { label: t("breadcrumbHome"), href: "/" },
+          { label: t("breadcrumbBlog"), href: "/blog" },
+          { label: post.title },
+        ]}
+        category={post.category}
+        title={post.title}
+        meta={{
+          author: post.author ?? "",
+          publishedAt: post.publishedLabel,
+          // shown only when the article was edited on another day than it came out
+          updatedAt:
+            post.updatedLabel && post.updatedLabel !== post.publishedLabel
+              ? post.updatedLabel
+              : "",
+          readTime: readTime(post.content ?? post.summary),
+        }}
+        heroImage={post.image}
+        heroAlt={post.title}
+        content={post.content ?? post.summary}
+        headings={markdownHeadings(post.content ?? "")}
+        latestPosts={sidebar.slice(0, 4)}
+        labels={{
+          breadcrumbLabel: t("breadcrumbLabel"),
+          latestPostsTitle: t("latestPostsTitle"),
+          viewAll: t("viewAll"),
+          authorLabel: t("authorLabel"),
+          publishedLabel: t("publishedLabel"),
+          updatedLabel: t("updatedLabel"),
+          readTimeLabel: t("readTimeLabel"),
+          infoTitle: t("infoTitle"),
+          categoryLabel: t("categoryLabel"),
+          share: t("share"),
+          linkCopied: t("linkCopied"),
+          tocTitle: t("tocTitle"),
+        }}
+      />
+    </Reveal>
   );
 }
 

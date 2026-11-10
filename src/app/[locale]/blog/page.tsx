@@ -1,18 +1,39 @@
+import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Newspaper } from "lucide-react";
-import { SectionHeading } from "@/components/common/SectionHeading";
-import { ContentUnavailable } from "@/components/common/ContentUnavailable";
 import { BlogExplorer } from "@/components/blog/BlogExplorer";
-import { BlogGrid } from "@/components/blog/BlogGrid";
-import { fetchBlogPosts, mapApiBlogPost } from "@/services/api/blogs";
+import { BlogFeatured } from "@/components/blog/BlogFeatured";
+import { BlogResults } from "@/components/blog/BlogResults";
+import { BlogResultsSkeleton } from "@/components/blog/BlogSkeletons";
+import { PageHero } from "@/components/common/PageHero";
+import { fetchBlogPosts, mapApiBlogPost, type ApiBlogPost } from "@/services/api/blogs";
 import { pageRows } from "@/services/api/types";
-import { pageHref, pageNumber, param, searchQuery } from "@/lib/search-params";
+import { pageNumber, param, searchQuery } from "@/lib/search-params";
 
 export const dynamic = "force-dynamic";
 
-const PAGE_SIZE = 6;
 const DISCOVERY_SIZE = 20;
 
+/** The rows that feed the filter bar and the highlight: one cached fetch. */
+async function discovery() {
+  return pageRows(await fetchBlogPosts({ page_size: DISCOVERY_SIZE }));
+}
+
+/** The newest article that has a cover. */
+function newestOf(rows: ApiBlogPost[]) {
+  return [...rows]
+    .filter((r) => r.cover_image)
+    .sort(
+      (a, b) =>
+        Date.parse(b.published_at ?? b.created_at ?? "") -
+        Date.parse(a.published_at ?? a.created_at ?? ""),
+    )[0];
+}
+
+/**
+ * The shell (header, highlight, filters) renders from the one cached discovery fetch; the list
+ * streams in inside its own Suspense, keyed on category, search and page so changing any of them
+ * shows a skeleton at once instead of freezing the old list.
+ */
 export default async function BlogPage({
   params,
   searchParams,
@@ -29,84 +50,31 @@ export default async function BlogPage({
   const search = searchQuery(sp);
 
   const t = await getTranslations("BlogPage");
-
-  const [pageRes, discoveryFetched] = await Promise.all([
-    fetchBlogPosts({
-      category: category === "all" ? undefined : category,
-      search: search || undefined,
-      page,
-      page_size: PAGE_SIZE,
-    }),
-    fetchBlogPosts({ page_size: DISCOVERY_SIZE }),
-  ]);
-
-  if (!pageRes) {
-    return (
-      <div className="py-10 sm:py-16">
-        <div className="container">
-          <SectionHeading
-            badge={t("badge")}
-            icon={Newspaper}
-            title={t("title")}
-            description={t("description")}
-            align="center"
-          />
-          <ContentUnavailable className="mt-8" />
-        </div>
-      </div>
-    );
-  }
-
-  const discoveryRes = discoveryFetched ?? pageRes;
-
-  const discoveryPosts = pageRows(discoveryRes).map((r) =>
-    mapApiBlogPost(r, locale),
-  );
+  const rows = await discovery();
   const categories = Array.from(
-    new Set(
-      pageRows(discoveryRes)
-        .map((p) => p.category)
-        .filter((c): c is string => Boolean(c)),
-    ),
+    new Set(rows.map((p) => p.category).filter((c): c is string => Boolean(c))),
   ).sort();
 
-  const totalCount = pageRes.count ?? 0;
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-  const posts = pageRows(pageRes).map((r) => mapApiBlogPost(r, locale));
-
-  function buildPageHref(nextPage: number): string {
-    return pageHref(
-      {
-        q: search || undefined,
-        category: category === "all" ? undefined : category,
-      },
-      nextPage,
-    );
-  }
+  // the highlight belongs to the unfiltered first view only, and the list leaves it out there so
+  // the newest article is not shown twice
+  const showFeatured = category === "all" && !search && page === 1;
+  const newest = showFeatured ? newestOf(rows) : undefined;
 
   return (
     <div className="py-10 sm:py-16">
       <div className="container">
-        <SectionHeading
-          badge={t("badge")}
-          icon={Newspaper}
-          title={t("title")}
-          description={t("description")}
-          align="center"
-        />
+        <PageHero badge={t("badge")} title={t("title")} description={t("description")} />
         <BlogExplorer
-          spotlightPosts={discoveryPosts}
           categories={categories}
           search={search}
           selectedCategory={category}
+          featured={
+            newest ? <BlogFeatured post={mapApiBlogPost(newest, locale)} /> : null
+          }
         >
-          <BlogGrid
-            posts={posts}
-            totalCount={totalCount}
-            currentPage={Math.min(page, totalPages)}
-            pageSize={PAGE_SIZE}
-            buildPageHref={buildPageHref}
-          />
+          <Suspense key={`${category}|${search}|${page}`} fallback={<BlogResultsSkeleton />}>
+            <BlogResults category={category} search={search} page={page} skipId={newest ? String(newest.id) : undefined} />
+          </Suspense>
         </BlogExplorer>
       </div>
     </div>

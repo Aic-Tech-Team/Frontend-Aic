@@ -5,5 +5,5 @@ interface BlogContentProps {
 }
 
 export function BlogContent({ content }: BlogContentProps) {
-  return <MarkdownContent content={content} />;
+  return <MarkdownContent content={content} headingIds />;
 }
