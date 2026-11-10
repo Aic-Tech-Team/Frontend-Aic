@@ -30,7 +30,7 @@ export function normalizeContact(input: ContactInput): ContactInput {
   };
 }
 
-/** Expects normalized input. Phone is optional. */
+/** Expects normalized input. */
 export function validateContact(input: ContactInput): ContactErrors {
   const errors: ContactErrors = {};
   const required: ContactErrorCode = "required";
@@ -41,9 +41,8 @@ export function validateContact(input: ContactInput): ContactErrors {
   if (!input.email) errors.email = required;
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) errors.email = "email";
 
-  if (input.phone && !/^(\+98|0098|98|0)?9\d{9}$/.test(input.phone)) {
-    errors.phone = "phone";
-  }
+  if (!input.phone) errors.phone = required;
+  else if (!/^(\+98|0098|98|0)?9\d{9}$/.test(input.phone)) errors.phone = "phone";
 
   if (!input.message) errors.message = required;
   else if (input.message.length < MESSAGE_MIN_LENGTH) errors.message = "messageShort";
