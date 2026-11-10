@@ -17,7 +17,7 @@ function FooterLink({ href, label }: NavLink) {
   return (
     <Link
       href={href}
-      className="group inline-flex items-center gap-2 py-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      className="group inline-flex items-center gap-2 py-1 max-md:py-2.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
     >
       <span className="h-px w-0 bg-primary-400 transition-[width] duration-300 group-hover:w-4" />
       {label}
@@ -37,7 +37,7 @@ function LinkColumn({
   return (
     <RevealItem direction="up" className={className}>
       <h4 className="text-base font-extrabold text-foreground">{title}</h4>
-      <ul className="mt-4 space-y-1.5">
+      <ul className="mt-5 space-y-1.5">
         {links.map((link) => (
           <li key={link.label}>
             <FooterLink {...link} />
@@ -48,17 +48,24 @@ function LinkColumn({
   );
 }
 
-function ContactRow({
+function ContactItem({
   icon: Icon,
+  label,
   children,
 }: {
   icon: LucideIcon;
+  label: string;
   children: ReactNode;
 }) {
   return (
-    <li className="flex items-start gap-2.5">
-      <Icon className="mt-1 h-4 w-4 shrink-0 text-primary-300" />
-      <span className="min-w-0 wrap-break-words leading-7">{children}</span>
+    <li className="flex items-start gap-3.5">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-primary/10 text-primary-300">
+        <Icon className="size-[1.15rem]" aria-hidden="true" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-xs font-bold leading-6 text-muted-foreground/80">{label}</span>
+        <span className="block text-sm leading-7 text-foreground/90 [overflow-wrap:anywhere]">{children}</span>
+      </span>
     </li>
   );
 }
@@ -83,7 +90,7 @@ export function Footer() {
     { label: tFooter("conferences"), href: "/events" },
     { label: tFooter("visits"), href: "/activities" },
     { label: tFooter("contests"), href: "/events" },
-    { label: tFooter("research"), href: "/about" },
+    { label: tFooter("research"), href: "/teams" },
   ];
 
   const social = [
@@ -120,8 +127,8 @@ export function Footer() {
       </div>
 
       <div className="container relative z-10 pt-14 sm:pt-20">
-        <RevealGroup className="grid gap-12 lg:grid-cols-[1.2fr_2fr] lg:gap-20">
-          <RevealItem direction="up">
+        <RevealGroup className="grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-[1.5fr_1fr_1fr_1.35fr] lg:gap-x-12">
+          <RevealItem direction="up" className="col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3">
               <Image
                 src="/logo/AIC_logo_notext.svg"
@@ -139,7 +146,7 @@ export function Footer() {
                 </span>
               </span>
             </div>
-            <p className="mt-5 max-w-[40ch] text-sm leading-8 text-muted-foreground">
+            <p className="mt-5 max-w-[44ch] text-sm leading-8 text-muted-foreground sm:text-base">
               {tFooter("blurb")}
             </p>
             <div className="mt-6 flex items-center gap-2.5">
@@ -156,20 +163,26 @@ export function Footer() {
             </div>
           </RevealItem>
 
-          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3">
-            <LinkColumn title={tFooter("quickTitle")} links={quickLinks} />
-            <LinkColumn title={tFooter("activitiesTitle")} links={activityLinks} />
-            <RevealItem direction="up" className="col-span-2 sm:col-span-1">
-              <h4 className="text-base font-extrabold text-foreground">
-                {tFooter("contactTitle")}
-              </h4>
-              <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-                <ContactRow icon={Mail}>{tFooter("email")}</ContactRow>
-                <ContactRow icon={MapPin}>{tFooter("address")}</ContactRow>
-                <ContactRow icon={Clock}>{tFooter("hours")}</ContactRow>
-              </ul>
-            </RevealItem>
-          </div>
+          <LinkColumn title={tFooter("quickTitle")} links={quickLinks} />
+          <LinkColumn title={tFooter("activitiesTitle")} links={activityLinks} />
+
+          <RevealItem direction="up" className="col-span-2 lg:col-span-1">
+            <h4 className="text-base font-extrabold text-foreground">{tFooter("contactTitle")}</h4>
+            <ul className="mt-5 space-y-4">
+              <ContactItem icon={Mail} label={tFooter("emailLabel")}>
+                <a href={`mailto:${tFooter("email")}`} dir="ltr" className="inline-block py-2 -my-2 transition-colors hover:text-primary-300">
+                  {tFooter("email")}
+                </a>
+              </ContactItem>
+              <ContactItem icon={MapPin} label={tFooter("addressLabel")}>
+                {tFooter("address")}
+              </ContactItem>
+              <ContactItem icon={Clock} label={tFooter("hoursLabel")}>
+                <span className="block">{tFooter("hoursWeek")}</span>
+                <span className="block">{tFooter("hoursEnd")}</span>
+              </ContactItem>
+            </ul>
+          </RevealItem>
         </RevealGroup>
 
         <FooterWordmark />

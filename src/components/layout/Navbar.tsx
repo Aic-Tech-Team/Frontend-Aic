@@ -1,5 +1,6 @@
 "use client";
 
+import { contactHref } from "@/components/contact/intents";
 import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, Menu, X } from "lucide-react";
@@ -53,8 +54,6 @@ export function Navbar() {
   const indicatorRef = useRef<HTMLSpanElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuOpenedRef = useRef(false);
-  const isOpenRef = useRef(isOpen);
-  isOpenRef.current = isOpen;
   const closeMenu = () => setIsOpen(false);
 
   const toggleMenu = () => {
@@ -74,28 +73,15 @@ export function Navbar() {
 
   useGSAP(
     () => {
-      const root = rootRef.current;
       const pill = pillRef.current;
-      if (!root || !pill || prefersReducedMotion()) return;
+      if (!pill) return;
 
-      const hide = gsap.quickTo(root, "yPercent", {
-        duration: 0.5,
-        ease: "power3.out",
-      });
-
+      // The header stays put in both directions; it only gains its solid look once scrolled.
       ScrollTrigger.create({
         start: 0,
         end: "max",
         onUpdate: (self) => {
-          const y = self.scroll();
-          pill.toggleAttribute("data-scrolled", y > 24);
-          if (isOpenRef.current) {
-            hide(0);
-            return;
-          }
-          if (y < 120) hide(0);
-          else if (self.direction === 1) hide(-130);
-          else hide(0);
+          pill.toggleAttribute("data-scrolled", self.scroll() > 24);
         },
       });
     },
@@ -235,6 +221,7 @@ export function Navbar() {
     <>
       <header
         ref={rootRef}
+        data-site-header
         data-menu-open={isOpen || undefined}
         className={cn(
           "top-0 w-full pt-3 will-change-transform sm:pt-4",
@@ -315,7 +302,7 @@ export function Navbar() {
                 size="sm"
                 className="hidden h-10 rounded-full px-5 shadow-glow lg:inline-flex"
               >
-                <Link href="/#join">{tNav("join")}</Link>
+                <Link href={contactHref("join")}>{tNav("join")}</Link>
               </Button>
               <Button
                 variant="outline"
@@ -366,7 +353,7 @@ export function Navbar() {
         </nav>
         <div data-menu-item>
           <Button asChild size="lg" className="w-full rounded-2xl shadow-glow">
-            <Link href="/#join" onClick={closeMenu}>
+            <Link href={contactHref("join")} onClick={closeMenu}>
               {tNav("join")}
               <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
             </Link>

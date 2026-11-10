@@ -14,12 +14,15 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { ThemeInitScript } from "@/components/layout/ThemeInitScript";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { BootLoader } from "@/components/layout/BootLoader";
 import { AnimatedBackground } from "@/components/animations/AnimatedBackground";
 import { ThemeAwareParticles } from "@/components/animations/ThemeAwareParticles";
 import { ExperienceSplash } from "@/components/animations/ExperienceSplash";
 import { ScrollProgress } from "@/components/animations/ScrollProgress";
 import { ScrollTriggerRefresh } from "@/components/animations/ScrollTriggerRefresh";
+import { ScrollChoreography } from "@/components/animations/ScrollChoreography";
 import { SurfaceSpotlight } from "@/components/animations/SurfaceSpotlight";
+import { HashScroll } from "@/components/common/HashScroll";
 import { NavigationProgress } from "@/components/common/NavigationProgress";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +61,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   const messages = await getMessages();
+  const brand = (await getTranslations({ locale, namespace: "Meta" }))("title");
   const dir = locale === "fa" ? "rtl" : "ltr";
 
   return (
@@ -72,6 +76,9 @@ export default async function LocaleLayout({
         <ThemeInitScript />
       </head>
       <body className="min-h-screen antialiased" suppressHydrationWarning>
+        <NextIntlClientProvider messages={messages}>
+          <BootLoader brand={brand} />
+        </NextIntlClientProvider>
         <ThemeProvider>
           <AnimatedBackground />
 
@@ -97,6 +104,8 @@ export default async function LocaleLayout({
               <NavigationProgress />
             </Suspense>
             <ScrollTriggerRefresh />
+            <HashScroll />
+            <ScrollChoreography />
             <div className="relative z-0 flex min-h-screen flex-col">
               <Navbar />
               <main className="flex-1">{children}</main>
