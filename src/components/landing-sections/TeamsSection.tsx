@@ -61,6 +61,7 @@ export async function TeamsSection() {
                 team={team}
                 index={index}
                 ctaLabel={t("exploreTeam")}
+                href={`/teams?team=${team.id}`}
                 className="h-full"
               />
             </RevealItem>

@@ -5,7 +5,8 @@ import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/animations/Reveal";
 import { Parallax } from "@/components/animations/Parallax";
 import { ScrollText } from "@/components/animations/ScrollText";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { cn } from "@/lib/utils";
 import { GlareButton } from "@/components/ui/glare-button";
 
 export async function AboutSection() {
@@ -29,16 +30,17 @@ export async function AboutSection() {
               className="mt-4 w-full text-pretty text-sm leading-9 text-muted-foreground sm:text-base lg:text-lg lg:leading-10"
             />
             <GlareButton className="mt-9 w-full sm:w-auto">
-              <Button
-                asChild
-                size="lg"
-                className="h-12 w-full rounded-full px-8 shadow-glow sm:w-auto"
+              {/* a plain Link with button styles: Radix Slot cannot adopt a child that React streams in lazily */}
+              <Link
+                href="/about"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "h-12 w-full rounded-full px-8 shadow-glow sm:w-auto",
+                )}
               >
-                <Link href="/about">
-                  {t("cta")}
-                  <ChevronLeft className="h-4 w-4 ltr:rotate-180" />
-                </Link>
-              </Button>
+                {t("cta")}
+                <ChevronLeft className="h-4 w-4 ltr:rotate-180" />
+              </Link>
             </GlareButton>
           </div>
         </Reveal>
