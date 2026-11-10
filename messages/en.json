@@ -102,6 +102,9 @@
     "title": "AIC specialized departments",
     "description": "Each department works with expertise and drive to advance AIC’s scientific and organizational goals.",
     "exploreTeam": "Enter department",
+    "listLabel": "Departments",
+    "play": "Play automatically",
+    "pause": "Pause autoplay",
     "responsibilitiesLabel": "Responsibilities"
   },
   "Cta": {
@@ -113,6 +116,22 @@
   },
   "AboutPage": {
     "title": "About AIC",
+    "eyebrow": "About AIC",
+    "heroA": "We build AI together",
+    "heroB": "An association for learning, building projects and teaching the next person.",
+    "manifestoTitle": "Building is how we understand",
+    "originLead": "From one simple need to an association that is still being built.",
+    "originSteps": [
+      "Founded in 2024",
+      "The need we saw",
+      "The path today"
+    ],
+    "originNow": "Today",
+    "manifestoEyebrow": "What we believe",
+    "originEyebrow": "Our story",
+    "pillarsEyebrow": "One semester",
+    "audienceEyebrow": "Who it's for",
+    "audienceLead": "Whichever of the three you are, the first step is easier here.",
     "headline": "Where we learn AI and technology, build with it, and teach it to each other",
     "lede": "Since 2024, the Artificial Intelligence Community has brought students together under the Faculty of Artificial Intelligence. AI is our core, but not our limit: web, security, networks, and IoT are part of the path too.",
     "graphLabel": "Map of AIC focus areas",
@@ -221,6 +240,7 @@
   },
   "EventsPage": {
     "badge": "Events & workshops",
+    "totalSuffix": "events on the association's calendar",
     "title": "Every AIC event, in one place",
     "description": "Browse everything we run — workshops, talks, and festivals. See what's live right now, what's coming up, and what you missed.",
     "spotlightTitle": "Live now & coming up",
@@ -350,9 +370,29 @@
         "image": "/images/Robot.svg",
         "desc": "Programme a small robot's control loop and train a simple reinforcement-learning agent to guide it through a simulated course."
       }
-    ]
+    ],
+    "featuredLabel": "Next event",
+    "liveNow": "Happening right now",
+    "viewEvent": "View event",
+    "startsIn": "Starts in",
+    "calendarTitle": "Event calendar",
+    "countdown": {
+      "days": "days",
+      "hours": "hours",
+      "minutes": "min",
+      "seconds": "sec"
+    }
   },
   "EventDetailPage": {
+    "endedNotice": "This event has ended.",
+    "timeCardTitle": "When it happens",
+    "daysLeft": "{count, plural, one {# day} other {# days}} to go",
+    "startsToday": "Starts today",
+    "endedAgo": "Held {count, plural, one {# day} other {# days}} ago",
+    "endedToday": "Held today",
+    "directions": "Directions",
+    "nowLabel": "Now",
+    "venueLabel": "Venue",
     "backToEvents": "Back to events",
     "aboutTitle": "About the event",
     "detailsTitle": "Event details",
@@ -363,7 +403,12 @@
     "galleryAlt": "Photos of {title}",
     "notFoundTitle": "Event not found",
     "notFoundDesc": "The link might be wrong, or this event may have been removed.",
-    "otherEventsTitle": "Other events"
+    "otherEventsTitle": "Other events",
+    "addToCalendar": "Add to calendar",
+    "share": "Share",
+    "linkCopied": "Link copied",
+    "gallery": "Event gallery",
+    "ticketTitle": "Your ticket"
   },
   "BlogPage": {
     "badge": "Blog",
@@ -390,7 +435,12 @@
     "publishedLabel": "Published",
     "updatedLabel": "Last updated",
     "readTimeLabel": "Reading time",
-    "readTime": "{minutes} min"
+    "readTime": "{minutes} min",
+    "infoTitle": "About this article",
+    "categoryLabel": "Category",
+    "share": "Share",
+    "linkCopied": "Link copied",
+    "tocTitle": "In this article"
   },
   "ActivitiesPage": {
     "badge": "Activities",
@@ -413,7 +463,18 @@
     "breadcrumbActivities": "Activities",
     "latestActivitiesTitle": "Recent activities",
     "viewAll": "View all",
-    "dateLabel": "Date"
+    "dateLabel": "Date",
+    "infoTitle": "About this activity",
+    "categoryLabel": "Category",
+    "share": "Share",
+    "linkCopied": "Link copied"
+  },
+  "Pagination": {
+    "label": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "goTo": "Go to page {page}",
+    "pageOf": "Page {current} of {total}"
   },
   "Theme": {
     "dark": "Dark",
@@ -437,7 +498,12 @@
     "contactTitle": "Contact us",
     "email": "aic@university.ac.ir",
     "address": "Faculty of Artificial Intelligence, Academic Building 2",
-    "hours": "Sat–Wed, 10:00–16:00",
+    "hours": "Sat–Wed 8:00–18:00, Thu–Fri 10:00–16:00",
+    "hoursWeek": "Sat–Wed, 8:00–18:00",
+    "hoursEnd": "Thu–Fri, 10:00–16:00",
+    "emailLabel": "Email",
+    "addressLabel": "Address",
+    "hoursLabel": "Opening hours",
     "copyright": "© {years} Artificial Intelligence Community (AIC). All rights reserved.",
     "privacy": "Privacy",
     "terms": "Terms of use",
@@ -463,16 +529,14 @@
     "backHome": "Back to home"
   },
   "ContactPage": {
-    "title": "Contact us",
-    "headline": "What brings you here?",
-    "lede": "Pick a subject. Membership, a partnership, feedback, or a simple question is filed as a ticket for the AIC team.",
-    "afterLabel": "After you send",
-    "response": "The team reads the message and replies by email or on the number you entered.",
-    "channelsTitle": "Other ways to reach us",
-    "visitTitle": "You can also come by",
-    "visitExpect": "Visit to learn about the association, ask about joining, or talk through a partnership. If you need a focused conversation, send a message first so it is easier to coordinate.",
-    "visitOpen": "Open now",
-    "visitClosed": "Saturday–Wednesday, 10:00–16:00",
+    "subjects": [
+      "Membership request",
+      "Partnership",
+      "Feedback",
+      "General question",
+      "Talk or workshop",
+      "Report a problem"
+    ],
     "weekdays": [
       "Saturday",
       "Sunday",
@@ -490,37 +554,6 @@
       "We",
       "Th",
       "Fr"
-    ],
-    "emailLabel": "Email",
-    "socialNote": "Follow the association on Instagram, LinkedIn, and Telegram for events and workshops.",
-    "partnerTitle": "An organization? Build with us",
-    "partnerBody": "A workshop, an industry visit, or a research project. Describe the collaboration in your message.",
-    "partnerCta": "Propose a partnership",
-    "channels": {
-      "email": "Email",
-      "address": "Address",
-      "hours": "Hours"
-    },
-    "form": {
-      "title": "Send a message",
-      "name": "Full name",
-      "namePlaceholder": "e.g. Maryam Ahmadi",
-      "email": "Email",
-      "emailPlaceholder": "name@example.com",
-      "phone": "Phone",
-      "optional": "optional",
-      "phonePlaceholder": "09121234567",
-      "subject": "Subject",
-      "message": "Message",
-      "messagePlaceholder": "Write your message here…",
-      "submit": "Send message",
-      "sending": "Sending…"
-    },
-    "subjects": [
-      "Membership request",
-      "Partnership",
-      "Feedback",
-      "General question"
     ],
     "intents": [
       {
@@ -542,6 +575,153 @@
         "title": "General question",
         "body": "Anything that does not fit the subjects above.",
         "after": "The team reads the question and replies to the email or number you left."
+      },
+      {
+        "title": "Talk or workshop",
+        "body": "Tell us the topic, the audience level and the length you have in mind.",
+        "after": "The team reviews your proposal and writes or calls to schedule it."
+      },
+      {
+        "title": "Report a problem",
+        "body": "Tell us where it happened and what went wrong.",
+        "after": "The team looks into it and reaches out if it needs more detail."
+      }
+    ],
+    "title": "Contact us",
+    "headline": "Got something to say?",
+    "headlineAccent": "Write it here.",
+    "lede": "Membership, collaboration, an idea or a plain question: pick a topic and write. A member of the association reads it and replies by email or phone.",
+    "letters": [
+      {
+        "title": "Membership request",
+        "body": "I'd like to join the association and take part in workshops and projects."
+      },
+      {
+        "title": "Partnership",
+        "body": "A workshop, an industry visit or a research project; let's build it together."
+      },
+      {
+        "title": "Feedback",
+        "body": "About an event, a workshop or any part of what the association does."
+      },
+      {
+        "title": "General question",
+        "body": "Anything that doesn't fit elsewhere on this page."
+      },
+      {
+        "title": "Talk or workshop",
+        "body": "Want to share your experience or knowledge at an association event."
+      },
+      {
+        "title": "Report a problem",
+        "body": "A site bug, a sign-up error, or anything else that went wrong."
+      }
+    ],
+    "letterPick": "Write a message",
+    "letterPicked": "Writing now",
+    "composeKicker": "Your message",
+    "letter": {
+      "org": "AI Scientific Association",
+      "to": "To",
+      "team": "The association team",
+      "greeting": "Hello,",
+      "empty": "Your message appears here on paper as you write it…",
+      "closing": "Kind regards",
+      "anon": "Your name",
+      "sent": "Sent",
+      "postmark": "Filed",
+      "live": "Message preview"
+    },
+    "form": {
+      "title": "Write your message",
+      "name": "Full name",
+      "namePlaceholder": "e.g. Maryam Ahmadi",
+      "email": "Email",
+      "emailPlaceholder": "name@example.com",
+      "phone": "Phone",
+      "phonePlaceholder": "09121234567",
+      "phoneHint": "The team may call you to coordinate faster.",
+      "subject": "Message topic",
+      "message": "Message",
+      "messagePlaceholder": "Write your message here…",
+      "submit": "Send message",
+      "sending": "Sending…",
+      "minChars": "{count, number} more characters to reach the minimum"
+    },
+    "success": {
+      "title": "Your message arrived",
+      "description": "A member of the association will read it and reply by email or phone.",
+      "again": "Write another message"
+    },
+    "channelsKicker": "Other ways",
+    "channelsLead": "Email us, drop by, or start as an organisation.",
+    "emailNote": "For formal correspondence and attachments.",
+    "heroKicker": "Contact the association",
+    "channelsTitle": "Prefer to talk another way?",
+    "emailLabel": "Official email",
+    "copyEmail": "Copy",
+    "copied": "Copied",
+    "visitLabel": "In person",
+    "visitNote": "Opening hours are in the card beside this. If you have something specific in mind, leave a message first so we can plan.",
+    "partnerLabel": "An organization or company?",
+    "partnerTitle": "Propose a partnership",
+    "partnerBody": "Describe the workshop, industry visit or research project in your message.",
+    "hoursTitle": "Opening hours",
+    "hoursNow": "Tehran time now",
+    "hoursOpen": "Open",
+    "hoursClosed": "Closed",
+    "hoursRange": "Saturday–Wednesday 8:00–18:00; Thursday and Friday 10:00–16:00",
+    "hoursWeek": "Sat–Wed, 8:00–18:00",
+    "hoursEnd": "Thu–Fri, 10:00–16:00",
+    "hoursWeekDays": "Sat–Wed",
+    "hoursWeekTime": "8:00–18:00",
+    "hoursEndDays": "Thu–Fri",
+    "hoursEndTime": "10:00–16:00",
+    "hoursClosedNote": "Shorter hours on Thursday and Friday",
+    "faqBot": "Association assistant",
+    "faqOnline": "Online",
+    "faqMore": "More questions",
+    "faqKicker": "Before you write",
+    "faqTitle": "Frequently asked",
+    "faqLead": "Most of what you want to ask is answered here.",
+    "faqCtaTitle": "Didn't find your answer?",
+    "faqCtaBody": "Write it to us instead.",
+    "faqCta": "Write a message",
+    "faq": [
+      {
+        "q": "How do I join the association?",
+        "a": "Choose \"Membership request\" on this page and write your message. The team reads it and follows up by email or phone.",
+        "action": {
+          "type": "intent",
+          "index": 0,
+          "label": "Write the membership message"
+        }
+      },
+      {
+        "q": "Can I help run a workshop or an industry visit?",
+        "a": "Yes. Choose \"Partnership\" and describe the collaboration: a workshop, an industry visit or a research project.",
+        "action": {
+          "type": "intent",
+          "index": 1,
+          "label": "Write the partnership message"
+        }
+      },
+      {
+        "q": "Where do I go to visit in person?",
+        "a": "Faculty of Artificial Intelligence, Education Building No. 2; Saturday to Wednesday 8:00–18:00, Thursday and Friday 10:00–16:00. If you want a focused conversation, write first so we can coordinate."
+      },
+      {
+        "q": "Where do I hear about events and workshops?",
+        "a": "Events and activities are published on this site; you can also follow the association on Instagram, LinkedIn and Telegram.",
+        "action": {
+          "type": "link",
+          "href": "/events",
+          "label": "See events"
+        }
+      },
+      {
+        "q": "What do I need to write a message?",
+        "a": "A name, an email, a phone number and the message itself. We ask for a phone number so we can coordinate faster when needed."
       }
     ],
     "errors": {
@@ -550,11 +730,6 @@
       "phone": "Enter the number like 09121234567",
       "messageShort": "That message is a bit short; write at least 10 characters",
       "failed": "Couldn't send your message. Check your connection and try again."
-    },
-    "success": {
-      "title": "Message received",
-      "description": "The AIC team will read it and reply by email or on the number you entered.",
-      "again": "Send another message"
     }
   }
 }
