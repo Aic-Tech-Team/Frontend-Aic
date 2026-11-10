@@ -22,7 +22,7 @@ export function SurfaceSpotlight() {
       frame = 0;
       const card =
         target instanceof Element
-          ? (target.closest(".surface") as HTMLElement | null)
+          ? (target.closest(".surface, [data-spot]") as HTMLElement | null)
           : null;
       if (card !== active) {
         active?.style.setProperty("--spot", "0");

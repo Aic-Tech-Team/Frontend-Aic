@@ -10,6 +10,7 @@ import {
   type ReactNode,
   type HTMLAttributes,
 } from 'react';
+import { whenBooted } from '@/lib/boot';
 import './TextType.css';
 
 interface TextTypeProps {
@@ -63,6 +64,9 @@ const TextType = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(!startOnVisible);
+  // typing starts once the boot loader has left
+  const [booted, setBooted] = useState(false);
+  useEffect(() => whenBooted(() => setBooted(true)), []);
   const [containerEl, setContainerEl] = useState<HTMLElement | null>(null);
   const hasStartedRef = useRef(false);
 
@@ -96,7 +100,7 @@ const TextType = ({
   }, [startOnVisible, containerEl]);
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || !booted) return;
 
     let timeout: ReturnType<typeof setTimeout>;
     const currentText = textArray[currentTextIndex];
@@ -152,6 +156,7 @@ const TextType = ({
     loop,
     initialDelay,
     isVisible,
+    booted,
     reverseMode,
     variableSpeed,
     getRandomSpeed,

@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { gsap, prefersReducedMotion, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { whenBooted } from "@/lib/boot";
 
 interface CountUpProps {
   end: number;
@@ -37,12 +38,14 @@ export function CountUp({
         start: "top 92%",
         once: true,
         onEnter: () =>
-          gsap.to(state, {
-            v: end,
-            duration,
-            ease: "power3.out",
-            onUpdate: render,
-          }),
+          whenBooted(() =>
+            gsap.to(state, {
+              v: end,
+              duration,
+              ease: "power3.out",
+              onUpdate: render,
+            }),
+          ),
       });
     },
     { scope: ref, dependencies: [end, prefix, suffix, duration] },

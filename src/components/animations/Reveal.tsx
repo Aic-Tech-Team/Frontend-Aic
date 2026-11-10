@@ -13,6 +13,7 @@ import {
   ScrollTrigger,
   useGSAP,
 } from "@/lib/gsap";
+import { whenBooted } from "@/lib/boot";
 
 type RevealDirection = "up" | "down" | "left" | "right" | "none";
 
@@ -50,7 +51,8 @@ function trigger(
     start,
     once: true,
     invalidateOnRefresh: true,
-    onEnter: play,
+    // never play under the boot loader
+    onEnter: () => whenBooted(play),
   });
 }
 
@@ -168,6 +170,12 @@ interface RevealItemProps {
   /** Per-item delay (seconds) when used standalone (e.g. inside a Carousel). */
   delay?: number;
   amount?: number;
+  /**
+   * Seconds the fade takes, when it should be shorter than the slide. A box with a bright border
+   * reads as "the frame first, the content later" while a long fade is half way; a short fade
+   * brings both in together.
+   */
+  fade?: number;
 }
 
 export function RevealItem({
@@ -178,6 +186,7 @@ export function RevealItem({
   hoverLift = false,
   delay = 0,
   amount = 0.15,
+  fade,
 }: RevealItemProps) {
   const inGroup = useContext(GroupContext);
   const ref = useRef<HTMLDivElement>(null);
@@ -190,18 +199,30 @@ export function RevealItem({
 
       gsap.set(el, hiddenState(direction));
       show(el);
-      trigger(el, amount, () =>
-        gsap.to(el, {
-          autoAlpha: 1,
-          x: 0,
-          y: 0,
-          duration,
-          delay,
-          ease: EASE_OUT,
-          clearProps: "transform,opacity,visibility",
-          overwrite: true,
-        }),
-      );
+      trigger(el, amount, () => {
+        if (fade === undefined) {
+          gsap.to(el, {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            duration,
+            delay,
+            ease: EASE_OUT,
+            clearProps: "transform,opacity,visibility",
+            overwrite: true,
+          });
+          return;
+        }
+        // the slide keeps its length; the fade is short and finishes first
+        gsap
+          .timeline({
+            delay,
+            onComplete: () =>
+              gsap.set(el, { clearProps: "transform,opacity,visibility" }),
+          })
+          .to(el, { x: 0, y: 0, duration, ease: EASE_OUT }, 0)
+          .to(el, { autoAlpha: 1, duration: fade, ease: "power1.out" }, 0);
+      });
     },
     { scope: ref },
   );
