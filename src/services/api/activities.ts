@@ -82,6 +82,7 @@ export function mapApiActivity(
       activity.short_description ??
       stripMarkdown(activity.description ?? "").slice(0, 160),
     content: activity.description ?? undefined,
+    startAt: startAt || undefined,
     dateLabel: formatDate(locale, startAt, {
       year: "numeric",
       month: "long",

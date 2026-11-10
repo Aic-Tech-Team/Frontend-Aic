@@ -6,6 +6,8 @@ export interface ActivityItem {
   summary: string;
   content?: string;
   dateLabel: string;
+  /** ISO start (or creation) time; the day stamp on cards is drawn from it. */
+  startAt?: string;
 }
 
 export interface SidebarActivity {
@@ -25,6 +27,10 @@ export interface ActivityDetailLabels {
   latestActivitiesTitle: string;
   viewAll: string;
   dateLabel: string;
+  infoTitle: string;
+  categoryLabel: string;
+  share: string;
+  linkCopied: string;
 }
 
 export interface ActivityBreadcrumbItem {
