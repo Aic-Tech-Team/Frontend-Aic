@@ -48,7 +48,7 @@ export function CountUp({
           ),
       });
     },
-    { scope: ref, dependencies: [end, prefix, suffix, duration] },
+    { scope: ref, dependencies: [end, prefix, suffix, duration], revertOnUpdate: true },
   );
 
   return (

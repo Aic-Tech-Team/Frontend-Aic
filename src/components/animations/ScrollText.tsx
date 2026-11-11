@@ -54,7 +54,7 @@ export function ScrollText({
       });
       return () => mm.revert();
     },
-    { scope: ref, dependencies: [text] },
+    { scope: ref, dependencies: [text], revertOnUpdate: true },
   );
 
   return (

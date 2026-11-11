@@ -52,6 +52,7 @@ export function Navbar() {
   const pillRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
+  const dotRef = useRef<HTMLSpanElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuOpenedRef = useRef(false);
   const closeMenu = () => setIsOpen(false);
@@ -115,6 +116,21 @@ export function Navbar() {
       const active = () => links.find((l) => l.dataset.active === "true");
       place(active(), false);
 
+      const dot = dotRef.current;
+      const placeDot = () => {
+        if (!dot) return;
+        const a = active();
+        if (!a) {
+          dot.style.opacity = "0";
+          return;
+        }
+        const n = nav.getBoundingClientRect();
+        const r = a.getBoundingClientRect();
+        dot.style.transform = `translateX(${(r.left - n.left + r.width / 2 - 2).toFixed(1)}px)`;
+        dot.style.opacity = "1";
+      };
+      placeDot();
+
       const cleanups = links.map((l) => {
         const enter = () => place(l, true);
         const leave = () => place(active(), true);
@@ -130,14 +146,17 @@ export function Navbar() {
         };
       });
 
-      const onResize = () => place(active(), false);
+      const onResize = () => {
+        place(active(), false);
+        placeDot();
+      };
       window.addEventListener("resize", onResize);
       return () => {
         cleanups.forEach((fn) => fn());
         window.removeEventListener("resize", onResize);
       };
     },
-    { scope: navRef, dependencies: [pathname] },
+    { scope: navRef, dependencies: [pathname], revertOnUpdate: true },
   );
 
   useGSAP(
@@ -214,7 +233,7 @@ export function Navbar() {
 
       return () => setBodyScrollLock(false);
     },
-    { scope: menuRef, dependencies: [isOpen] },
+    { scope: menuRef, dependencies: [isOpen], revertOnUpdate: true },
   );
 
   return (
@@ -271,6 +290,12 @@ export function Navbar() {
                 ref={indicatorRef}
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-y-0 left-0 rounded-full bg-primary/15 opacity-0 ring-1 ring-primary/25"
+              />
+              {/* the marker of the page you are on: it slides between links, hover does not move it */}
+              <span
+                ref={dotRef}
+                aria-hidden="true"
+                className="pointer-events-none absolute bottom-[3px] left-0 size-1 rounded-full bg-primary-400 opacity-0 shadow-[0_0_6px_var(--primary)] transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
               />
               {LINKS.map((link) => {
                 const active = isActive(link.href);
