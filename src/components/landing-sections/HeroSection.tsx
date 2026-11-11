@@ -290,23 +290,25 @@ export function Hero() {
                                 } as React.CSSProperties
                               }
                             >
-                              <div
-                                className={cn(
-                                  "flex scale-[0.8] flex-row items-center gap-2 rounded-2xl px-2.5 py-2 sm:scale-100 sm:gap-2.5 sm:px-3.5 sm:py-2.5",
-                                  heroLite ? "hero-orbit-chip" : "surface",
-                                )}
-                              >
-                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary sm:h-9 sm:w-9">
-                                  <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                              <div className="orbit-pass sm:scale-100 scale-[0.82]">
+                                <span className="orbit-pass__beacon" aria-hidden="true">
+                                  <i />
+                                  <Icon className="size-3.5" />
                                 </span>
-                                <div className="text-start">
-                                  <span className="block whitespace-nowrap text-xs font-bold text-foreground sm:text-sm">
-                                    {item.title}
+                                <span className="orbit-pass__text">
+                                  <span className="orbit-pass__title">
+                                    {item.title.split(" ").map((w, i) =>
+                                      i === 0 ? (
+                                        <b key={i} className="orbit-pass__num">
+                                          {w}
+                                        </b>
+                                      ) : (
+                                        <span key={i}> {w}</span>
+                                      )
+                                    )}
                                   </span>
-                                  <span className="block whitespace-nowrap text-xs text-muted-foreground sm:text-xs">
-                                    {item.sub}
-                                  </span>
-                                </div>
+                                  <span className="orbit-pass__sub">{item.sub}</span>
+                                </span>
                               </div>
                             </div>
                           </div>
