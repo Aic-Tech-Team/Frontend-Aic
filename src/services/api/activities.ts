@@ -50,7 +50,8 @@ export async function fetchActivities(
     result.error.status === 400 &&
     params.category
   ) {
-    const { category: _category, ...rest } = params;
+    const rest = { ...params };
+    delete rest.category;
     return fetchActivities(rest, opts);
   }
   return null;
