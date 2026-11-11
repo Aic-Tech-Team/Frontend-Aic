@@ -17,7 +17,6 @@ import { Footer } from "@/components/layout/Footer";
 import { BootLoader } from "@/components/layout/BootLoader";
 import { AnimatedBackground } from "@/components/animations/AnimatedBackground";
 import { ThemeAwareParticles } from "@/components/animations/ThemeAwareParticles";
-import { ExperienceSplash } from "@/components/animations/ExperienceSplash";
 import { ScrollProgress } from "@/components/animations/ScrollProgress";
 import { ScrollTriggerRefresh } from "@/components/animations/ScrollTriggerRefresh";
 import { ScrollChoreography } from "@/components/animations/ScrollChoreography";
@@ -84,10 +83,12 @@ export default async function LocaleLayout({
 
           <div className="pointer-events-none fixed inset-0 -z-10">
             <ThemeAwareParticles
-              particleSpread={18}
-              speed={0.08}
-              particleBaseSize={80}
-              sizeRandomness={0.8}
+              particleSpread={3.6}
+              depth={9}
+              speed={0.12}
+              particleBaseSize={130}
+              sizeRandomness={1.5}
+              opacity={0.85}
               moveParticlesOnHover={false}
               alphaParticles
               disableRotation
@@ -95,7 +96,6 @@ export default async function LocaleLayout({
             />
           </div>
 
-          <ExperienceSplash />
           <ScrollProgress />
           <SurfaceSpotlight />
 

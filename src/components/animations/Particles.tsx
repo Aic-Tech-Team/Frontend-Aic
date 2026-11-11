@@ -19,6 +19,12 @@ interface ParticlesProps {
   cameraDistance?: number;
   disableRotation?: boolean;
   pixelRatio?: number;
+  /** Depth of the cloud, in world units (default 3). */
+  depth?: number;
+  /** Overall strength of the dots, 0–1. */
+  opacity?: number;
+  /** Frames per second to draw at: the drift is slow, so 30 looks the same at half the cost. */
+  maxFps?: number;
   /** Stop RAF when true (tab hidden / reduced-motion). */
   paused?: boolean;
   className?: string;
@@ -53,30 +59,38 @@ const vertex = /* glsl */ `
   uniform float uSpread;
   uniform float uBaseSize;
   uniform float uSizeRandomness;
+  uniform float uAspect;
+  uniform float uDepth;
+  uniform float uOpacity;
   
   varying vec4 vRandom;
   varying vec3 vColor;
+  varying float vNear;
   
   void main() {
     vRandom = random;
     vColor = color;
     
+    // the cloud fills the screen: x follows the aspect ratio, depth stays shallow
     vec3 pos = position * uSpread;
-    pos.z *= 10.0;
+    pos.x *= uAspect;
+    pos.z *= uDepth;
     
     vec4 mPos = modelMatrix * vec4(pos, 1.0);
     float t = uTime;
-    mPos.x += sin(t * random.z + 6.28 * random.w) * mix(0.1, 1.5, random.x);
-    mPos.y += sin(t * random.y + 6.28 * random.x) * mix(0.1, 1.5, random.w);
-    mPos.z += sin(t * random.w + 6.28 * random.y) * mix(0.1, 1.5, random.z);
+    mPos.x += sin(t * random.z + 6.28 * random.w) * mix(0.15, 1.1, random.x);
+    mPos.y += sin(t * random.y + 6.28 * random.x) * mix(0.15, 1.1, random.w);
+    mPos.z += sin(t * random.w + 6.28 * random.y) * mix(0.15, 1.1, random.z);
     
     vec4 mvPos = viewMatrix * mPos;
     if (uSizeRandomness == 0.0) {
       gl_PointSize = uBaseSize;
     } else {
-      gl_PointSize = (uBaseSize * (1.0 + uSizeRandomness * (random.x - 0.5))) / length(mvPos.xyz);
+      gl_PointSize = clamp((uBaseSize * (1.0 + uSizeRandomness * (random.x - 0.5))) / length(mvPos.xyz), 1.5, 14.0);
     }
     
+    // nearer points are brighter, far ones sink into the background
+    vNear = clamp(1.0 - (length(mvPos.xyz) - 10.0) / 22.0, 0.15, 1.0);
     gl_Position = projectionMatrix * mvPos;
   }
 `;
@@ -86,8 +100,10 @@ const fragment = /* glsl */ `
   
   uniform float uTime;
   uniform float uAlphaParticles;
+  uniform float uOpacity;
   varying vec4 vRandom;
   varying vec3 vColor;
+  varying float vNear;
   
   void main() {
     vec2 uv = gl_PointCoord.xy;
@@ -99,7 +115,7 @@ const fragment = /* glsl */ `
       }
       gl_FragColor = vec4(vColor + 0.2 * sin(uv.yxx + uTime + vRandom.y * 6.28), 1.0);
     } else {
-      float circle = smoothstep(0.5, 0.4, d) * 0.8;
+      float circle = smoothstep(0.5, 0.15, d) * 0.8 * uOpacity * vNear;
       gl_FragColor = vec4(vColor + 0.2 * sin(uv.yxx + uTime + vRandom.y * 6.28), circle);
     }
   }
@@ -118,6 +134,9 @@ const Particles: React.FC<ParticlesProps> = ({
   cameraDistance = 20,
   disableRotation = false,
   pixelRatio = 1,
+  depth = 3,
+  opacity = 1,
+  maxFps = 30,
   paused = false,
   className
 }) => {
@@ -150,14 +169,16 @@ const Particles: React.FC<ParticlesProps> = ({
     const camera = new Camera(gl, { fov: 15 });
     camera.position.set(0, 0, cameraDistance);
 
+    // eslint-disable-next-line prefer-const
+    let program: Program | undefined;
     const resize = () => {
       const width = container.clientWidth;
       const height = container.clientHeight;
       renderer.setSize(width, height);
-      camera.perspective({ aspect: gl.canvas.width / gl.canvas.height });
+      const aspect = gl.canvas.width / gl.canvas.height;
+      camera.perspective({ aspect });
+      if (program) program.uniforms.uAspect.value = aspect;
     };
-    window.addEventListener('resize', resize, false);
-    resize();
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
@@ -177,15 +198,8 @@ const Particles: React.FC<ParticlesProps> = ({
     const palette = particleColors && particleColors.length > 0 ? particleColors : defaultColors;
 
     for (let i = 0; i < count; i++) {
-      let x: number, y: number, z: number, len: number;
-      do {
-        x = Math.random() * 2 - 1;
-        y = Math.random() * 2 - 1;
-        z = Math.random() * 2 - 1;
-        len = x * x + y * y + z * z;
-      } while (len > 1 || len === 0);
-      const r = Math.cbrt(Math.random());
-      positions.set([x * r, y * r, z * r], i * 3);
+      // a box, not a sphere: a sphere leaves the corners of a wide screen empty
+      positions.set([Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1], i * 3);
       randoms.set([Math.random(), Math.random(), Math.random(), Math.random()], i * 4);
       const col = hexToRgb(palette[Math.floor(Math.random() * palette.length)]);
       colors.set(col, i * 3);
@@ -197,7 +211,7 @@ const Particles: React.FC<ParticlesProps> = ({
       color: { size: 3, data: colors }
     });
 
-    const program = new Program(gl, {
+    program = new Program(gl, {
       vertex,
       fragment,
       uniforms: {
@@ -205,17 +219,29 @@ const Particles: React.FC<ParticlesProps> = ({
         uSpread: { value: particleSpread },
         uBaseSize: { value: particleBaseSize * pixelRatio },
         uSizeRandomness: { value: sizeRandomness },
-        uAlphaParticles: { value: alphaParticles ? 1 : 0 }
+        uAlphaParticles: { value: alphaParticles ? 1 : 0 },
+        uAspect: { value: gl.canvas.width / gl.canvas.height },
+        uDepth: { value: depth / particleSpread },
+        uOpacity: { value: opacity }
       },
       transparent: true,
       depthTest: false
     });
 
     const particles = new Mesh(gl, { mode: gl.POINTS, geometry, program });
+    window.addEventListener('resize', resize, false);
+    resize();
 
     let animationFrameId: number | null = null;
     let lastTime = performance.now();
     let elapsed = 0;
+    const minFrame = 1000 / maxFps - 2;
+    // while the page is being scrolled the browser has enough to do: the slow drift waits
+    let scrolledAt = -1e9;
+    const onScroll = () => {
+      scrolledAt = performance.now();
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
 
     const update = (t: number) => {
       if (pausedRef.current) {
@@ -227,6 +253,11 @@ const Particles: React.FC<ParticlesProps> = ({
       animationFrameId = requestAnimationFrame(update);
 
       const delta = t - lastTime;
+      if (delta < minFrame) return;
+      if (t - scrolledAt < 140) {
+        lastTime = t;
+        return;
+      }
       lastTime = t;
       elapsed += delta * speed;
 
@@ -262,6 +293,7 @@ const Particles: React.FC<ParticlesProps> = ({
     return () => {
       startLoopRef.current = null;
       window.removeEventListener('resize', resize);
+      window.removeEventListener('scroll', onScroll);
       if (moveParticlesOnHover) {
         container.removeEventListener('mousemove', handleMouseMove);
       }
@@ -283,7 +315,10 @@ const Particles: React.FC<ParticlesProps> = ({
     sizeRandomness,
     cameraDistance,
     disableRotation,
-    pixelRatio
+    pixelRatio,
+    depth,
+    opacity,
+    maxFps
   ]);
 
   return <div ref={containerRef} className={`particles-container ${className}`} />;

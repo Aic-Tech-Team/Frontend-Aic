@@ -21,8 +21,9 @@ export const COARSE_MQ = "(hover: none) and (pointer: coarse)";
 export const FINE_POINTER_MQ = "(pointer: fine)";
 export const REDUCED_MOTION_MQ = "(prefers-reduced-motion: reduce)";
 
-export const PARTICLE_COUNT_DESKTOP = 72;
-export const PARTICLE_COUNT_LOW_END = 28
+export const PARTICLE_COUNT_DESKTOP = 58;
+export const PARTICLE_COUNT_LOW_END = 26
+export const PARTICLE_COUNT_COMPACT = 30
 
 function detectLowEnd(): boolean {
   if (typeof navigator === "undefined") return false;
@@ -40,9 +41,10 @@ function particleBudget(
   isNarrow: boolean,
   isLowEnd: boolean,
 ): number {
-  // Full-viewport WebGL canvas costs more than the point count.
-  // Compact devices skip the canvas entirely.
-  if (prefersReducedMotion || isNarrow) return 0;
+  // The canvas costs more than the points do, so it is drawn at 30 fps at a pixel ratio of 1.
+  // A phone gets a lighter cloud; a weak phone gets none.
+  if (prefersReducedMotion) return 0;
+  if (isNarrow) return isLowEnd ? 0 : PARTICLE_COUNT_COMPACT;
   if (isLowEnd) return PARTICLE_COUNT_LOW_END;
   return PARTICLE_COUNT_DESKTOP;
 }

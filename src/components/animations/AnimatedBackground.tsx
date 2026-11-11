@@ -13,14 +13,12 @@ type BlobDef = {
 };
 
 const BLOBS: BlobDef[] = [
-  { wrapperClass: "blob-wrapper", blobClass: "blob blob-1", style: { top: "-10%", insetInlineStart: "-8%" }, speed: 0.12 },
-  { wrapperClass: "blob-wrapper", blobClass: "blob blob-2", style: { top: "4%", insetInlineEnd: "-10%" }, speed: 0.22 },
-  { wrapperClass: "blob-wrapper", blobClass: "blob blob-3", style: { bottom: "18%", insetInlineStart: "6%" }, speed: 0.1 },
-  { wrapperClass: "blob-wrapper", blobClass: "blob blob-4", style: { bottom: "-12%", insetInlineEnd: "8%" }, speed: 0.28 },
-  { wrapperClass: "blob-wrapper", blobClass: "blob blob-5", style: { top: "15%", insetInlineEnd: "33%" }, speed: 0.16, fullOnly: true },
-  { wrapperClass: "blob-wrapper", blobClass: "blob blob-6", style: { bottom: "10%", insetInlineStart: "54%" }, speed: 0.2 },
-  { wrapperClass: "blob-wrapper", blobClass: "blob blob-7", style: { top: "56%", insetInlineEnd: "9%" }, speed: 0.14, fullOnly: true },
-  { wrapperClass: "blob-wrapper", blobClass: "blob blob-8", style: { bottom: "45%", insetInlineStart: "35%" }, speed: 0.11, fullOnly: true },
+  { wrapperClass: "blob-wrapper", blobClass: "blob blob-1", style: { top: "-16%", insetInlineStart: "-14%" }, speed: 0.1 },
+  { wrapperClass: "blob-wrapper", blobClass: "blob blob-2", style: { top: "-4%", insetInlineEnd: "-12%" }, speed: 0.2 },
+  { wrapperClass: "blob-wrapper", blobClass: "blob blob-3", style: { top: "40%", insetInlineEnd: "-10%" }, speed: 0.14 },
+  { wrapperClass: "blob-wrapper", blobClass: "blob blob-4", style: { bottom: "-18%", insetInlineStart: "-10%" }, speed: 0.26 },
+  { wrapperClass: "blob-wrapper", blobClass: "blob blob-5", style: { bottom: "14%", insetInlineEnd: "20%" }, speed: 0.18 },
+  { wrapperClass: "blob-wrapper", blobClass: "blob blob-6", style: { top: "24%", insetInlineStart: "8%" }, speed: 0.08 },
 ];
 
 function blobsForTier(tier: BlobTier) {
@@ -52,7 +50,8 @@ export function AnimatedBackground() {
       return;
     }
 
-    const lerp = blobTier === "lite" ? 0.12 : 0.07;
+    // only the full tier gets here (the guard above), so one easing is enough
+    const lerp = 0.07;
     let ticking = false;
 
     const tick = () => {

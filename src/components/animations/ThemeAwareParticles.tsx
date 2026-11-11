@@ -7,7 +7,7 @@ import { useMotionCapability } from "@/hooks/useMotionCapability";
 
 const Particles = dynamic(() => import("./Particles"), { ssr: false });
 
-const COLORS_LIGHT = ["#3f0861"] as const;
+const COLORS_LIGHT = ["#5b2fc8", "#7a4fe0"] as const;
 const COLORS_DARK = ["#ffffff"] as const;
 
 interface ThemeAwareParticlesProps {
@@ -19,6 +19,8 @@ interface ThemeAwareParticlesProps {
   sizeRandomness?: number;
   disableRotation?: boolean;
   pixelRatio?: number;
+  depth?: number;
+  opacity?: number;
 }
 
 export function ThemeAwareParticles(props: ThemeAwareParticlesProps) {
@@ -36,6 +38,7 @@ export function ThemeAwareParticles(props: ThemeAwareParticlesProps) {
     <Particles
       {...props}
       particleCount={particleCount}
+      {...(resolvedTheme === "light" ? { opacity: 1 } : {})}
       particleColors={particleColors as unknown as string[]}
       paused={!isVisible}
     />

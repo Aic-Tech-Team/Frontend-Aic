@@ -165,9 +165,19 @@
   --glow-5: rgba(149, 141, 24, 0.45);
   --glow-6: rgba(234, 11, 11, 0.45);
 
-  --blob-opacity: 0.45;
-  --blob-blur: 110px;
-  --blob-blend: screen;
+  /* ambient light: hue, then strength of each pool */
+  --bg-violet: hsl(262 85% 60%);
+  --bg-indigo: hsl(236 85% 62%);
+  --bg-orchid: hsl(286 70% 55%);
+  --bg-deep: hsl(252 90% 52%);
+  --bg-cool: hsl(198 90% 58%);
+  --bg-warm: hsl(318 80% 60%);
+  --bg-a1: 0.2;
+  --bg-a2: 0.14;
+  --bg-a3: 0.1;
+  --bg-a4: 0.17;
+  --bg-a5: 0.07;
+  --bg-a6: 0.07;
 
   --glow-7: rgba(103, 232, 249, 0.4);
   --glow-8: rgba(192, 132, 252, 0.4);
@@ -185,8 +195,8 @@
   --primary-50: hsl(258 100% 98%);
   --primary-100: hsl(258 90% 94%);
   --primary-200: hsl(260 78% 86%);
-  --primary-300: hsl(262 55% 55%);
-  --primary-400: hsl(262 65% 50%);
+  --primary-300: hsl(262 58% 47%);
+  --primary-400: hsl(262 66% 44%);
   --primary-500: hsl(262 72% 46%);
   --primary-600: hsl(264 72% 40%);
   --primary-700: hsl(266 68% 34%);
@@ -199,8 +209,8 @@
   --muted: hsl(258 30% 93%);
   --muted-foreground: hsl(260 18% 38%);
 
-  --border: hsl(258 22% 86%);
-  --input: hsl(258 24% 90%);
+  --border: hsl(258 24% 76%);
+  --input: hsl(258 26% 82%);
   --ring: hsl(262 72% 46%);
 
   --destructive: hsl(0 72% 51%);
@@ -215,15 +225,39 @@
   --glow-5: rgba(149, 141, 24, 0.4);
   --glow-6: rgba(234, 11, 11, 0.4);
 
-  --blob-opacity: 1;
-  --blob-blur: 90px;
-  --blob-blend: multiply;
+  --bg-violet: hsl(262 90% 74%);
+  --bg-indigo: hsl(222 95% 76%);
+  --bg-orchid: hsl(290 80% 78%);
+  --bg-deep: hsl(250 90% 74%);
+  --bg-cool: hsl(196 95% 74%);
+  --bg-warm: hsl(24 100% 78%);
+  --bg-a1: 0.3;
+  --bg-a2: 0.24;
+  --bg-a3: 0.2;
+  --bg-a4: 0.24;
+  --bg-a5: 0.18;
+  --bg-a6: 0.2;
 
   --glow-7: rgba(103, 232, 249, 0.35);
   --glow-8: rgba(192, 132, 252, 0.35);
 }
 
 @layer base {
+  /* No orphans: a paragraph fills the line, and never leaves one word alone on the last row. */
+  p,
+  li,
+  dd,
+  blockquote {
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
   /* Ticket-shaped card: true transparent scalloped bites cut into the
      left/right edges via CSS masking (not painted circles), so whatever
      sits behind the card — including the animated blob background —
@@ -740,8 +774,6 @@
         color-mix(in srgb, var(--card) 58%, transparent) 0%,
         color-mix(in srgb, var(--card) 32%, transparent) 100%
       );
-    -webkit-backdrop-filter: blur(28px) saturate(165%);
-    backdrop-filter: blur(28px) saturate(165%);
     border: 1px solid color-mix(in srgb, var(--border) 48%, transparent);
     box-shadow:
       inset 0 1px 0 0 color-mix(in srgb, white 14%, transparent),
@@ -765,8 +797,6 @@
         color-mix(in srgb, var(--card) 88%, transparent) 0%,
         color-mix(in srgb, var(--card) 70%, transparent) 100%
       );
-    -webkit-backdrop-filter: blur(24px) saturate(150%);
-    backdrop-filter: blur(24px) saturate(150%);
     border-color: color-mix(in srgb, var(--primary) 16%, var(--border));
     box-shadow:
       inset 0 1px 0 0 color-mix(in srgb, white 80%, transparent),
@@ -780,8 +810,6 @@
       color-mix(in srgb, var(--card) 52%, transparent) 0%,
       color-mix(in srgb, var(--background) 38%, transparent) 100%
     );
-    -webkit-backdrop-filter: blur(32px) saturate(170%);
-    backdrop-filter: blur(32px) saturate(170%);
     border-top: 1px solid color-mix(in srgb, var(--border) 45%, transparent);
     box-shadow: inset 0 1px 0 0 color-mix(in srgb, white 10%, transparent);
   }
@@ -794,6 +822,26 @@
     );
     border-top-color: color-mix(in srgb, var(--border) 60%, transparent);
     box-shadow: inset 0 1px 0 0 color-mix(in srgb, white 60%, transparent);
+  }
+
+  /* Frosted glass only where there is a real pointer and room for it. The blur is lighter than
+     it was (18px) and the ambient light behind it is static pools, so it stays cheap; phones,
+     tablets and touch screens get the opaque fill below. */
+  @media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
+    .surface {
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      backdrop-filter: blur(18px) saturate(150%);
+    }
+
+    [data-theme="light"] .surface {
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      backdrop-filter: blur(16px) saturate(140%);
+    }
+
+    .glass-footer {
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
+      backdrop-filter: blur(22px) saturate(150%);
+    }
   }
 
   /* Narrow: opaque fill. backdrop-filter resamples the animated
@@ -846,6 +894,9 @@
       color-mix(in srgb, var(--primary) 55%, transparent);
   }
 
+  /* Ambient light: six soft pools of the brand violet with one cool and one warm accent,
+     placed so the page reads as lit from the upper corner. Each fades out by itself (no blur
+     filter), and the wrapper drifts at its own speed as the page scrolls. */
   .blob-bg {
     position: fixed;
     inset: 0;
@@ -860,128 +911,72 @@
 
   .blob {
     border-radius: 9999px;
-    filter: blur(var(--blob-blur));
-    opacity: var(--blob-opacity);
-    mix-blend-mode: var(--blob-blend);
-    animation: blob-float 18s ease-in-out infinite;
-  }
-
-  .blob-bg--lite {
-    --blob-blur: 55px;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--b-color) calc(var(--b-alpha) * 100%), transparent) 0%,
+      color-mix(in srgb, var(--b-color) calc(var(--b-alpha) * 62%), transparent) 38%,
+      color-mix(in srgb, var(--b-color) calc(var(--b-alpha) * 22%), transparent) 68%,
+      transparent 100%
+    );
+    will-change: transform;
+    animation: blob-float 36s ease-in-out infinite;
   }
 
   .blob-bg--lite .blob {
-    animation-duration: 28s;
+    animation-duration: 56s;
   }
 
   .blob-1 {
-    width: 50rem;
-    height: 50rem;
-    background: radial-gradient(
-      circle at 60% 40%,
-      color-mix(in srgb, var(--glow-1) 90%, transparent),
-      transparent 70%
-    );
-    animation-duration: 20s;
-    animation-delay: 0s;
+    --b-color: var(--bg-violet);
+    --b-alpha: var(--bg-a1);
+    width: min(66vw, 46rem);
+    aspect-ratio: 1;
   }
 
   .blob-2 {
-    width: 24rem;
-    height: 26rem;
-    background: radial-gradient(
-      circle at 70% 30%,
-      color-mix(in srgb, var(--glow-2) 90%, transparent),
-      transparent 70%
-    );
-    animation-duration: 34s;
-    animation-delay: -89s;
+    --b-color: var(--bg-indigo);
+    --b-alpha: var(--bg-a2);
+    width: min(46vw, 32rem);
+    aspect-ratio: 1;
+    animation-duration: 44s;
+    animation-delay: -9s;
   }
 
   .blob-3 {
-    width: 30rem;
-    height: 30rem;
-    background: radial-gradient(
-      circle at 30% 30%,
-      color-mix(in srgb, var(--glow-3) 90%, transparent),
-      transparent 70%
-    );
-    animation-duration: 22s;
-    animation-delay: -11s;
+    --b-color: var(--bg-orchid);
+    --b-alpha: var(--bg-a3);
+    width: min(50vw, 36rem);
+    aspect-ratio: 1.15;
+    animation-duration: 40s;
+    animation-delay: -18s;
   }
 
   .blob-4 {
-    width: 36rem;
-    height: 30rem;
-    background: radial-gradient(
-      circle at 30% 30%,
-      color-mix(in srgb, var(--glow-4) 90%, transparent),
-      transparent 70%
-    );
-    animation-duration: 26s;
-    animation-delay: -60s;
+    --b-color: var(--bg-deep);
+    --b-alpha: var(--bg-a4);
+    width: min(70vw, 50rem);
+    aspect-ratio: 1.1;
+    animation-delay: -5s;
   }
 
   .blob-5 {
-    width: 54rem;
-    height: 20rem;
-    background: radial-gradient(
-      circle at 30% 30%,
-      color-mix(in srgb, var(--glow-5) 92%, transparent),
-      transparent 70%
-    );
-    animation-duration: 20s;
-    animation-delay: -70s;
+    --b-color: var(--bg-cool);
+    --b-alpha: var(--bg-a5);
+    width: min(44vw, 30rem);
+    aspect-ratio: 1;
+    animation-duration: 48s;
+    animation-delay: -27s;
   }
 
   .blob-6 {
-    width: 20rem;
-    height: 16rem;
-    background: radial-gradient(
-      circle at 30% 30%,
-      color-mix(in srgb, var(--glow-6) 92%, transparent),
-      transparent 70%
-    );
-    animation-duration: 18s;
-    animation-delay: -50s;
-  }
-
-  .blob-7 {
-    width: 55rem;
-    height: 50rem;
-    background: radial-gradient(
-      circle at 30% 30%,
-      color-mix(in srgb, var(--glow-7) 92%, transparent),
-      transparent 70%
-    );
-    animation-duration: 18s;
-    animation-delay: -20s;
-  }
-
-  .blob-8 {
-    width: 36rem;
-    height: 35rem;
-    background: radial-gradient(
-      circle at 70% 30%,
-      color-mix(in srgb, var(--glow-8) 92%, transparent),
-      transparent 70%
-    );
-    animation-duration: 18s;
-    animation-delay: -40s;
-  }
-  [data-theme="light"] .blob-1,
-  [data-theme="light"] .blob-2,
-  [data-theme="light"] .blob-3,
-  [data-theme="light"] .blob-4,
-  [data-theme="light"] .blob-5,
-  [data-theme="light"] .blob-6,
-  [data-theme="light"] .blob-7,
-  [data-theme="light"] .blob-8 {
-    transform: scale(1.06);
-    opacity: 1;
+    --b-color: var(--bg-warm);
+    --b-alpha: var(--bg-a6);
+    width: min(40vw, 28rem);
+    aspect-ratio: 1;
+    animation-duration: 52s;
+    animation-delay: -14s;
   }
 }
-
 @keyframes blob-float {
   0%,
   100% {
@@ -1041,6 +1036,146 @@
     border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
     background: color-mix(in srgb, var(--card) 92%, transparent);
     box-shadow: 0 4px 14px color-mix(in srgb, var(--foreground) 6%, transparent);
+  }
+
+  /* A boarding-pass style tag that rides the orbit: notched sides, a beacon that pings, the
+     number set large and the rest of the label small. */
+  .orbit-pass {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem 0.95rem 0.5rem 0.55rem;
+    border-radius: 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--primary) 34%, var(--border));
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary) 16%, var(--card)) 0%,
+        color-mix(in srgb, var(--card) 88%, transparent) 62%
+      );
+    box-shadow:
+      inset 0 1px 0 0 color-mix(in srgb, white 14%, transparent),
+      0 14px 30px -16px color-mix(in srgb, var(--primary) 70%, transparent);
+    -webkit-mask-image:
+      radial-gradient(circle 5px at 0 50%, #0000 97%, #000),
+      radial-gradient(circle 5px at 100% 50%, #0000 97%, #000);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      radial-gradient(circle 5px at 0 50%, #0000 97%, #000),
+      radial-gradient(circle 5px at 100% 50%, #0000 97%, #000);
+    mask-composite: intersect;
+  }
+
+  .orbit-pass__beacon {
+    position: relative;
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 0.7rem;
+    color: var(--primary-200);
+    background:
+      radial-gradient(
+        circle at 30% 25%,
+        color-mix(in srgb, var(--primary) 55%, transparent),
+        color-mix(in srgb, var(--primary) 14%, transparent) 70%
+      );
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 45%, transparent);
+  }
+
+  .orbit-pass__beacon i {
+    position: absolute;
+    top: -0.2rem;
+    inset-inline-end: -0.2rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: #34d399;
+    box-shadow: 0 0 0 2px var(--card);
+  }
+
+  .orbit-pass__beacon i::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: orbit-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  .orbit-pass__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    text-align: start;
+  }
+
+  .orbit-pass__title {
+    display: block;
+    white-space: nowrap;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--muted-foreground);
+  }
+
+  .orbit-pass__num {
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(180deg, var(--foreground), var(--primary-300));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .orbit-pass__sub {
+    display: block;
+    white-space: nowrap;
+    font-size: 0.66rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: color-mix(in srgb, var(--muted-foreground) 85%, transparent);
+  }
+
+  [data-theme="light"] .orbit-pass {
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary) 9%, white) 0%,
+        color-mix(in srgb, white 92%, transparent) 62%
+      );
+    box-shadow:
+      inset 0 1px 0 0 white,
+      0 14px 28px -16px color-mix(in srgb, var(--primary) 45%, transparent);
+  }
+
+  [data-theme="light"] .orbit-pass__beacon {
+    color: var(--primary-600);
+  }
+
+  [data-theme="light"] .orbit-pass__num {
+    background: linear-gradient(180deg, var(--primary-700), var(--primary-400));
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  @keyframes orbit-ping {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    80%,
+    100% {
+      transform: scale(2.8);
+      opacity: 0;
+    }
+  }
+
+  .hero-visual--paused .orbit-pass__beacon i::after {
+    animation-play-state: paused;
   }
 
   .hero-visual--paused .orbit-ring,
@@ -1211,6 +1346,13 @@ html[dir="rtl"] .signal-packet {
     color-mix(in srgb, var(--foreground) 55%, transparent);
 }
 
+/* a number laid over a photograph: white outline, whatever the theme */
+.outline-text-photo {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(255 255 255 / 0.8);
+  text-shadow: 0 2px 16px rgb(0 0 0 / 0.5);
+}
+
 .scroll-progress {
   position: fixed;
   inset-block-start: 0;
@@ -1322,7 +1464,6 @@ html[dir="rtl"] .scroll-progress {
   /* Static glow. Blend stays (screen / multiply). No float = no per-frame blend. */
   .blob {
     animation: none !important;
-    filter: blur(64px);
   }
 
   .hero-glow {
@@ -2347,3 +2488,15 @@ html[dir="rtl"] .stat-ruler {
 
 /* anchor targets stop below the floating navbar */
 [id] { scroll-margin-top: 6rem; }
+
+/* Light theme: the pale greens made for the dark background do not read on white. */
+[data-theme="light"] .text-emerald-200,
+[data-theme="light"] .text-emerald-300,
+[data-theme="light"] .text-emerald-400 {
+  color: #047857;
+}
+
+[data-theme="light"] .door-sign--open {
+  background-color: color-mix(in srgb, #10b981 12%, transparent);
+  border-color: color-mix(in srgb, #059669 55%, transparent);
+}
