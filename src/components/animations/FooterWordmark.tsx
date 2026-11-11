@@ -30,13 +30,19 @@ export function FooterWordmark({ text = "AIC" }: { text?: string }) {
       const r = footer.getBoundingClientRect();
       const start = vh * 0.95;
       const span = Math.max(1, r.height - vh * 0.05);
-      const p = Math.min(1, Math.max(0, (start - r.top) / span));
-      const [from, to] = window.innerWidth > 768 ? [48, 8] : [32, 10];
+      // at the very bottom of the page the word is always fully up, however short the footer is
+      const atEnd = window.scrollY + vh >= document.documentElement.scrollHeight - 4;
+      const p = atEnd ? 1 : Math.min(1, Math.max(0, (start - r.top) / span));
+      const [from, to] = window.innerWidth > 768 ? [38, 0] : [30, 4];
       setY(prefersReducedMotion() ? to : from + (to - from) * p);
     };
 
     let raf = 0;
+    // the footer is a long way down: measuring it on every scroll frame of the rest of the page
+    // forced a layout each time for nothing, so it only follows the scroll once it is near
+    let near = false;
     const schedule = () => {
+      if (!near) return;
       if (!raf) {
         raf = requestAnimationFrame(() => {
           raf = 0;
@@ -46,6 +52,14 @@ export function FooterWordmark({ text = "AIC" }: { text?: string }) {
     };
 
     update();
+    const io = new IntersectionObserver(
+      ([e]) => {
+        near = e.isIntersecting;
+        if (near) schedule();
+      },
+      { rootMargin: "0px 0px 100% 0px" },
+    );
+    io.observe(footer);
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
     // Page height changes (images, fonts, route content) move the footer without scrolling.
@@ -58,6 +72,7 @@ export function FooterWordmark({ text = "AIC" }: { text?: string }) {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       ro.disconnect();
+      io.disconnect();
       window.clearTimeout(t);
       cancelAnimationFrame(raf);
     };

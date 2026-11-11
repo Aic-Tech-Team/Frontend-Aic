@@ -10,9 +10,9 @@ import {
   EASE_OUT,
   gsap,
   prefersReducedMotion,
-  ScrollTrigger,
   useGSAP,
 } from "@/lib/gsap";
+import { watchTarget } from "@/lib/clip-ancestor";
 import { whenBooted } from "@/lib/boot";
 
 type RevealDirection = "up" | "down" | "left" | "right" | "none";
@@ -39,21 +39,44 @@ function hiddenState(direction: RevealDirection) {
   return { autoAlpha: 0, ...offsets[direction] };
 }
 
-function trigger(
-  el: Element,
-  amount: number,
-  play: () => void,
-) {
-  // amount ≈ fraction of the element that must be visible → top-anchored start.
-  const start = `top ${Math.round((1 - Math.min(amount, 0.5) * 0.5) * 92)}%`;
-  ScrollTrigger.create({
-    trigger: el,
-    start,
-    once: true,
-    invalidateOnRefresh: true,
-    // never play under the boot loader
-    onEnter: () => whenBooted(play),
-  });
+/** One observer for every reveal on the page: no per-element scroll maths, and no refresh needed. */
+const plays = new Map<Element, Set<() => void>>();
+let observer: IntersectionObserver | null = null;
+
+function observe(el: Element, play: () => void) {
+  if (!observer) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          // in view, or already scrolled past (a jump straight to an anchor)
+          if (!e.isIntersecting && e.boundingClientRect.top >= 0) continue;
+          const fns = plays.get(e.target);
+          observer?.unobserve(e.target);
+          plays.delete(e.target);
+          // never play under the boot loader
+          fns?.forEach((fn) => whenBooted(fn));
+        }
+      },
+      { rootMargin: "0px 4000px -8% 4000px" },
+    );
+  }
+  const target = watchTarget(el);
+  let set = plays.get(target);
+  if (!set) plays.set(target, (set = new Set()));
+  set.add(play);
+  observer.observe(target);
+  return () => {
+    const s = plays.get(target);
+    s?.delete(play);
+    if (s && !s.size) {
+      plays.delete(target);
+      observer?.unobserve(target);
+    }
+  };
+}
+
+function trigger(el: Element, _amount: number, play: () => void) {
+  return observe(el, play);
 }
 
 interface RevealProps {
@@ -83,7 +106,7 @@ export function Reveal({
 
       gsap.set(el, hiddenState(direction));
       show(el);
-      trigger(el, amount, () =>
+      return trigger(el, amount, () =>
         gsap.to(el, {
           autoAlpha: 1,
           x: 0,
@@ -135,7 +158,7 @@ export function RevealGroup({
         gsap.set(item, hiddenState(dir));
       });
       show(items);
-      trigger(root, amount, () =>
+      return trigger(root, amount, () =>
         gsap.to(items, {
           autoAlpha: 1,
           x: 0,
@@ -199,7 +222,7 @@ export function RevealItem({
 
       gsap.set(el, hiddenState(direction));
       show(el);
-      trigger(el, amount, () => {
+      return trigger(el, amount, () => {
         if (fade === undefined) {
           gsap.to(el, {
             autoAlpha: 1,

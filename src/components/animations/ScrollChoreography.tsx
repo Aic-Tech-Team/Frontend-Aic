@@ -2,7 +2,8 @@
 
 import { useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
-import { gsap, prefersReducedMotion, ScrollTrigger } from "@/lib/gsap";
+import { gsap, prefersReducedMotion } from "@/lib/gsap";
+import { watchTarget } from "@/lib/clip-ancestor";
 import { whenBooted } from "@/lib/boot";
 
 /** The details of a section: its words, pictures, cards and buttons rise in one after another. */
@@ -40,22 +41,38 @@ function insideUnit(el: HTMLElement) {
   );
 }
 
+/** Nodes already decided on: the sweeps run many times and must not re-measure the page each time. */
+const looked = new WeakSet<Element>();
+
 function collect(root: Element): HTMLElement[] {
   const found: HTMLElement[] = [];
   const add = (el: HTMLElement) => {
-    if (!hydrated(el)) return;
-    if (insideUnit(el)) return;
+    if (looked.has(el)) return;
     if (
       el.hasAttribute("data-choreo") ||
       el.hasAttribute("data-reveal") ||
       el.hasAttribute("data-reveal-item") ||
       el.hasAttribute("data-word")
-    )
+    ) {
+      looked.add(el);
       return;
-    if (el.closest(SKIP)) return;
-    if (INLINE_TAGS.has(el.tagName) && el.parentElement?.closest(INLINE_HOST)) return;
+    }
+    if (!hydrated(el)) return; // try again on a later sweep
+    if (el.closest(SKIP)) {
+      looked.add(el);
+      return;
+    }
+    if (INLINE_TAGS.has(el.tagName) && el.parentElement?.closest(INLINE_HOST)) {
+      looked.add(el);
+      return;
+    }
+    if (insideUnit(el)) {
+      looked.add(el);
+      return;
+    }
     const r = el.getBoundingClientRect();
-    if (!r.width || !r.height) return; // collapsed or display:none
+    if (!r.width || !r.height) return; // collapsed or display:none: look again later
+    looked.add(el)
     // a short card is one unit: its parts are left to the card's own arrival
     if (el.matches(".surface") && r.height < window.innerHeight * UNIT_MAX_VH) el.setAttribute(UNIT_ATTR, "");
     found.push(el);
@@ -65,17 +82,24 @@ function collect(root: Element): HTMLElement[] {
   return found;
 }
 
-function prepare(els: HTMLElement[]) {
-  if (!els.length) return;
-  els.forEach((el) => el.setAttribute("data-choreo", ""));
-  gsap.set(els, { opacity: 0, y: 20 });
-  ScrollTrigger.batch(els, {
-    start: "top 92%",
-    once: true,
-    batchMax: 10,
-    interval: 0.08,
-    onEnter: (batch) =>
-      whenBooted(() =>
+/**
+ * Reveals what scrolls into view. One IntersectionObserver for the whole page (a ScrollTrigger per
+ * element did arithmetic for every one of them on every scroll tick); items that arrive together
+ * rise one after another.
+ */
+function makeRevealer(ctx: gsap.Context) {
+  const queue: HTMLElement[] = [];
+  // elements waiting on a watched container (a carousel) rather than on themselves
+  const waiting = new Map<Element, HTMLElement[]>();
+  let timer = 0;
+
+  const flush = () => {
+    timer = 0;
+    const batch = queue.splice(0, 12);
+    if (!batch.length) return;
+    batch.sort((a, b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+    whenBooted(() =>
+      ctx.add(() =>
         gsap.to(batch, {
           opacity: 1,
           y: 0,
@@ -86,7 +110,46 @@ function prepare(els: HTMLElement[]) {
           overwrite: true,
         }),
       ),
-  });
+    );
+    if (queue.length) timer = window.setTimeout(flush, 80);
+  };
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        // in view, or already scrolled past (a jump straight to an anchor)
+        if (!e.isIntersecting && e.boundingClientRect.top >= 0) continue;
+        io.unobserve(e.target);
+        const group = waiting.get(e.target);
+        waiting.delete(e.target);
+        queue.push(...(group ?? [e.target as HTMLElement]));
+      }
+      if (queue.length && !timer) timer = window.setTimeout(flush, 70);
+    },
+    { rootMargin: "0px 4000px -8% 4000px" },
+  );
+
+  return {
+    prepare(els: HTMLElement[]) {
+      if (!els.length) return;
+      els.forEach((el) => el.setAttribute("data-choreo", ""));
+      gsap.set(els, { opacity: 0, y: 20 });
+      els.forEach((el) => {
+        const target = watchTarget(el);
+        if (target === el) return io.observe(el);
+        const group = waiting.get(target);
+        if (group) group.push(el);
+        else {
+          waiting.set(target, [el]);
+          io.observe(target);
+        }
+      });
+    },
+    stop() {
+      window.clearTimeout(timer);
+      io.disconnect();
+    },
+  };
 }
 
 /**
@@ -105,13 +168,15 @@ export function ScrollChoreography() {
     const main = document.querySelector("main");
     if (!main) return;
 
-    const ctx = gsap.context(() => prepare(collect(main)));
+    const ctx = gsap.context(() => {});
+    const reveal = makeRevealer(ctx);
+    ctx.add(() => reveal.prepare(collect(main)));
     // sections that stream in or hydrate later are picked up by sweeps for the first moments
     let sweeps = 0;
     const sweepId = window.setInterval(() => {
-      ctx.add(() => prepare(collect(main)));
-      if (++sweeps > 40) window.clearInterval(sweepId);
-    }, 300);
+      ctx.add(() => reveal.prepare(collect(main)));
+      if (++sweeps > 24) window.clearInterval(sweepId);
+    }, 400);
     const mo = new MutationObserver((muts) => {
       const els: HTMLElement[] = [];
       muts.forEach((m) =>
@@ -119,13 +184,14 @@ export function ScrollChoreography() {
           if (n instanceof HTMLElement) els.push(...collect(n));
         }),
       );
-      if (els.length) ctx.add(() => prepare(els));
+      if (els.length) ctx.add(() => reveal.prepare(els));
     });
     mo.observe(main, { childList: true, subtree: true });
 
     return () => {
       window.clearInterval(sweepId);
       mo.disconnect();
+      reveal.stop();
       ctx.revert();
     };
   }, [pathname]);
