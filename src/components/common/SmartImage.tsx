@@ -7,12 +7,15 @@ import { cn } from "@/lib/utils";
 /**
  * A photograph that arrives gracefully: the server resizes it to WebP for the width it is shown
  * at, it loads lazily, and until it is ready a tiny, soft copy of the same picture fills the box
- * (so the space is never empty) and the sharp one fades in over it. Use with `fill` inside a box
+ * (so the space is never empty) and the sharp one paints over it the moment it is decoded. Use with `fill` inside a box
  * that has a size; falls back to the plain image for anything that cannot be optimised.
  */
 export function SmartImage({ src, className, onLoad, priority, ...rest }: ImageProps) {
   const [ready, setReady] = useState(false);
   const remote = typeof src === "string" && src.length > 0;
+  // an image pushed behind its siblings (`-z-20`) needs its placeholder one step further back,
+  // or the blurred copy paints over the sharp one
+  const behind = typeof className === "string" ? className.match(/(?:^|\s)-z-(\d+)/) : null;
   const tiny = remote ? `/_next/image?url=${encodeURIComponent(src as string)}&w=32&q=20` : undefined;
 
   // an image that finished loading before React attached its handler never fires onLoad
@@ -27,15 +30,18 @@ export function SmartImage({ src, className, onLoad, priority, ...rest }: ImageP
       {tiny ? (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-cover bg-center blur-md"
-          style={{ backgroundImage: `url("${tiny}")` }}
+          className={cn(
+            "pointer-events-none absolute inset-0 bg-cover bg-center blur-md transition-opacity duration-300",
+            ready && "opacity-0 delay-500",
+          )}
+          style={{ backgroundImage: `url("${tiny}")`, ...(behind ? { zIndex: -(Number(behind[1]) + 1) } : {}) }}
         />
       ) : null}
       <Image
         ref={ref}
         src={src}
         priority={priority}
-        className={cn("transition-opacity duration-500", ready ? "opacity-100" : "opacity-0", className)}
+        className={className}
         onLoad={(e) => {
           setReady(true);
           onLoad?.(e);
