@@ -4,9 +4,11 @@ import { useEffect, useRef } from "react";
 import { useLocale } from "next-intl";
 import { markBooted } from "@/lib/boot";
 
-const MIN_VISIBLE_MS = 1300;
+/** First visit of a session shows the whole opening; later loads only need to cover the hydration. */
+const MIN_VISIBLE_MS = 900;
+const MIN_VISIBLE_RETURN_MS = 250;
 const MAX_WAIT_MS = 5500;
-const CURTAIN_MS = 900;
+const CURTAIN_MS = 700;
 
 const POLAR = (r: number, deg: number) => {
   const a = (deg * Math.PI) / 180;
@@ -43,6 +45,11 @@ export function BootLoader({ brand }: { brand: string }) {
       return;
     }
     const started = performance.now();
+    let minVisible = MIN_VISIBLE_MS;
+    try {
+      if (sessionStorage.getItem("aic-boot")) minVisible = MIN_VISIBLE_RETURN_MS;
+      sessionStorage.setItem("aic-boot", "1");
+    } catch {}
     const fmt = new Intl.NumberFormat(locale, { minimumIntegerDigits: 2 });
     let target = 12;
     let shown = 0;
@@ -64,7 +71,7 @@ export function BootLoader({ brand }: { brand: string }) {
       const dt = Math.min(now - last, 60);
       last = now;
       // never show 100 before everything is really ready
-      const cap = ready && now - started >= MIN_VISIBLE_MS ? 100 : Math.min(target, 92);
+      const cap = ready && now - started >= minVisible ? 100 : Math.min(target, 92);
       shown += (cap - shown) * (1 - Math.exp(-dt * 0.0048));
       if (cap === 100 && shown > 99.4) shown = 100;
       // only touch the DOM when something visible changes: the counter once per whole number,
@@ -84,7 +91,9 @@ export function BootLoader({ brand }: { brand: string }) {
     raf = requestAnimationFrame(tick);
 
     const fonts = (document.fonts?.ready ?? Promise.resolve()).then(() => (target = Math.max(target, 45)));
-    const loaded = (
+    // the window `load` (every image) only moves the counter: waiting on it kept the curtain
+    // down for as long as the slowest picture below the fold
+    void (
       document.readyState === "complete"
         ? Promise.resolve()
         : new Promise<void>((r) => window.addEventListener("load", () => r(), { once: true }))
@@ -97,7 +106,7 @@ export function BootLoader({ brand }: { brand: string }) {
     const cap = window.setTimeout(() => (ready = true), MAX_WAIT_MS);
     // a background tab throttles animation frames: never let that keep the page covered
     const hardStop = window.setTimeout(leave, MAX_WAIT_MS + 2500);
-    void Promise.all([fonts, loaded, globe]).then(() => {
+    void Promise.all([fonts, globe]).then(() => {
       window.clearTimeout(cap);
       ready = true;
     });
