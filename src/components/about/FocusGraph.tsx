@@ -39,8 +39,11 @@ function turn(x: number, y: number, z: number, yaw: number, tilt: number) {
 }
 
 
+/** Line and dot colour of the canvas drawing: pale violet on dark, deep violet on light. */
+const INK = { dark: "196,181,253", light: "91,56,200" } as const;
+
 /** A shaded sphere with a slowly turning wire mesh, light from the top start corner. */
-function drawCore(canvas: HTMLCanvasElement | null, spin: number) {
+function drawCore(canvas: HTMLCanvasElement | null, spin: number, light: boolean) {
   if (!canvas || !canvas.width) return;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -51,10 +54,18 @@ function drawCore(canvas: HTMLCanvasElement | null, spin: number) {
   ctx.clearRect(0, 0, S, S);
 
   const body = ctx.createRadialGradient(c - r * 0.38, c - r * 0.42, r * 0.08, c, c, r);
-  body.addColorStop(0, "#b9a4ff");
-  body.addColorStop(0.28, "#7c3aed");
-  body.addColorStop(0.7, "#2b1260");
-  body.addColorStop(1, "#0d0820");
+  if (light) {
+    // lit from above on a pale page: a lavender glass ball rather than a black one
+    body.addColorStop(0, "#f1eaff");
+    body.addColorStop(0.3, "#a98bf7");
+    body.addColorStop(0.72, "#6b46d6");
+    body.addColorStop(1, "#4527a0");
+  } else {
+    body.addColorStop(0, "#b9a4ff");
+    body.addColorStop(0.28, "#7c3aed");
+    body.addColorStop(0.7, "#2b1260");
+    body.addColorStop(1, "#0d0820");
+  }
   ctx.fillStyle = body;
   ctx.beginPath();
   ctx.arc(c, c, r, 0, TAU);
@@ -68,7 +79,7 @@ function drawCore(canvas: HTMLCanvasElement | null, spin: number) {
   // meridians turn about the vertical axis
   for (let k = 0; k < 6; k++) {
     const a = spin + (k * Math.PI) / 6;
-    ctx.strokeStyle = "rgba(221,214,254,0.28)";
+    ctx.strokeStyle = light ? "rgba(255,255,255,0.4)" : "rgba(221,214,254,0.28)";
     ctx.beginPath();
     ctx.ellipse(c, c, Math.abs(Math.cos(a)) * r, r, 0, 0, TAU);
     ctx.stroke();
@@ -76,7 +87,7 @@ function drawCore(canvas: HTMLCanvasElement | null, spin: number) {
   // parallels, seen from slightly above
   for (const lat of [-1.05, -0.52, 0, 0.52, 1.05]) {
     const rr = Math.cos(lat) * r;
-    ctx.strokeStyle = "rgba(221,214,254,0.2)";
+    ctx.strokeStyle = light ? "rgba(255,255,255,0.3)" : "rgba(221,214,254,0.2)";
     ctx.beginPath();
     ctx.ellipse(c, c + Math.sin(lat) * r * 0.92, rr, rr * 0.22, 0, 0, TAU);
     ctx.stroke();
@@ -84,11 +95,11 @@ function drawCore(canvas: HTMLCanvasElement | null, spin: number) {
   // night side, then the specular spot
   const shade = ctx.createRadialGradient(c + r * 0.35, c + r * 0.4, r * 0.35, c + r * 0.2, c + r * 0.25, r * 1.15);
   shade.addColorStop(0, "rgba(5,3,15,0)");
-  shade.addColorStop(1, "rgba(5,3,15,0.78)");
+  shade.addColorStop(1, light ? "rgba(40,18,110,0.5)" : "rgba(5,3,15,0.78)");
   ctx.fillStyle = shade;
   ctx.fillRect(0, 0, S, S);
   const spec = ctx.createRadialGradient(c - r * 0.42, c - r * 0.46, 0, c - r * 0.42, c - r * 0.46, r * 0.34);
-  spec.addColorStop(0, "rgba(255,255,255,0.55)");
+  spec.addColorStop(0, light ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.55)");
   spec.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = spec;
   ctx.fillRect(0, 0, S, S);
@@ -97,7 +108,7 @@ function drawCore(canvas: HTMLCanvasElement | null, spin: number) {
   // rim light
   const rim = ctx.createRadialGradient(c, c, r * 0.82, c, c, r);
   rim.addColorStop(0, "rgba(167,139,250,0)");
-  rim.addColorStop(1, "rgba(196,181,253,0.55)");
+  rim.addColorStop(1, light ? "rgba(255,255,255,0.5)" : "rgba(196,181,253,0.55)");
   ctx.fillStyle = rim;
   ctx.beginPath();
   ctx.arc(c, c, r, 0, TAU);
@@ -122,7 +133,8 @@ export function FocusGraph({
   className?: string;
 }) {
   const locale = useLocale();
-  const { fxActive, mounted } = useMotionCapability();
+  const { fxActive, mounted, isNarrow, isLowEnd } = useMotionCapability();
+  const compact = isNarrow || isLowEnd;
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const coreRef = useRef<HTMLCanvasElement>(null);
@@ -134,6 +146,9 @@ export function FocusGraph({
   const pickRef = useRef(onPick);
   const s = useRef({ yaw: NODES[0].a, target: NODES[0].a, w: 0, h: 0, half: 60, drag: false, moved: 0, lastX: 0 });
   const renderRef = useRef<(t: number) => void>(() => {});
+  // hover picks an area only after a short, deliberate pause, and not again until the pointer has
+  // really moved: the turning globe slides nodes under a still pointer, which used to chain picks
+  const hover = useRef({ timer: 0, lockUntil: 0, x: 0, y: 0 });
 
   useEffect(() => {
     pickRef.current = onPick;
@@ -163,6 +178,12 @@ export function FocusGraph({
     let raf = 0;
     let visible = true;
     let last = 0;
+    let coreAt = -1e9;
+    let drawnAt = 0;
+    const BUCKETS = 6;
+    const buckets: number[][] = Array.from({ length: BUCKETS }, () => []);
+    // a phone or a weak machine draws at 30 frames a second
+    const minFrame = compact ? 30 : 0;
 
     const measure = () => {
       const rect = root.getBoundingClientRect();
@@ -186,6 +207,8 @@ export function FocusGraph({
     const render = (t: number) => {
       const { w, h } = st;
       if (!w) return;
+      const light = document.documentElement.getAttribute("data-theme") === "light";
+      const ink = light ? INK.light : INK.dark;
       // nodes reach cos(LAT) of the radius sideways, so size the globe until the widest label still fits
       const R = Math.max(w * 0.2, Math.min(w * 0.44, (w / 2 - st.half - 6) / (Math.cos(LAT) * (DEPTH / (DEPTH - 1)))));
       const sway = fxActive ? Math.sin(t / 1900) * 0.05 : 0;
@@ -208,21 +231,37 @@ export function FocusGraph({
           if (k === 0) ctx.moveTo(p.x * sc, -p.y * sc);
           else ctx.lineTo(p.x * sc, -p.y * sc);
         }
-        ctx.strokeStyle = lat === 0 ? "rgba(196,181,253,0.10)" : "rgba(196,181,253,0.2)";
+        ctx.strokeStyle = `rgba(${ink},${lat === 0 ? (light ? 0.22 : 0.1) : light ? 0.42 : 0.2})`;
         ctx.lineWidth = 1;
         ctx.stroke();
       }
+      // the backdrop dots share a few shades, so they are drawn as a handful of paths
+      for (const path of buckets) path.length = 0;
       for (const d of DOTS) {
         const p = turn(d.x, d.y, d.z, yaw, tilt);
         const sc = persp(p.z) * R;
         const depth = (p.z + 1) / 2;
-        ctx.fillStyle = `rgba(196,181,253,${(0.06 + depth * 0.34).toFixed(3)})`;
-        ctx.beginPath();
-        ctx.arc(p.x * sc, -p.y * sc, 0.7 + depth * 1.1, 0, TAU);
-        ctx.fill();
+        buckets[Math.min(BUCKETS - 1, Math.floor(depth * BUCKETS))].push(p.x * sc, -p.y * sc);
       }
+      buckets.forEach((pts, b) => {
+        if (!pts.length) return;
+        const depth = (b + 0.5) / BUCKETS;
+        const a = light ? 0.2 + depth * 0.6 : 0.06 + depth * 0.34;
+        const rad = (light ? 0.9 : 0.7) + depth * 1.1;
+        ctx.fillStyle = `rgba(${ink},${a.toFixed(3)})`;
+        ctx.beginPath();
+        for (let k = 0; k < pts.length; k += 2) {
+          ctx.moveTo(pts[k] + rad, pts[k + 1]);
+          ctx.arc(pts[k], pts[k + 1], rad, 0, TAU);
+        }
+        ctx.fill();
+      });
 
-      drawCore(coreRef.current, fxActive ? t / 5200 : 0.6);
+      // the sphere turns slowly: ten redraws a second look the same as sixty and cost far less
+      if (!t || t - coreAt > 90) {
+        coreAt = t;
+        drawCore(coreRef.current, fxActive ? t / 5200 : 0.6, light);
+      }
 
       // nodes: labels ride the same projection
       const act = activeRef.current;
@@ -238,8 +277,8 @@ export function FocusGraph({
           const ry = (-p.x * 38).toFixed(1);
           const rx = (p.y * 18).toFixed(1);
           btn.style.transform = `translate(-50%,-50%) translate3d(${px.toFixed(1)}px,${py.toFixed(1)}px,0) perspective(420px) rotateY(${ry}deg) rotateX(${rx}deg) scale(${(0.86 + depth * 0.2).toFixed(3)})`;
-          btn.style.opacity = String(i === act ? 1 : 0.38 + depth * 0.62);
           btn.style.zIndex = p.z > 0 ? "20" : "5";
+          btn.style.setProperty("--d", i === act ? "1" : (0.5 + depth * 0.5).toFixed(2));
         }
         const ln = lineRefs.current[i];
         if (ln) {
@@ -259,6 +298,8 @@ export function FocusGraph({
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
       if (!visible) return;
+      if (minFrame && now - drawnAt < minFrame) return;
+      drawnAt = now;
       const dt = Math.min(now - (last || now), 50);
       last = now;
       if (!st.drag) st.yaw += (st.target - st.yaw) * Math.min(1, dt * 0.005);
@@ -277,7 +318,7 @@ export function FocusGraph({
       ro.disconnect();
       io.disconnect();
     };
-  }, [fxActive, mounted]);
+  }, [fxActive, mounted, compact]);
 
   // drag to spin; on release settle on whichever area faces the viewer
   const onPointerDown = (e: React.PointerEvent) => {
@@ -362,7 +403,7 @@ export function FocusGraph({
 
       <div
         dir="ltr"
-        className="pointer-events-none absolute left-1/2 top-1/2 z-10 grid size-[24%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full shadow-[0_0_44px_color-mix(in_srgb,var(--primary)_45%,transparent),0_30px_34px_-6px_rgba(0,0,0,0.75)]"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-10 grid size-[24%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full shadow-[0_0_44px_color-mix(in_srgb,var(--primary)_40%,transparent),0_24px_30px_-12px_rgba(76,29,149,0.5)] dark:shadow-[0_0_44px_color-mix(in_srgb,var(--primary)_45%,transparent),0_30px_34px_-6px_rgba(0,0,0,0.75)]"
       >
         <canvas ref={coreRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
       </div>
@@ -375,7 +416,19 @@ export function FocusGraph({
           }}
           type="button"
           aria-pressed={i === active}
-          onPointerEnter={(e) => e.pointerType === "mouse" && !s.current.drag && onPick(i)}
+          onPointerMove={(e) => {
+            if (e.pointerType !== "mouse" || s.current.drag || i === activeRef.current) return;
+            const h = hover.current;
+            if (performance.now() < h.lockUntil && Math.hypot(e.clientX - h.x, e.clientY - h.y) < 12) return;
+            window.clearTimeout(h.timer);
+            h.timer = window.setTimeout(() => {
+              h.lockUntil = performance.now() + 1200;
+              h.x = e.clientX;
+              h.y = e.clientY;
+              pickRef.current(i);
+            }, 160);
+          }}
+          onPointerLeave={() => window.clearTimeout(hover.current.timer)}
           onFocus={() => onPick(i)}
           onClick={() => s.current.moved <= 6 && onPick(i)}
           style={{ left: "50%", top: "50%" }}
@@ -384,7 +437,7 @@ export function FocusGraph({
             i === active ? "max-sm:max-w-[8.5rem] max-sm:px-3 max-sm:py-1.5" : "max-sm:size-8",
             i === active
               ? "border-primary-300/60 bg-primary bg-linear-to-b from-white/30 to-transparent text-primary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_3px_0_#4c1d95,0_6px_0_#2e1065,0_14px_26px_color-mix(in_srgb,var(--primary)_60%,transparent)]"
-              : "border-border/70 bg-card bg-linear-to-b from-foreground/10 to-transparent text-muted-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_3px_0_rgba(0,0,0,0.45),0_10px_18px_rgba(0,0,0,0.4)] hover:text-foreground",
+              : "border-[color-mix(in_srgb,var(--border)_calc(var(--d,1)*100%),var(--background))] bg-[color-mix(in_srgb,var(--secondary)_calc(var(--d,1)*100%),var(--background))] text-[color-mix(in_srgb,var(--muted-foreground)_calc(var(--d,1)*100%),var(--background))] shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_6px_14px_-8px_rgba(20,10,60,0.45)] hover:text-foreground",
           )}
         >
           <span className={cn("sm:hidden", i !== active && "tabular-nums")}>
