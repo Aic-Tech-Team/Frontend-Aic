@@ -99,12 +99,13 @@ export function ContactForm({
   useEffect(() => onValues?.(values), [values, onValues]);
   useEffect(() => onSentChange?.(sent), [sent, onSentChange]);
 
-  useEffect(() => {
-    if (!subjectProp) return;
-    setValues((v) =>
-      v.subject === subjectProp ? v : { ...v, subject: subjectProp },
-    );
-  }, [subjectProp]);
+  // the subject can be changed from outside (the envelopes, the FAQ): follow it while rendering
+  // rather than in an effect, so the form never shows a stale subject for a frame
+  const [seenSubject, setSeenSubject] = useState(subjectProp);
+  if (subjectProp !== seenSubject) {
+    setSeenSubject(subjectProp);
+    if (subjectProp && values.subject !== subjectProp) setValues({ ...values, subject: subjectProp });
+  }
 
   const set = (field: ContactField, value: string) => {
     setValues((v) => ({ ...v, [field]: value }));
