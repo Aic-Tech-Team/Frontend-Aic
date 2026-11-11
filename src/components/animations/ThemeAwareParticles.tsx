@@ -26,7 +26,7 @@ interface ThemeAwareParticlesProps {
 export function ThemeAwareParticles(props: ThemeAwareParticlesProps) {
   const { resolvedTheme } = useTheme();
   const idle = useIdleReady();
-  const { mounted, prefersReducedMotion, isVisible, particleCount } =
+  const { mounted, prefersReducedMotion, isVisible, particleCount, isNarrow } =
     useMotionCapability();
 
   if (!idle || !mounted || prefersReducedMotion || particleCount <= 0) return null;
@@ -38,6 +38,8 @@ export function ThemeAwareParticles(props: ThemeAwareParticlesProps) {
     <Particles
       {...props}
       particleCount={particleCount}
+      // a phone screen is small and dense: bigger dots on a slightly sharper canvas
+      {...(isNarrow ? { particleBaseSize: 170, pixelRatio: 1.5 } : {})}
       {...(resolvedTheme === "light" ? { opacity: 1 } : {})}
       particleColors={particleColors as unknown as string[]}
       paused={!isVisible}

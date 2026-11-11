@@ -929,14 +929,14 @@
   .blob-1 {
     --b-color: var(--bg-violet);
     --b-alpha: var(--bg-a1);
-    width: min(66vw, 46rem);
+    width: clamp(30rem, 66vw, 46rem);
     aspect-ratio: 1;
   }
 
   .blob-2 {
     --b-color: var(--bg-indigo);
     --b-alpha: var(--bg-a2);
-    width: min(46vw, 32rem);
+    width: clamp(24rem, 46vw, 32rem);
     aspect-ratio: 1;
     animation-duration: 44s;
     animation-delay: -9s;
@@ -945,7 +945,7 @@
   .blob-3 {
     --b-color: var(--bg-orchid);
     --b-alpha: var(--bg-a3);
-    width: min(50vw, 36rem);
+    width: clamp(26rem, 50vw, 36rem);
     aspect-ratio: 1.15;
     animation-duration: 40s;
     animation-delay: -18s;
@@ -954,7 +954,7 @@
   .blob-4 {
     --b-color: var(--bg-deep);
     --b-alpha: var(--bg-a4);
-    width: min(70vw, 50rem);
+    width: clamp(32rem, 70vw, 50rem);
     aspect-ratio: 1.1;
     animation-delay: -5s;
   }
@@ -962,7 +962,7 @@
   .blob-5 {
     --b-color: var(--bg-cool);
     --b-alpha: var(--bg-a5);
-    width: min(44vw, 30rem);
+    width: clamp(20rem, 44vw, 30rem);
     aspect-ratio: 1;
     animation-duration: 48s;
     animation-delay: -27s;
@@ -971,7 +971,7 @@
   .blob-6 {
     --b-color: var(--bg-warm);
     --b-alpha: var(--bg-a6);
-    width: min(40vw, 28rem);
+    width: clamp(18rem, 40vw, 28rem);
     aspect-ratio: 1;
     animation-duration: 52s;
     animation-delay: -14s;
@@ -2499,4 +2499,27 @@ html[dir="rtl"] .stat-ruler {
 [data-theme="light"] .door-sign--open {
   background-color: color-mix(in srgb, #10b981 12%, transparent);
   border-color: color-mix(in srgb, #059669 55%, transparent);
+}
+
+/* Phones: the screen is small and the pools are cropped to a slice of themselves, so they need
+   more strength than on a wide screen to read as the same light. */
+@media (max-width: 768px) {
+  :root,
+  [data-theme="dark"] {
+    --bg-a1: 0.36;
+    --bg-a2: 0.26;
+    --bg-a3: 0.2;
+    --bg-a4: 0.3;
+    --bg-a5: 0.13;
+    --bg-a6: 0.14;
+  }
+
+  [data-theme="light"] {
+    --bg-a1: 0.42;
+    --bg-a2: 0.34;
+    --bg-a3: 0.3;
+    --bg-a4: 0.34;
+    --bg-a5: 0.26;
+    --bg-a6: 0.28;
+  }
 }
