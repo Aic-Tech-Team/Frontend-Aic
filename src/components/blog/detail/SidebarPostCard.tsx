@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import { Calendar, Clock } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { SidebarPost } from "@/types/blog";
@@ -17,12 +17,11 @@ export function SidebarPostCard({ post, showDivider }: SidebarPostCardProps) {
         dir="rtl"
       >
         <span className="relative h-[68px] w-[76px] shrink-0 overflow-hidden rounded-xl bg-muted">
-          <Image
+          <SmartImage
             src={post.image}
             alt={post.title}
             fill
             sizes="76px"
-            unoptimized
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </span>

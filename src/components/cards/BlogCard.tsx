@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import { ArrowLeft, CalendarDays, Clock } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -28,11 +28,10 @@ export function BlogCard({
       )}
     >
       <div className="relative aspect-16/10 w-full overflow-hidden rounded-2xl">
-        <Image
+        <SmartImage
           src={post.image || "/images/banner.jpg"}
           alt=""
           fill
-          unoptimized
           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 88vw"
           className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
         />

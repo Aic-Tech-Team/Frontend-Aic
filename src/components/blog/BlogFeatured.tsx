@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import { ArrowLeft, CalendarDays, Clock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -20,11 +20,10 @@ export async function BlogFeatured({ post }: { post: BlogPostItem }) {
       className="surface group mb-10 grid overflow-hidden rounded-3xl p-3 transition-shadow duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:mb-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-10"
     >
       <div className="relative aspect-16/10 w-full overflow-hidden rounded-2xl lg:aspect-auto lg:min-h-[22rem]">
-        <Image
+        <SmartImage
           src={post.image || "/images/banner.jpg"}
           alt=""
           fill
-          unoptimized
           priority
           sizes="(min-width: 1024px) 55vw, 100vw"
           className="object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"

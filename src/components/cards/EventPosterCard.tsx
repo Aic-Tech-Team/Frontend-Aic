@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import type { ReactNode } from "react";
 import { ArrowLeft, Clock, MapPin, User } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -57,11 +57,10 @@ export function EventPosterCard({
         aria-hidden="true"
         className="absolute inset-0 -z-30 bg-linear-to-br from-primary/25 via-card to-card"
       />
-      <Image
+      <SmartImage
         src={event.image || "/images/banner.jpg"}
         alt=""
         fill
-        unoptimized
         sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 84vw"
         className="-z-20 object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-110"
       />

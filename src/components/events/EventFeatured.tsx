@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import { ArrowLeft, CalendarDays, Clock, MapPin } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -43,11 +43,10 @@ export function EventFeatured({ event }: { event: EventItemWithStatus }) {
   return (
     <article className="ticket-frame ticket-wide relative isolate mb-10 flex flex-col overflow-hidden bg-card text-card-foreground [--ticket-tear:6rem] sm:mb-14 lg:min-h-[25rem] lg:grid lg:grid-cols-[17rem_minmax(0,1fr)_var(--stub-w)]">
       {/* the poster's colours light the ticket */}
-      <Image
+      <SmartImage
         src={event.image || "/images/banner.jpg"}
         alt=""
         fill
-        unoptimized
         sizes="100vw"
         className="-z-20 scale-150 object-cover opacity-30 blur-3xl"
         aria-hidden="true"
@@ -64,11 +63,10 @@ export function EventFeatured({ event }: { event: EventItemWithStatus }) {
         tabIndex={-1}
         className="group relative block aspect-16/10 w-full overflow-hidden lg:aspect-auto"
       >
-        <Image
+        <SmartImage
           src={event.image || "/images/banner.jpg"}
           alt=""
           fill
-          unoptimized
           priority
           sizes="(min-width: 1024px) 17rem, 100vw"
           className="object-cover object-top transition-transform duration-1000 ease-out group-hover:scale-105"

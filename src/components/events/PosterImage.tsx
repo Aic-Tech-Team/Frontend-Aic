@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import { cn } from "@/lib/utils";
 
 /**
@@ -46,11 +47,10 @@ export function PosterImage({
   }
 
   return (
-    <Image
+    <SmartImage
       src={src}
       alt={alt}
       fill
-      unoptimized
       priority={priority}
       sizes={sizes}
       onError={() => setFailed(true)}

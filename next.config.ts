@@ -7,7 +7,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
   images: {
-    unoptimized: true,
+    formats: ["image/webp"],
+    qualities: [20, 70, 75],
+    minimumCacheTTL: 60 * 60 * 24,
     remotePatterns: [
       {
         protocol: "https",
