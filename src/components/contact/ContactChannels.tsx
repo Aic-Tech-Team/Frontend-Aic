@@ -68,7 +68,7 @@ function Row({
     <Tag
       {...(as === "button" ? { type: "button" as const, onClick } : {})}
       className={cn(
-        "group relative grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 gap-y-3 py-6 text-start outline-none sm:gap-x-6 sm:py-8",
+        "group relative grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 gap-y-3 py-5 text-start outline-none sm:gap-x-6 sm:py-6",
         as === "button" && "cursor-pointer focus-visible:ring-2 focus-visible:ring-ring",
       )}
     >
@@ -160,7 +160,7 @@ export function ContactChannels({ onPartner }: { onPartner?: () => void }) {
         <h2 className="mt-4 max-w-4xl text-balance text-3xl font-extrabold leading-[1.35] text-foreground sm:text-5xl">
           {t("channelsTitle")}
         </h2>
-        <p className="mt-5 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg sm:leading-9">{t("channelsLead")}</p>
+        <p className="mt-5 text-base leading-8 text-muted-foreground sm:text-lg sm:leading-9">{t("channelsLead")}</p>
 
         <div className="mt-12 grid min-w-0 gap-10 sm:mt-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start lg:gap-16">
           <RevealGroup className="min-w-0 divide-y divide-border/60 border-y border-border/60" stagger={0.1}>
@@ -192,7 +192,7 @@ export function ContactChannels({ onPartner }: { onPartner?: () => void }) {
             <RevealItem>
               <Row label={t("visitLabel")}>
                 <p className="text-xl font-extrabold leading-snug text-foreground sm:text-2xl">{footer("address")}</p>
-                <p className="mt-3 max-w-[52ch] text-sm leading-8 text-muted-foreground">{t("visitNote")}</p>
+                <p className="mt-3 text-sm leading-8 text-muted-foreground">{t("visitNote")}</p>
               </Row>
             </RevealItem>
 
@@ -208,7 +208,7 @@ export function ContactChannels({ onPartner }: { onPartner?: () => void }) {
                 }
               >
                 <span className="block text-xl font-extrabold leading-snug text-foreground sm:text-2xl">{t("partnerTitle")}</span>
-                <span className="mt-2 block max-w-[48ch] text-sm leading-7 text-muted-foreground">{t("partnerBody")}</span>
+                <span className="mt-2 block text-sm leading-7 text-muted-foreground">{t("partnerBody")}</span>
               </Row>
             </RevealItem>
           </RevealGroup>

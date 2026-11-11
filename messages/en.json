@@ -110,7 +110,7 @@
   "Cta": {
     "badge": "Join AIC",
     "title": "Be part of our community",
-    "description": "If you are a student passionate about AI, join us in scientific, educational, and research activities — and grow with AIC.",
+    "description": "If you are a student passionate about AI, join the community and take part in our scientific, educational and research activities.",
     "join": "Apply to join",
     "partner": "Organizational partnership"
   },
@@ -496,8 +496,8 @@
     "contests": "Student contests",
     "research": "Research projects",
     "contactTitle": "Contact us",
-    "email": "aic@university.ac.ir",
-    "address": "Faculty of Artificial Intelligence, Academic Building 2",
+    "email": "info@kaic.karaj.iau.ir",
+    "address": "Faculty of Artificial Intelligence, first floor, AI Community office",
     "hours": "Sat–Wed 8:00–18:00, Thu–Fri 10:00–16:00",
     "hoursWeek": "Sat–Wed, 8:00–18:00",
     "hoursEnd": "Thu–Fri, 10:00–16:00",
@@ -662,7 +662,7 @@
     "copyEmail": "Copy",
     "copied": "Copied",
     "visitLabel": "In person",
-    "visitNote": "Opening hours are in the card beside this. If you have something specific in mind, leave a message first so we can plan.",
+    "visitNote": "Opening hours are in the card beside this. Leave a message before you come, so we can be sure someone is in the office.",
     "partnerLabel": "An organization or company?",
     "partnerTitle": "Propose a partnership",
     "partnerBody": "Describe the workshop, industry visit or research project in your message.",
@@ -708,7 +708,7 @@
       },
       {
         "q": "Where do I go to visit in person?",
-        "a": "Faculty of Artificial Intelligence, Education Building No. 2; Saturday to Wednesday 8:00–18:00, Thursday and Friday 10:00–16:00. If you want a focused conversation, write first so we can coordinate."
+        "a": "The AI Community office is on the first floor of the Faculty of Artificial Intelligence; Saturday to Wednesday 8:00–18:00, Thursday and Friday 10:00–16:00. If you have something specific in mind, write first so we can coordinate."
       },
       {
         "q": "Where do I hear about events and workshops?",
