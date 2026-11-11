@@ -155,8 +155,7 @@ const RING_BOX = LAND_RINGS.map((ring) => {
   return [a, b, c, d] as const;
 });
 
-/** `lat`/`lon` in degrees. */
-export function isLand(lat: number, lon: number): boolean {
+function isLandExact(lat: number, lon: number): boolean {
   if (lat < -60) return false;
   for (let i = 0; i < LAND_RINGS.length; i++) {
     const [a, b, c, d] = RING_BOX[i];
@@ -164,6 +163,53 @@ export function isLand(lat: number, lon: number): boolean {
     if (inRing(lon, lat, LAND_RINGS[i])) return true;
   }
   return false;
+}
+
+/**
+ * The land drawn once into a small bitmap (the browser fills polygons natively), then read per
+ * dot. Testing every dot against every outline in JS took a third of a second on the main thread
+ * while the page was still loading.
+ */
+const MASK_W = 1440;
+const MASK_H = 720;
+let mask: Uint8Array | null | undefined;
+
+function landMask() {
+  if (mask !== undefined) return mask;
+  mask = null;
+  if (typeof document === "undefined") return mask;
+  const canvas = document.createElement("canvas");
+  canvas.width = MASK_W;
+  canvas.height = MASK_H;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return mask;
+  ctx.fillStyle = "#fff";
+  for (const ring of LAND_RINGS) {
+    ctx.beginPath();
+    ring.forEach(([lon, lat], i) => {
+      const x = ((lon + 180) / 360) * MASK_W;
+      const y = ((90 - lat) / 180) * MASK_H;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fill();
+  }
+  const rgba = ctx.getImageData(0, 0, MASK_W, MASK_H).data;
+  const bits = new Uint8Array(MASK_W * MASK_H);
+  for (let i = 0; i < bits.length; i++) bits[i] = rgba[i * 4 + 3] > 127 ? 1 : 0;
+  mask = bits;
+  return mask;
+}
+
+/** `lat`/`lon` in degrees. */
+export function isLand(lat: number, lon: number): boolean {
+  if (lat < -60) return false;
+  const bits = landMask();
+  if (!bits) return isLandExact(lat, lon);
+  const x = Math.min(MASK_W - 1, Math.max(0, Math.floor(((lon + 180) / 360) * MASK_W)));
+  const y = Math.min(MASK_H - 1, Math.max(0, Math.floor(((90 - lat) / 180) * MASK_H)));
+  return bits[y * MASK_W + x] === 1;
 }
 
 export function isIran(lat: number, lon: number): boolean {
