@@ -10,9 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { GlareButton } from "@/components/ui/glare-button";
 import AutoBorderGlow from "@/components/animations/AutoBorderGlow";
 import { gsap, prefersReducedMotion, useGSAP } from "@/lib/gsap";
+import { INTENT_HUES, INTENT_ICONS } from "@/components/contact/intents";
 import { cn } from "@/lib/utils";
 import {
   hasErrors,
+  MESSAGE_MIN_LENGTH,
   normalizeContact,
   validateContact,
   type ContactErrors,
@@ -28,11 +30,13 @@ function Field({
   label,
   optionalLabel,
   error,
+  hint,
   children,
 }: {
   id: string;
   label: string;
   optionalLabel?: string;
+  hint?: string;
   error?: string;
   children: ReactNode;
 }) {
@@ -50,6 +54,9 @@ function Field({
         ) : null}
       </label>
       {children}
+      {!error && hint ? (
+        <p className="mt-1.5 text-xs leading-6 text-muted-foreground">{hint}</p>
+      ) : null}
       {error ? (
         <p id={`${id}-error`} className="mt-1.5 text-xs leading-6 text-destructive">
           {error}
@@ -62,9 +69,14 @@ function Field({
 export function ContactForm({
   subject: subjectProp,
   onSubjectChange,
+  onValues,
+  onSentChange,
 }: {
   subject?: string;
   onSubjectChange?: (subject: string) => void;
+  /** Fires on every edit so a live preview can mirror the draft. */
+  onValues?: (values: ContactInput) => void;
+  onSentChange?: (sent: boolean) => void;
 } = {}) {
   const t = useTranslations("ContactPage");
   const subjects = t.raw("subjects") as string[];
@@ -83,6 +95,9 @@ export function ContactForm({
   const honeypot = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const doneRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => onValues?.(values), [values, onValues]);
+  useEffect(() => onSentChange?.(sent), [sent, onSentChange]);
 
   useEffect(() => {
     if (!subjectProp) return;
@@ -147,20 +162,13 @@ export function ContactForm({
   useGSAP(
     () => {
       if (!sent || prefersReducedMotion()) return;
-      gsap.from("[data-done-badge]", {
-        scale: 0.4,
-        autoAlpha: 0,
-        duration: 0.8,
-        ease: "back.out(2)",
-      });
-      gsap.from("[data-done-item]", {
-        y: 18,
-        autoAlpha: 0,
-        duration: 0.7,
-        stagger: 0.1,
-        delay: 0.2,
-        ease: "power3.out",
-      });
+      gsap.from("[data-done-badge]", { scale: 0.4, autoAlpha: 0, duration: 0.8, ease: "back.out(2)" });
+      gsap.fromTo(
+        "[data-done-check]",
+        { strokeDasharray: 1, strokeDashoffset: 1 },
+        { strokeDashoffset: 0, duration: 0.6, delay: 0.35, ease: "power2.out" },
+      );
+      gsap.from("[data-done-item]", { y: 18, autoAlpha: 0, duration: 0.7, stagger: 0.1, delay: 0.25, ease: "power3.out" });
     },
     { scope: doneRef, dependencies: [sent] },
   );
@@ -188,46 +196,30 @@ export function ContactForm({
         speed={7}
         lightModeBoost={2.5}
       >
-        <div className="surface relative w-full rounded-[inherit] border-0 p-6 sm:p-10">
+        <div className="surface relative w-full rounded-[inherit] border-0 p-5 sm:p-10">
           {sent ? (
-            <div
-              ref={doneRef}
-              role="status"
-              className="flex min-h-96 flex-col items-center justify-center text-center"
-            >
+            <div ref={doneRef} role="status" className="flex min-h-96 flex-col items-center justify-center text-center">
               <span
                 data-done-badge
                 className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/15 text-primary-300 shadow-glow ring-1 ring-primary/40"
               >
-                <Check className="h-9 w-9" strokeWidth={2.5} />
+                <svg viewBox="0 0 24 24" className="h-9 w-9" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path data-done-check pathLength={1} d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
               </span>
-              <h2
-                data-done-item
-                className="mt-7 text-2xl font-extrabold text-foreground sm:text-3xl"
-              >
+              <h2 data-done-item className="mt-7 text-2xl font-extrabold text-foreground sm:text-3xl">
                 {t("success.title")}
               </h2>
-              <p
-                data-done-item
-                className="mt-3 max-w-[40ch] text-sm leading-8 text-muted-foreground sm:text-base"
-              >
+              <p data-done-item className="mt-3 max-w-[40ch] text-sm leading-8 text-muted-foreground sm:text-base">
                 {t("success.description")}
               </p>
-              <Button
-                data-done-item
-                type="button"
-                variant="outline"
-                onClick={reset}
-                className="mt-8 h-11 rounded-full px-7"
-              >
+              <Button data-done-item type="button" variant="outline" onClick={reset} className="mt-8 h-11 rounded-full px-7">
                 {t("success.again")}
               </Button>
             </div>
           ) : (
             <form ref={formRef} onSubmit={onSubmit} noValidate className="space-y-6">
-              <h2 className="text-xl font-extrabold text-foreground sm:text-2xl">
-                {t("form.title")}
-              </h2>
+              <h2 className="text-xl font-extrabold text-foreground sm:text-2xl">{t("form.title")}</h2>
 
               {/* Honeypot: hidden from people and assistive tech */}
               <input
@@ -240,14 +232,12 @@ export function ContactForm({
                 className="absolute -start-2499.75 h-0 w-0 opacity-0"
               />
 
-              {subjectProp === undefined ? (
               <div role="radiogroup" aria-label={t("form.subject")}>
-                <p className="mb-2.5 text-sm font-bold text-foreground">
-                  {t("form.subject")}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {subjects.map((s) => {
+                <p className="mb-3 text-sm font-bold text-foreground">{t("form.subject")}</p>
+                <div className="grid grid-cols-2 gap-2 sm:gap-2.5 xl:grid-cols-3">
+                  {subjects.map((s, i) => {
                     const active = values.subject === s;
+                    const Icon = INTENT_ICONS[i];
                     return (
                       <button
                         key={s}
@@ -257,19 +247,30 @@ export function ContactForm({
                         disabled={pending}
                         onClick={() => set("subject", s)}
                         className={cn(
-                          "rounded-full border px-4 py-2 text-sm font-medium outline-none transition-[background-color,border-color,color,box-shadow] duration-300 focus-visible:ring-2 focus-visible:ring-ring",
+                          "relative flex min-h-[5.5rem] flex-col items-start justify-between gap-2.5 rounded-2xl border p-3 text-start outline-none sm:min-h-[4.25rem] sm:flex-row sm:items-center sm:justify-start sm:gap-3 transition-[background-color,border-color,box-shadow] duration-300 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60",
                           active
-                            ? "border-primary bg-primary text-primary-foreground shadow-glow"
-                            : "border-border/70 text-muted-foreground hover:border-primary/60 hover:text-foreground",
+                            ? "border-[var(--hue)] bg-[color-mix(in_srgb,var(--hue)_16%,transparent)] shadow-[0_10px_26px_-14px_var(--hue)]"
+                            : "border-border/60 bg-white/[0.03] hover:border-[color-mix(in_srgb,var(--hue)_70%,transparent)]",
                         )}
+                        style={{ "--hue": INTENT_HUES[i] } as React.CSSProperties}
                       >
-                        {s}
+                        <span
+                          className={cn(
+                            "flex size-10 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
+                            active
+                              ? "-rotate-6 bg-[var(--hue)] text-white shadow-[0_4px_12px_-4px_var(--hue)]"
+                              : "bg-[color-mix(in_srgb,var(--hue)_18%,transparent)] text-[var(--hue)]",
+                          )}
+                        >
+                          {Icon ? <Icon className="size-5" aria-hidden="true" /> : null}
+                        </span>
+                        <span className={cn("min-w-0 text-sm font-bold leading-snug", active ? "text-foreground" : "text-foreground/80")}>{s}</span>
+                        {active ? <Check className="absolute end-2.5 top-2.5 size-3.5 text-[var(--hue)]" aria-hidden="true" /> : null}
                       </button>
                     );
                   })}
                 </div>
               </div>
-              ) : null}
 
               <div className="grid gap-5 lg:grid-cols-2">
                 <Field id="contact-name" label={t("form.name")} error={message("name")}>
@@ -294,12 +295,7 @@ export function ContactForm({
                 </Field>
               </div>
 
-              <Field
-                id="contact-phone"
-                label={t("form.phone")}
-                optionalLabel={t("form.optional")}
-                error={message("phone")}
-              >
+              <Field id="contact-phone" label={t("form.phone")} error={message("phone")} hint={t("form.phoneHint")}>
                 <Input
                   {...fieldProps("phone")}
                   name="phone"
@@ -312,7 +308,16 @@ export function ContactForm({
                 />
               </Field>
 
-              <Field id="contact-message" label={t("form.message")} error={message("message")}>
+              <Field
+                id="contact-message"
+                label={t("form.message")}
+                error={message("message")}
+                hint={
+                  values.message.trim().length < MESSAGE_MIN_LENGTH
+                    ? t("form.minChars", { count: MESSAGE_MIN_LENGTH - values.message.trim().length })
+                    : undefined
+                }
+              >
                 <Textarea
                   {...fieldProps("message")}
                   name="message"

@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { ScrollText } from "@/components/animations/ScrollText";
+import { SectionHeading } from "@/components/common/SectionHeading";
 import { AboutTimeline } from "./AboutTimeline";
 
 const IMAGES = [
@@ -19,15 +19,12 @@ export async function AboutPillars() {
   return (
     <section className="py-14 sm:py-24">
       <div className="container">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-extrabold leading-snug text-foreground sm:text-4xl lg:text-5xl">
-            {t("pillarsTitle")}
-          </h2>
-          <ScrollText
-            text={t("pillarsDescription")}
-            className="mt-4 text-base leading-8 text-muted-foreground sm:text-lg"
-          />
-        </div>
+        <SectionHeading
+          align="center"
+          badge={t("pillarsEyebrow")}
+          title={t("pillarsTitle")}
+          description={t("pillarsDescription")}
+        />
         <AboutTimeline items={items} next={next} />
       </div>
     </section>

@@ -23,6 +23,7 @@ export function BlogMeta({ meta, labels }: BlogMetaProps) {
         />
         {labels.publishedLabel}: {meta.publishedAt}
       </span>
+      {meta.updatedAt ? (
       <span className={META_STYLE}>
         <RefreshCw
           className="h-4 w-4 shrink-0 text-primary-300"
@@ -30,6 +31,7 @@ export function BlogMeta({ meta, labels }: BlogMetaProps) {
         />
         {labels.updatedLabel}: {meta.updatedAt}
       </span>
+      ) : null}
       <span className={META_STYLE}>
         <Clock
           className="h-4 w-4 shrink-0 text-primary-300"

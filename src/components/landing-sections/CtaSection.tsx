@@ -1,5 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { contactHref } from "@/components/contact/intents";
 import { Button } from "@/components/ui/button";
 import { GlareButton } from "@/components/ui/glare-button";
 import { buttonVariants } from "@/components/ui/button-variants";
@@ -46,8 +48,8 @@ export async function CtaSection() {
               <div className="mt-10 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
                 <Magnetic className="w-full sm:w-auto">
                   <GlareButton className="w-full sm:w-auto">
-                    <a
-                      href="#join"
+                    <Link
+                      href={contactHref("join")}
                       className={cn(
                         buttonVariants({ size: "lg" }),
                         "h-14 w-full rounded-full px-9 text-base shadow-glow sm:w-auto",
@@ -55,17 +57,18 @@ export async function CtaSection() {
                     >
                       {t("join")}
                       <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
-                    </a>
+                    </Link>
                   </GlareButton>
                 </Magnetic>
                 <Magnetic className="w-full sm:w-auto">
                   <GlareButton className="w-full sm:w-auto">
                     <Button
+                      asChild
                       variant="outline"
                       size="lg"
                       className="h-14 w-full rounded-full border-border/60 bg-background/30 px-9 text-base sm:w-auto"
                     >
-                      {t("partner")}
+                      <Link href={contactHref("partner")}>{t("partner")}</Link>
                     </Button>
                   </GlareButton>
                 </Magnetic>

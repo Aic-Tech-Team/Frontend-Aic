@@ -1,15 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Search, X } from "lucide-react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { Input } from "@/components/ui/input";
-import { Carousel } from "@/components/common/Carousel";
 import { sanitizeSearchInput } from "@/lib/sanitize";
 import { withQuery } from "@/lib/search-params";
 import { cn } from "@/lib/utils";
-import type { EventItemWithStatus, EventStatus } from "@/types/events";
+import { beginNavigation } from "@/lib/begin-navigation";
+import type { EventStatus } from "@/types/events";
 
 const SEARCH_MAX_LENGTH = 100;
 
@@ -18,17 +18,18 @@ type FilterKey = "all" | EventStatus;
 const FILTER_KEYS: FilterKey[] = ["all", "ongoing", "upcoming", "past"];
 
 interface EventsExplorerProps {
-  spotlightEvents: EventItemWithStatus[];
   search: string;
   selectedFilter: FilterKey;
+  /** The highlighted event, streamed in by the server. */
+  featured?: React.ReactNode;
   children: React.ReactNode;
 }
 
 /** Client filters only. List HTML comes from the server as `children`. */
 export function EventsExplorer({
-  spotlightEvents,
   search,
   selectedFilter,
+  featured,
   children,
 }: EventsExplorerProps) {
   const t = useTranslations("EventsPage");
@@ -43,7 +44,7 @@ export function EventsExplorer({
   }
 
   const filter = selectedFilter || "all";
-  const lastPushedRef = useRef<string | null>(null);
+
 
   function pushFilters(nextSearch: string, nextFilter: FilterKey) {
     const trimmedSearch = nextSearch.trim();
@@ -53,8 +54,7 @@ export function EventsExplorer({
       q: trimmedSearch || undefined,
       filter: nextFilter !== "all" ? nextFilter : undefined,
     });
-    if (lastPushedRef.current === href) return;
-    lastPushedRef.current = href;
+    beginNavigation();
     router.push(href);
   }
 
@@ -68,80 +68,14 @@ export function EventsExplorer({
 
   return (
     <div>
-      {spotlightEvents.length > 0 ? (
-        <div className="mb-6">
-          <Carousel
-            ariaLabel={t("title")}
-            slideClassName="flex-[0_0_100%] sm:flex-[0_0_calc((100%-1.25rem)/2)] lg:flex-[0_0_calc((100%-2.5rem)/3)]"
-            options={{ loop: false, slidesToScroll: 1 }}
-          >
-            {spotlightEvents.slice(0, 5).map((event, index) => (
-              <div
-                key={event.id}
-                className="group relative h-52 overflow-hidden rounded-3xl"
-              >
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{
-                    backgroundImage: `linear-gradient(135deg, rgba(10,10,20,0.18), rgba(10,10,20,0.75)), url(${event.image})`,
-                  }}
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
-                <div className="relative flex h-full flex-col justify-end p-4 text-white sm:p-5">
-                  <span className="mb-2 w-fit rounded-full border border-white/20 bg-black/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider backdrop-blur-sm">
-                    {t(`status.${event.status}`)}
-                  </span>
-                  <h3 className="line-clamp-2 text-base font-bold leading-snug sm:text-lg">
-                    {event.title}
-                  </h3>
-                  <p className="mt-1 text-xs text-white/70 sm:text-sm">
-                    {event.dateTimeLabel}
-                  </p>
-                  <div className="mt-3 flex items-center gap-2 text-[11px] text-white/80">
-                    <span className="rounded-full bg-white/10 px-2 py-1">
-                      {event.category}
-                    </span>
-                    {index % 2 === 0 ? (
-                      <span className="rounded-full bg-white/10 px-2 py-1">
-                        {event.location}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </Carousel>
-        </div>
-      ) : null}
+      {featured}
 
-      <div className="surface flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-        <form onSubmit={handleSearch} className="relative w-full sm:max-w-sm">
-          <Search className="pointer-events-none absolute inset-s-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            maxLength={SEARCH_MAX_LENGTH}
-            placeholder={t("searchPlaceholder")}
-            aria-label={t("searchLabel")}
-            className="ps-10 pe-9"
-          />
-          {searchInput ? (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchInput("");
-                pushFilters("", filter);
-              }}
-              aria-label={t("clearFilters")}
-              className="absolute inset-e-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          ) : null}
-        </form>
-
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="mb-8 flex flex-col gap-3 border-b border-border/50 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
+        <div
+          role="group"
+          aria-label={t("title")}
+          className="-mb-px flex gap-6 overflow-x-auto [scrollbar-width:none] sm:gap-8"
+        >
           {FILTER_KEYS.map((key) => (
             <button
               key={key}
@@ -149,19 +83,63 @@ export function EventsExplorer({
               onClick={() => pushFilters(searchInput, key)}
               aria-pressed={filter === key}
               className={cn(
-                "rounded-full px-3.5 py-2 text-xs font-medium transition-colors sm:text-sm",
+                "group relative flex min-w-11 shrink-0 items-center justify-center gap-2 px-1 pb-3.5 pt-2 text-sm font-bold transition-colors duration-300 sm:text-base",
                 filter === key
-                  ? "bg-primary text-primary-foreground shadow-glow"
-                  : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
+              {key === "ongoing" ? (
+                <span className="size-2 shrink-0 animate-pulse-glow rounded-full bg-emerald-400 shadow-[0_0_10px_2px_rgba(52,211,153,0.6)]" />
+              ) : null}
               {t(`filters.${key}`)}
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "absolute inset-x-0 bottom-0 h-0.5 origin-center rounded-full bg-primary shadow-[0_0_14px_2px_color-mix(in_srgb,var(--primary)_60%,transparent)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                  filter === key
+                    ? "scale-x-100"
+                    : "scale-x-0 group-hover:scale-x-40",
+                )}
+              />
             </button>
           ))}
         </div>
+
+        <div className="flex items-center gap-4 pb-3 sm:pb-2.5">
+          <form onSubmit={handleSearch} className="relative min-w-0 flex-1 sm:w-72 sm:flex-none lg:w-96">
+            <Search className="pointer-events-none absolute inset-s-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              maxLength={SEARCH_MAX_LENGTH}
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("searchLabel")}
+              className="h-10 rounded-xl border-border/50 bg-transparent ps-9 pe-8 text-sm"
+            />
+            {searchInput ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchInput("");
+                  pushFilters("", filter);
+                }}
+                aria-label={t("clearFilters")}
+                className="absolute inset-e-2.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            ) : null}
+          </form>
+          <p
+            id="events-count"
+            className="shrink-0 whitespace-nowrap text-xs text-muted-foreground sm:text-sm"
+          />
+        </div>
       </div>
 
-      <div className="mt-8">{children}</div>
+      <div>{children}</div>
     </div>
   );
 }

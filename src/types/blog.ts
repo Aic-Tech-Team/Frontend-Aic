@@ -8,6 +8,8 @@ export interface BlogPostItem {
   content?: string;
   publishedLabel: string;
   publishedAt: string;
+  /** Date of the last edit, in words; empty when the API gives none. */
+  updatedLabel?: string;
 }
 
 export interface SidebarPost {
@@ -22,6 +24,7 @@ export interface SidebarPost {
 export interface ArticleMetaItem {
   author: string;
   publishedAt: string;
+  /** Empty when the article has not been edited since it came out. */
   updatedAt: string;
   readTime: string;
 }
@@ -34,9 +37,14 @@ export interface BlogDetailLabels {
   publishedLabel: string;
   updatedLabel: string;
   readTimeLabel: string;
+  infoTitle: string;
+  categoryLabel: string;
+  share: string;
+  linkCopied: string;
+  tocTitle: string;
 }
 
 export interface BlogBreadcrumbItem {
   label: string;
-  href?: "/" | "/blog";
+  href?: "/" | "/blog" | "/events";
 }

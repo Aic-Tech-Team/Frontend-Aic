@@ -165,9 +165,19 @@
   --glow-5: rgba(149, 141, 24, 0.45);
   --glow-6: rgba(234, 11, 11, 0.45);
 
-  --blob-opacity: 0.45;
-  --blob-blur: 110px;
-  --blob-blend: screen;
+  /* ambient light: hue, then strength of each pool */
+  --bg-violet: hsl(262 85% 60%);
+  --bg-indigo: hsl(236 85% 62%);
+  --bg-orchid: hsl(286 70% 55%);
+  --bg-deep: hsl(252 90% 52%);
+  --bg-cool: hsl(198 90% 58%);
+  --bg-warm: hsl(318 80% 60%);
+  --bg-a1: 0.2;
+  --bg-a2: 0.14;
+  --bg-a3: 0.1;
+  --bg-a4: 0.17;
+  --bg-a5: 0.07;
+  --bg-a6: 0.07;
 
   --glow-7: rgba(103, 232, 249, 0.4);
   --glow-8: rgba(192, 132, 252, 0.4);
@@ -185,8 +195,8 @@
   --primary-50: hsl(258 100% 98%);
   --primary-100: hsl(258 90% 94%);
   --primary-200: hsl(260 78% 86%);
-  --primary-300: hsl(262 55% 55%);
-  --primary-400: hsl(262 65% 50%);
+  --primary-300: hsl(262 58% 47%);
+  --primary-400: hsl(262 66% 44%);
   --primary-500: hsl(262 72% 46%);
   --primary-600: hsl(264 72% 40%);
   --primary-700: hsl(266 68% 34%);
@@ -199,8 +209,8 @@
   --muted: hsl(258 30% 93%);
   --muted-foreground: hsl(260 18% 38%);
 
-  --border: hsl(258 22% 86%);
-  --input: hsl(258 24% 90%);
+  --border: hsl(258 24% 76%);
+  --input: hsl(258 26% 82%);
   --ring: hsl(262 72% 46%);
 
   --destructive: hsl(0 72% 51%);
@@ -215,15 +225,39 @@
   --glow-5: rgba(149, 141, 24, 0.4);
   --glow-6: rgba(234, 11, 11, 0.4);
 
-  --blob-opacity: 1;
-  --blob-blur: 90px;
-  --blob-blend: multiply;
+  --bg-violet: hsl(262 90% 74%);
+  --bg-indigo: hsl(222 95% 76%);
+  --bg-orchid: hsl(290 80% 78%);
+  --bg-deep: hsl(250 90% 74%);
+  --bg-cool: hsl(196 95% 74%);
+  --bg-warm: hsl(24 100% 78%);
+  --bg-a1: 0.3;
+  --bg-a2: 0.24;
+  --bg-a3: 0.2;
+  --bg-a4: 0.24;
+  --bg-a5: 0.18;
+  --bg-a6: 0.2;
 
   --glow-7: rgba(103, 232, 249, 0.35);
   --glow-8: rgba(192, 132, 252, 0.35);
 }
 
 @layer base {
+  /* No orphans: a paragraph fills the line, and never leaves one word alone on the last row. */
+  p,
+  li,
+  dd,
+  blockquote {
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
   /* Ticket-shaped card: true transparent scalloped bites cut into the
      left/right edges via CSS masking (not painted circles), so whatever
      sits behind the card — including the animated blob background —
@@ -740,8 +774,6 @@
         color-mix(in srgb, var(--card) 58%, transparent) 0%,
         color-mix(in srgb, var(--card) 32%, transparent) 100%
       );
-    -webkit-backdrop-filter: blur(28px) saturate(165%);
-    backdrop-filter: blur(28px) saturate(165%);
     border: 1px solid color-mix(in srgb, var(--border) 48%, transparent);
     box-shadow:
       inset 0 1px 0 0 color-mix(in srgb, white 14%, transparent),
@@ -765,8 +797,6 @@
         color-mix(in srgb, var(--card) 88%, transparent) 0%,
         color-mix(in srgb, var(--card) 70%, transparent) 100%
       );
-    -webkit-backdrop-filter: blur(24px) saturate(150%);
-    backdrop-filter: blur(24px) saturate(150%);
     border-color: color-mix(in srgb, var(--primary) 16%, var(--border));
     box-shadow:
       inset 0 1px 0 0 color-mix(in srgb, white 80%, transparent),
@@ -780,8 +810,6 @@
       color-mix(in srgb, var(--card) 52%, transparent) 0%,
       color-mix(in srgb, var(--background) 38%, transparent) 100%
     );
-    -webkit-backdrop-filter: blur(32px) saturate(170%);
-    backdrop-filter: blur(32px) saturate(170%);
     border-top: 1px solid color-mix(in srgb, var(--border) 45%, transparent);
     box-shadow: inset 0 1px 0 0 color-mix(in srgb, white 10%, transparent);
   }
@@ -794,6 +822,26 @@
     );
     border-top-color: color-mix(in srgb, var(--border) 60%, transparent);
     box-shadow: inset 0 1px 0 0 color-mix(in srgb, white 60%, transparent);
+  }
+
+  /* Frosted glass only where there is a real pointer and room for it. The blur is lighter than
+     it was (18px) and the ambient light behind it is static pools, so it stays cheap; phones,
+     tablets and touch screens get the opaque fill below. */
+  @media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
+    .surface {
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      backdrop-filter: blur(18px) saturate(150%);
+    }
+
+    [data-theme="light"] .surface {
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      backdrop-filter: blur(16px) saturate(140%);
+    }
+
+    .glass-footer {
+      -webkit-backdrop-filter: blur(22px) saturate(150%);
+      backdrop-filter: blur(22px) saturate(150%);
+    }
   }
 
   /* Narrow: opaque fill. backdrop-filter resamples the animated
@@ -846,6 +894,9 @@
       color-mix(in srgb, var(--primary) 55%, transparent);
   }
 
+  /* Ambient light: six soft pools of the brand violet with one cool and one warm accent,
+     placed so the page reads as lit from the upper corner. Each fades out by itself (no blur
+     filter), and the wrapper drifts at its own speed as the page scrolls. */
   .blob-bg {
     position: fixed;
     inset: 0;
@@ -860,128 +911,72 @@
 
   .blob {
     border-radius: 9999px;
-    filter: blur(var(--blob-blur));
-    opacity: var(--blob-opacity);
-    mix-blend-mode: var(--blob-blend);
-    animation: blob-float 18s ease-in-out infinite;
-  }
-
-  .blob-bg--lite {
-    --blob-blur: 55px;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--b-color) calc(var(--b-alpha) * 100%), transparent) 0%,
+      color-mix(in srgb, var(--b-color) calc(var(--b-alpha) * 62%), transparent) 38%,
+      color-mix(in srgb, var(--b-color) calc(var(--b-alpha) * 22%), transparent) 68%,
+      transparent 100%
+    );
+    will-change: transform;
+    animation: blob-float 36s ease-in-out infinite;
   }
 
   .blob-bg--lite .blob {
-    animation-duration: 28s;
+    animation-duration: 56s;
   }
 
   .blob-1 {
-    width: 50rem;
-    height: 50rem;
-    background: radial-gradient(
-      circle at 60% 40%,
-      color-mix(in srgb, var(--glow-1) 90%, transparent),
-      transparent 70%
-    );
-    animation-duration: 20s;
-    animation-delay: 0s;
+    --b-color: var(--bg-violet);
+    --b-alpha: var(--bg-a1);
+    width: min(66vw, 46rem);
+    aspect-ratio: 1;
   }
 
   .blob-2 {
-    width: 24rem;
-    height: 26rem;
-    background: radial-gradient(
-      circle at 70% 30%,
-      color-mix(in srgb, var(--glow-2) 90%, transparent),
-      transparent 70%
-    );
-    animation-duration: 34s;
-    animation-delay: -89s;
+    --b-color: var(--bg-indigo);
+    --b-alpha: var(--bg-a2);
+    width: min(46vw, 32rem);
+    aspect-ratio: 1;
+    animation-duration: 44s;
+    animation-delay: -9s;
   }
 
   .blob-3 {
-    width: 30rem;
-    height: 30rem;
-    background: radial-gradient(
-      circle at 30% 30%,
-      color-mix(in srgb, var(--glow-3) 90%, transparent),
-      transparent 70%
-    );
-    animation-duration: 22s;
-    animation-delay: -11s;
+    --b-color: var(--bg-orchid);
+    --b-alpha: var(--bg-a3);
+    width: min(50vw, 36rem);
+    aspect-ratio: 1.15;
+    animation-duration: 40s;
+    animation-delay: -18s;
   }
 
   .blob-4 {
-    width: 36rem;
-    height: 30rem;
-    background: radial-gradient(
-      circle at 30% 30%,
-      color-mix(in srgb, var(--glow-4) 90%, transparent),
-      transparent 70%
-    );
-    animation-duration: 26s;
-    animation-delay: -60s;
+    --b-color: var(--bg-deep);
+    --b-alpha: var(--bg-a4);
+    width: min(70vw, 50rem);
+    aspect-ratio: 1.1;
+    animation-delay: -5s;
   }
 
   .blob-5 {
-    width: 54rem;
-    height: 20rem;
-    background: radial-gradient(
-      circle at 30% 30%,
-      color-mix(in srgb, var(--glow-5) 92%, transparent),
-      transparent 70%
-    );
-    animation-duration: 20s;
-    animation-delay: -70s;
+    --b-color: var(--bg-cool);
+    --b-alpha: var(--bg-a5);
+    width: min(44vw, 30rem);
+    aspect-ratio: 1;
+    animation-duration: 48s;
+    animation-delay: -27s;
   }
 
   .blob-6 {
-    width: 20rem;
-    height: 16rem;
-    background: radial-gradient(
-      circle at 30% 30%,
-      color-mix(in srgb, var(--glow-6) 92%, transparent),
-      transparent 70%
-    );
-    animation-duration: 18s;
-    animation-delay: -50s;
-  }
-
-  .blob-7 {
-    width: 55rem;
-    height: 50rem;
-    background: radial-gradient(
-      circle at 30% 30%,
-      color-mix(in srgb, var(--glow-7) 92%, transparent),
-      transparent 70%
-    );
-    animation-duration: 18s;
-    animation-delay: -20s;
-  }
-
-  .blob-8 {
-    width: 36rem;
-    height: 35rem;
-    background: radial-gradient(
-      circle at 70% 30%,
-      color-mix(in srgb, var(--glow-8) 92%, transparent),
-      transparent 70%
-    );
-    animation-duration: 18s;
-    animation-delay: -40s;
-  }
-  [data-theme="light"] .blob-1,
-  [data-theme="light"] .blob-2,
-  [data-theme="light"] .blob-3,
-  [data-theme="light"] .blob-4,
-  [data-theme="light"] .blob-5,
-  [data-theme="light"] .blob-6,
-  [data-theme="light"] .blob-7,
-  [data-theme="light"] .blob-8 {
-    transform: scale(1.06);
-    opacity: 1;
+    --b-color: var(--bg-warm);
+    --b-alpha: var(--bg-a6);
+    width: min(40vw, 28rem);
+    aspect-ratio: 1;
+    animation-duration: 52s;
+    animation-delay: -14s;
   }
 }
-
 @keyframes blob-float {
   0%,
   100% {
@@ -1043,6 +1038,146 @@
     box-shadow: 0 4px 14px color-mix(in srgb, var(--foreground) 6%, transparent);
   }
 
+  /* A boarding-pass style tag that rides the orbit: notched sides, a beacon that pings, the
+     number set large and the rest of the label small. */
+  .orbit-pass {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem 0.95rem 0.5rem 0.55rem;
+    border-radius: 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--primary) 34%, var(--border));
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary) 16%, var(--card)) 0%,
+        color-mix(in srgb, var(--card) 88%, transparent) 62%
+      );
+    box-shadow:
+      inset 0 1px 0 0 color-mix(in srgb, white 14%, transparent),
+      0 14px 30px -16px color-mix(in srgb, var(--primary) 70%, transparent);
+    -webkit-mask-image:
+      radial-gradient(circle 5px at 0 50%, #0000 97%, #000),
+      radial-gradient(circle 5px at 100% 50%, #0000 97%, #000);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      radial-gradient(circle 5px at 0 50%, #0000 97%, #000),
+      radial-gradient(circle 5px at 100% 50%, #0000 97%, #000);
+    mask-composite: intersect;
+  }
+
+  .orbit-pass__beacon {
+    position: relative;
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 0.7rem;
+    color: var(--primary-200);
+    background:
+      radial-gradient(
+        circle at 30% 25%,
+        color-mix(in srgb, var(--primary) 55%, transparent),
+        color-mix(in srgb, var(--primary) 14%, transparent) 70%
+      );
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 45%, transparent);
+  }
+
+  .orbit-pass__beacon i {
+    position: absolute;
+    top: -0.2rem;
+    inset-inline-end: -0.2rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: #34d399;
+    box-shadow: 0 0 0 2px var(--card);
+  }
+
+  .orbit-pass__beacon i::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: orbit-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  .orbit-pass__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    text-align: start;
+  }
+
+  .orbit-pass__title {
+    display: block;
+    white-space: nowrap;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--muted-foreground);
+  }
+
+  .orbit-pass__num {
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(180deg, var(--foreground), var(--primary-300));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .orbit-pass__sub {
+    display: block;
+    white-space: nowrap;
+    font-size: 0.66rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: color-mix(in srgb, var(--muted-foreground) 85%, transparent);
+  }
+
+  [data-theme="light"] .orbit-pass {
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary) 9%, white) 0%,
+        color-mix(in srgb, white 92%, transparent) 62%
+      );
+    box-shadow:
+      inset 0 1px 0 0 white,
+      0 14px 28px -16px color-mix(in srgb, var(--primary) 45%, transparent);
+  }
+
+  [data-theme="light"] .orbit-pass__beacon {
+    color: var(--primary-600);
+  }
+
+  [data-theme="light"] .orbit-pass__num {
+    background: linear-gradient(180deg, var(--primary-700), var(--primary-400));
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  @keyframes orbit-ping {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    80%,
+    100% {
+      transform: scale(2.8);
+      opacity: 0;
+    }
+  }
+
+  .hero-visual--paused .orbit-pass__beacon i::after {
+    animation-play-state: paused;
+  }
+
   .hero-visual--paused .orbit-ring,
   .hero-visual--paused .orbit-spin,
   .hero-visual--paused .orbit-spin-rev,
@@ -1101,7 +1236,12 @@ html[dir="rtl"] .marquee {
   --dir: -1;
 }
 
-.marquee-wrap:hover .marquee,
+/* the second row runs the other way, slower */
+.marquee--rev {
+  animation-direction: reverse;
+  animation-duration: 70s;
+}
+
 .marquee-wrap[data-paused="true"] .marquee {
   animation-play-state: paused;
 }
@@ -1204,6 +1344,13 @@ html[dir="rtl"] .signal-packet {
   color: transparent;
   -webkit-text-stroke: 1.5px
     color-mix(in srgb, var(--foreground) 55%, transparent);
+}
+
+/* a number laid over a photograph: white outline, whatever the theme */
+.outline-text-photo {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgb(255 255 255 / 0.8);
+  text-shadow: 0 2px 16px rgb(0 0 0 / 0.5);
 }
 
 .scroll-progress {
@@ -1317,7 +1464,6 @@ html[dir="rtl"] .scroll-progress {
   /* Static glow. Blend stays (screen / multiply). No float = no per-frame blend. */
   .blob {
     animation: none !important;
-    filter: blur(64px);
   }
 
   .hero-glow {
@@ -1361,4 +1507,996 @@ html[dir="rtl"] .scroll-progress {
 /* Open panel wash stays soft. Watermark opacity lives on the icon itself. */
 .experience-panel[data-open="true"] .experience-glow {
   opacity: 0.45;
+}
+
+
+/* ---- Contact: paper letters (always light paper, in both themes) ---- */
+.paper {
+  background-color: #f7f2e8;
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 27px,
+      rgba(91, 63, 208, 0.1) 27px,
+      rgba(91, 63, 208, 0.1) 28px
+    ),
+    radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.7), transparent 60%);
+  color: #1f1a3d;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 24px 50px -22px rgba(10, 6, 40, 0.75),
+    0 2px 6px rgba(10, 6, 40, 0.25);
+  transition: box-shadow 0.4s ease;
+}
+
+.paper--on {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 30px 70px -20px color-mix(in srgb, var(--primary) 70%, transparent),
+    0 4px 10px rgba(10, 6, 40, 0.3);
+}
+
+.paper-seal {
+  background: radial-gradient(circle at 35% 30%, #8b6cff, #5b3fd0 70%);
+  color: #fff;
+  box-shadow:
+    0 0 0 3px rgba(91, 63, 208, 0.18),
+    0 6px 12px -4px rgba(91, 63, 208, 0.7);
+}
+
+/* Contact letters: a ring draws around the front letter's seal over its turn, then the next letter lifts. */
+@keyframes letter-ring {
+  from { stroke-dashoffset: 150.8; }
+  to { stroke-dashoffset: 0; }
+}
+.letter-ring {
+  stroke-dasharray: 150.8;
+  animation: letter-ring linear forwards;
+}
+.letter-ring--still {
+  animation: none;
+  stroke-dashoffset: 0;
+}
+
+/* Plain paper (no printed rules) for sheets whose text must not be crossed by lines. */
+.paper--plain {
+  background-image: radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.7), transparent 60%);
+}
+/* Ruled lines that follow a 28px (leading-7) text block, one line under each row of text. */
+.ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 27px,
+    rgba(86, 134, 201, 0.34) 27px,
+    rgba(86, 134, 201, 0.34) 28px
+  );
+}
+
+/* Contact envelopes: cream paper, security-tint lining, postage stamp; a notebook margin on the sheets. */
+.env-lining {
+  background-color: #efe8d4;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(91, 63, 208, 0.22) 0 1.5px, transparent 1.5px 5px),
+    repeating-linear-gradient(-45deg, rgba(47, 180, 230, 0.18) 0 1.5px, transparent 1.5px 5px);
+}
+.env-stamp {
+  /* dotted cream border reads as the perforated edge */
+  border: 3px dotted #fbf7ec;
+  border-radius: 4px;
+  filter: drop-shadow(0 2px 4px rgba(8, 4, 32, 0.3));
+  transform: rotate(3deg);
+}
+.env-stamp__face {
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--hue) 55%, white), var(--hue) 75%);
+  box-shadow:
+    0 0 0 3px #fbf7ec,
+    inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+.paper-seal--hue {
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--hue) 55%, white), var(--hue) 70%);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--hue) 22%, transparent),
+    0 6px 12px -4px color-mix(in srgb, var(--hue) 70%, transparent);
+}
+
+/*
+ * Contact sheets: a school-notebook page. Off-white stock, pale blue rules, a red double margin line and
+ * three punched holes down the binding edge. Rules sit at 28px rows (23px down each row), so text with a
+ * 28px line-height that starts on a multiple of 28 lies on them. Corners are square.
+ */
+.paper--notebook {
+  border-radius: 0;
+  background-color: #fcfbf5;
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 23px,
+      rgba(86, 134, 201, 0.34) 23px,
+      rgba(86, 134, 201, 0.34) 24px,
+      transparent 24px,
+      transparent 28px
+    ),
+    linear-gradient(to right, rgba(0, 0, 0, 0.05), transparent 14%),
+    radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.8), transparent 60%);
+}
+[dir="rtl"] .paper--notebook {
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 23px,
+      rgba(86, 134, 201, 0.34) 23px,
+      rgba(86, 134, 201, 0.34) 24px,
+      transparent 24px,
+      transparent 28px
+    ),
+    linear-gradient(to left, rgba(0, 0, 0, 0.05), transparent 14%),
+    radial-gradient(120% 80% at 100% 0%, rgba(255, 255, 255, 0.8), transparent 60%);
+}
+.paper-margin {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--margin, 1.5rem);
+  width: 4px;
+  border-inline: 1px solid rgba(214, 68, 88, 0.5);
+  pointer-events: none;
+}
+.paper-hole {
+  position: absolute;
+  inset-inline-start: var(--hole, 0.5rem);
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 50% 35%, #2a1e6e, #120b3e 70%);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.55),
+    0 1px 0 rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+}
+
+/* Same notebook stock as the hero sheets, without printed rules (rules are added per text block with .ruled). */
+.paper--blank {
+  border-radius: 0;
+  background-color: #fcfbf5;
+  background-image: radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, 0.8), transparent 60%);
+}
+
+/* Writing area: 28px rules that follow the typed lines (textarea with a 28px line-height and no padding). */
+.ruled-area {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 27px,
+    rgba(86, 134, 201, 0.34) 27px,
+    rgba(86, 134, 201, 0.34) 28px
+  );
+  background-attachment: local;
+}
+
+/* Contact FAQ chat (after the Yelloname FAQ): bubbles pop in, typing dots, live dot, auto-advance bar. */
+.faq-bubble {
+  animation: faq-bubble-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.faq-word {
+  transition: opacity 0.25s ease;
+}
+.faq-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: var(--primary-300, #c4b5fd);
+  animation: faq-dot 1s ease-in-out infinite;
+}
+.faq-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.faq-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.faq-live {
+  animation: faq-live 2s ease-in-out infinite;
+}
+.faq-row:hover {
+  transform: translateX(var(--nudge, 0.2rem));
+}
+[dir="rtl"] .faq-row:hover {
+  --nudge: -0.2rem;
+}
+.faq-bar {
+  position: absolute;
+  inset-inline: 1rem;
+  bottom: 0;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--primary-300, #c4b5fd), var(--primary, #7c3aed));
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: faq-fill 7s linear forwards;
+}
+[dir="rtl"] .faq-bar {
+  transform-origin: right;
+}
+@keyframes faq-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem) scale(0.97);
+  }
+}
+@keyframes faq-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-0.3rem);
+    opacity: 1;
+  }
+}
+@keyframes faq-live {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.5);
+  }
+  60% {
+    box-shadow: 0 0 0 0.4rem transparent;
+  }
+}
+@keyframes faq-fill {
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-bubble,
+  .faq-dot,
+  .faq-live,
+  .faq-bar {
+    animation: none;
+  }
+  .faq-word {
+    transition: none;
+  }
+  .faq-row:hover {
+    transform: none;
+  }
+}
+
+/* Opening-hours door sign: hangs from its string and sways slowly while the association is open. */
+.door-sign {
+  transform: rotate(-2deg);
+}
+.door-sign--open {
+  animation: sign-swing 6s ease-in-out infinite;
+}
+@keyframes sign-swing {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .door-sign--open {
+    animation: none;
+  }
+}
+
+/* About: live pictures on the principle cards, and the audience list's turn bar. */
+.pv-bar {
+  transform-origin: 50% 100%;
+  animation: pv-grow 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--d) * 0.18s);
+}
+.pv-link {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0.5;
+  animation: pv-draw 4.4s ease-in-out infinite;
+  animation-delay: calc(var(--d) * 0.25s);
+}
+.pv-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pv-pulse 4.4s ease-in-out infinite;
+  animation-delay: calc(var(--d) * 0.35s);
+}
+.pv-dot {
+  animation: pv-lit 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--d) * 0.4s);
+}
+.aud-bar {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--primary-300, #c4b5fd), var(--primary, #7c3aed));
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: aud-fill 7s linear forwards;
+}
+[dir="rtl"] .aud-bar {
+  transform-origin: right;
+}
+@keyframes pv-grow {
+  0%,
+  10% {
+    transform: scaleY(0.12);
+  }
+  45%,
+  80% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(0.12);
+  }
+}
+@keyframes pv-draw {
+  0%,
+  8% {
+    stroke-dashoffset: 1;
+    opacity: 0.2;
+  }
+  45%,
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 0.7;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.2;
+  }
+}
+@keyframes pv-pulse {
+  0%,
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+}
+@keyframes pv-lit {
+  0%,
+  60%,
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+  25% {
+    background-color: var(--primary-300, #c4b5fd);
+    box-shadow: 0 0 14px var(--primary, #7c3aed);
+  }
+}
+@keyframes aud-fill {
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pv-bar,
+  .pv-link,
+  .pv-node,
+  .pv-dot,
+  .aud-bar {
+    animation: none;
+  }
+  .pv-link {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* audience stage: rings that breathe outward from the lit medallion */
+.aud-ring {
+  animation: aud-ring 4.8s ease-out infinite;
+}
+@keyframes aud-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(0.55);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aud-ring {
+    animation: none;
+    opacity: 0.25;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* audience stage: robot floats, its shadow breathes, the thought bubble pops in */
+.aud-float {
+  animation: aud-float 4.6s ease-in-out infinite;
+}
+.aud-shadow {
+  animation: aud-shadow 4.6s ease-in-out infinite;
+}
+.aud-pop {
+  animation: aud-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes aud-float {
+  50% {
+    transform: translateY(-2.5%);
+  }
+}
+@keyframes aud-shadow {
+  50% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+}
+@keyframes aud-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aud-float,
+  .aud-shadow,
+  .aud-pop {
+    animation: none;
+  }
+}
+
+/* boot loader: server-rendered; a network draws round the logo, a counter climbs, then the screen parts */
+#boot-loader {
+  --boot-p: 0;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  animation: boot-failsafe 0.4s 10s forwards;
+}
+#boot-loader .boot-half {
+  position: absolute;
+  inset-inline: 0;
+  height: 50.4%;
+  background: var(--background);
+  transition: transform 900ms cubic-bezier(0.76, 0, 0.24, 1) 260ms;
+}
+#boot-loader .boot-half--top {
+  top: 0;
+}
+#boot-loader .boot-half--bottom {
+  bottom: 0;
+}
+#boot-loader.is-leaving .boot-half--top {
+  transform: translateY(-101%);
+}
+#boot-loader.is-leaving .boot-half--bottom {
+  transform: translateY(101%);
+}
+#boot-loader.is-leaving {
+  pointer-events: none;
+}
+#boot-loader.is-hidden {
+  display: none;
+}
+body:has(#boot-loader:not(.is-leaving, .is-hidden)) {
+  overflow: hidden;
+}
+#boot-loader .boot-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition: opacity 320ms ease, transform 420ms ease;
+}
+#boot-loader.is-leaving .boot-stage {
+  opacity: 0;
+  transform: scale(1.04);
+}
+#boot-loader .boot-glow {
+  will-change: transform;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(120vw, 70rem);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--primary) 26%, transparent), transparent 70%);
+}
+#boot-loader .boot-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image: radial-gradient(color-mix(in srgb, var(--primary) 45%, transparent) 1px, transparent 1px);
+  background-size: 30px 30px;
+  mask-image: radial-gradient(circle at 50% 50%, #000 0, transparent 62%);
+}
+#boot-loader .boot-core {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(74vw, 24rem);
+  aspect-ratio: 1;
+}
+#boot-loader .boot-net {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  will-change: transform, opacity;
+  animation: boot-in 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+#boot-loader .boot-wave {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: boot-wave 3s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+#boot-loader .boot-edge {
+  stroke: color-mix(in srgb, var(--primary) 70%, white);
+  stroke-width: 0.55;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+#boot-loader .boot-node {
+  fill: color-mix(in srgb, var(--primary) 55%, white);
+  opacity: 0.9;
+}
+#boot-loader .boot-core img {
+  position: relative;
+  width: 28%;
+  height: auto;
+  will-change: transform;
+  animation: boot-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both, boot-float 3s ease-in-out 0.9s infinite;
+}
+#boot-loader .boot-core::before {
+  content: "";
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--primary) 55%, transparent), transparent);
+}
+#boot-loader .boot-foot {
+  position: absolute;
+  inset-inline: clamp(1.25rem, 5vw, 3.5rem);
+  bottom: clamp(1.5rem, 5vh, 3rem);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+#boot-loader .boot-brand {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--foreground) 65%, transparent);
+}
+#boot-loader .boot-count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 0.9;
+}
+#boot-loader .boot-count b {
+  font-size: clamp(2.75rem, 9vw, 5.5rem);
+  font-weight: 900;
+  color: transparent;
+  -webkit-text-stroke: 1.2px color-mix(in srgb, var(--primary) 75%, white);
+}
+#boot-loader .boot-count i {
+  font-style: normal;
+  font-size: 1rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--primary) 75%, white);
+}
+#boot-loader .boot-line {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 3px;
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+#boot-loader .boot-line__fill {
+  display: block;
+  height: 100%;
+  transform-origin: left;
+  transform: scaleX(0);
+  will-change: transform;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 50%, transparent), color-mix(in srgb, var(--primary) 75%, white));
+}
+html[dir="rtl"] #boot-loader .boot-line__fill {
+  transform-origin: right;
+}
+@keyframes boot-wave {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.35);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+@keyframes boot-in {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+}
+@keyframes boot-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.85);
+  }
+}
+@keyframes boot-float {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes boot-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #boot-loader .boot-wave,
+  #boot-loader .boot-net,
+  #boot-loader .boot-core img {
+    animation: none;
+  }
+  #boot-loader .boot-wave {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  #boot-loader .boot-half {
+    transition-duration: 1ms;
+  }
+}
+
+/* hero headline caret: solid while typing, blinks while the line rests */
+.hero-caret {
+  display: inline-block;
+  width: 0.07em;
+  height: 0.92em;
+  margin-inline-start: 0.1em;
+  vertical-align: -0.08em;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.85;
+}
+.hero-caret[data-state="idle"] {
+  animation: caret-blink 1.05s steps(1) infinite;
+}
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* stats band: a light travels along the top hairline; the bars grow once in view */
+.stat-sweep {
+  height: 1px;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 38%,
+    color-mix(in srgb, var(--primary-300) 95%, transparent) 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+  background-position: 100% 0;
+  animation: stat-sweep 7s linear infinite;
+}
+@keyframes stat-sweep {
+  to {
+    background-position: 0% 0;
+  }
+}
+html[dir="rtl"] .stat-sweep {
+  animation-direction: reverse;
+}
+
+/* the ruler under each figure: long ticks every fifth, drawn out when the cell enters the view */
+.stat-ruler {
+  background-image:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--foreground) 45%, transparent) 0 1px, transparent 1px 36px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--foreground) 22%, transparent) 0 1px, transparent 1px 9px);
+  background-size: 100% 100%, 100% 55%;
+  background-repeat: no-repeat, no-repeat;
+  -webkit-mask-image: linear-gradient(to right, #000 55%, transparent);
+  mask-image: linear-gradient(to right, #000 55%, transparent);
+  transform: scaleX(0);
+  transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s;
+}
+html[dir="rtl"] .stat-ruler {
+  -webkit-mask-image: linear-gradient(to left, #000 55%, transparent);
+  mask-image: linear-gradient(to left, #000 55%, transparent);
+}
+[data-on="true"] .stat-ruler {
+  transform: scaleX(1);
+}
+.stat-ruler-dot {
+  inset-inline-start: 0;
+  opacity: 0;
+  transition: inset-inline-start 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s, opacity 0.4s ease 0.4s;
+}
+[data-on="true"] .stat-ruler-dot {
+  inset-inline-start: calc(100% - 0.5rem);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stat-sweep {
+    animation: none;
+    background-position: 50% 0;
+  }
+  .stat-ruler {
+    transform: scaleX(1);
+    transition: none;
+  }
+  .stat-ruler-dot {
+    inset-inline-start: calc(100% - 0.5rem);
+    opacity: 1;
+    transition: none;
+  }
+}
+
+/* event poster: a diagonal light crosses the photo on hover (transform only) */
+.poster-sheen {
+  background: linear-gradient(115deg, transparent 38%, color-mix(in srgb, white 16%, transparent) 50%, transparent 62%);
+  transform: translateX(-120%);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.group:hover .poster-sheen {
+  transform: translateX(120%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .poster-sheen {
+    display: none;
+  }
+}
+
+/* ticket frame: scalloped top and bottom edges, and a punched notch on each side at the tear line */
+/* the default tear height lives in a layer so a utility such as [--ticket-tear:10rem] can override it */
+@layer base {
+  .ticket-frame {
+    --ticket-tear: 4.4rem;
+  }
+}
+.ticket-frame {
+  --tf-n: 8px;
+  --tf-gap: 24px;
+  --tf-notch: 13px;
+  -webkit-mask-image:
+    radial-gradient(circle at var(--tf-n) 0, transparent var(--tf-n), #000 calc(var(--tf-n) + 0.5px)),
+    radial-gradient(circle at var(--tf-n) 100%, transparent var(--tf-n), #000 calc(var(--tf-n) + 0.5px)),
+    radial-gradient(circle at 0 calc(100% - var(--ticket-tear)), transparent var(--tf-notch), #000 calc(var(--tf-notch) + 0.5px)),
+    radial-gradient(circle at 100% calc(100% - var(--ticket-tear)), transparent var(--tf-notch), #000 calc(var(--tf-notch) + 0.5px));
+  -webkit-mask-size: var(--tf-gap) 100%, var(--tf-gap) 100%, 100% 100%, 100% 100%;
+  -webkit-mask-repeat: repeat-x, repeat-x, no-repeat, no-repeat;
+  -webkit-mask-position: calc(-1 * var(--tf-n)) 0, calc(-1 * var(--tf-n)) 0, 0 0, 0 0;
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(circle at var(--tf-n) 0, transparent var(--tf-n), #000 calc(var(--tf-n) + 0.5px)),
+    radial-gradient(circle at var(--tf-n) 100%, transparent var(--tf-n), #000 calc(var(--tf-n) + 0.5px)),
+    radial-gradient(circle at 0 calc(100% - var(--ticket-tear)), transparent var(--tf-notch), #000 calc(var(--tf-notch) + 0.5px)),
+    radial-gradient(circle at 100% calc(100% - var(--ticket-tear)), transparent var(--tf-notch), #000 calc(var(--tf-notch) + 0.5px));
+  mask-size: var(--tf-gap) 100%, var(--tf-gap) 100%, 100% 100%, 100% 100%;
+  mask-repeat: repeat-x, repeat-x, no-repeat, no-repeat;
+  mask-position: calc(-1 * var(--tf-n)) 0, calc(-1 * var(--tf-n)) 0, 0 0, 0 0;
+  mask-composite: intersect;
+}
+
+/* cards that rise a little on hover (the carousels leave room above and below) */
+.card-lift {
+  transition-property: transform, box-shadow, border-color;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) {
+  .card-lift:hover {
+    transform: translateY(-6px);
+  }
+}
+
+/* the cursor's light on photo cards (SurfaceSpotlight feeds --mx/--my/--spot) */
+[data-spot]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -5;
+  pointer-events: none;
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, white calc(var(--spot, 0) * 16%), transparent),
+    transparent 70%
+  );
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-lift:hover {
+    transform: none;
+  }
+}
+
+/* experience panels: a light travels round the border of the open panel */
+/* the sweep is a conic gradient spun with a transform, so it stays on the compositor; the ring
+   shape is a static mask on the wrapper. It is only mounted on the open panel. */
+.panel-sweep {
+  overflow: hidden;
+  padding: 1.5px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.panel-sweep-spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1100px;
+  height: 1100px;
+  margin: -550px 0 0 -550px;
+  background: conic-gradient(transparent 0 62%, color-mix(in srgb, currentColor 90%, white) 82%, transparent 100%);
+  animation: panel-sweep 4.5s linear infinite;
+  will-change: transform;
+}
+.group\/panels[data-paused="true"] .panel-sweep-spin {
+  animation-play-state: paused;
+}
+@keyframes panel-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel-sweep-spin {
+    animation: none;
+  }
+}
+
+
+/* countdown figures slide in as they change */
+.count-tick {
+  animation: count-tick 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes count-tick {
+  from {
+    opacity: 0;
+    transform: translateY(35%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .count-tick {
+    animation: none;
+  }
+}
+
+/* the wide ticket (lg and up): scalloped sides, and the stub on the end side is cut off by a tear
+   line with a notch at its top and bottom. Below lg the vertical .ticket-frame shape applies. */
+@media (min-width: 1024px) {
+  .ticket-wide {
+    --stub-w: 15rem;
+    --tx: calc(100% - var(--stub-w));
+    --tw-r: 15px;
+    --tw-n: 8px;
+    --tw-gap: 24px;
+    -webkit-mask-image:
+      radial-gradient(circle at 0 var(--tw-n), transparent var(--tw-n), #000 calc(var(--tw-n) + 0.5px)),
+      radial-gradient(circle at 100% var(--tw-n), transparent var(--tw-n), #000 calc(var(--tw-n) + 0.5px)),
+      radial-gradient(circle at var(--tx) 0, transparent var(--tw-r), #000 calc(var(--tw-r) + 0.5px)),
+      radial-gradient(circle at var(--tx) 100%, transparent var(--tw-r), #000 calc(var(--tw-r) + 0.5px));
+    -webkit-mask-size: 100% var(--tw-gap), 100% var(--tw-gap), 100% 100%, 100% 100%;
+    -webkit-mask-repeat: repeat-y, repeat-y, no-repeat, no-repeat;
+    -webkit-mask-position: 0 calc(-1 * var(--tw-n)), 0 calc(-1 * var(--tw-n)), 0 0, 0 0;
+    mask-image:
+      radial-gradient(circle at 0 var(--tw-n), transparent var(--tw-n), #000 calc(var(--tw-n) + 0.5px)),
+      radial-gradient(circle at 100% var(--tw-n), transparent var(--tw-n), #000 calc(var(--tw-n) + 0.5px)),
+      radial-gradient(circle at var(--tx) 0, transparent var(--tw-r), #000 calc(var(--tw-r) + 0.5px)),
+      radial-gradient(circle at var(--tx) 100%, transparent var(--tw-r), #000 calc(var(--tw-r) + 0.5px));
+    mask-size: 100% var(--tw-gap), 100% var(--tw-gap), 100% 100%, 100% 100%;
+    mask-repeat: repeat-y, repeat-y, no-repeat, no-repeat;
+    mask-position: 0 calc(-1 * var(--tw-n)), 0 calc(-1 * var(--tw-n)), 0 0, 0 0;
+  }
+  [dir="rtl"] .ticket-wide {
+    --tx: var(--stub-w);
+  }
+}
+
+/* skeletons: bars are flat fills and one light sweeps across the whole card (a transform, so it
+   stays on the compositor); it runs the other way in right-to-left pages */
+.sk {
+  background: color-mix(in srgb, var(--foreground) 9%, transparent);
+  border-radius: 0.5rem;
+}
+.sk-card {
+  position: relative;
+  overflow: hidden;
+}
+.sk-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--foreground) 9%, transparent) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  animation: sk-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+[dir="rtl"] .sk-card::after {
+  animation-direction: reverse;
+}
+@keyframes sk-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sk-card::after {
+    animation: none;
+  }
+}
+
+/* departments: the chosen one's photo fades in over the one before it. It only fades: a scale on
+   the way in showed the photo zoomed for a moment and then snapping back */
+.team-photo {
+  animation: team-photo 0.7s ease-out both;
+}
+@keyframes team-photo {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .team-photo {
+    animation: none;
+  }
+}
+
+/* departments: the autoplay line fills from the start edge while a department is shown */
+.team-progress {
+  transform: scaleX(0);
+  animation: team-progress var(--dur, 7000ms) linear forwards;
+}
+@keyframes team-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .team-progress {
+    animation: none;
+  }
+}
+
+/* anchor targets stop below the floating navbar */
+[id] { scroll-margin-top: 6rem; }
+
+/* Light theme: the pale greens made for the dark background do not read on white. */
+[data-theme="light"] .text-emerald-200,
+[data-theme="light"] .text-emerald-300,
+[data-theme="light"] .text-emerald-400 {
+  color: #047857;
+}
+
+[data-theme="light"] .door-sign--open {
+  background-color: color-mix(in srgb, #10b981 12%, transparent);
+  border-color: color-mix(in srgb, #059669 55%, transparent);
 }

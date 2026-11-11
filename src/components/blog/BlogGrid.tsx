@@ -1,30 +1,10 @@
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { Newspaper } from "lucide-react";
 import { RevealItem } from "@/components/animations/Reveal";
 import { BlogPostTicketCard } from "@/components/blog/BlogPostTicketCard";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationNavLink,
-  PaginationNavNext,
-  PaginationNavPrevious,
-} from "@/components/ui/pagination";
+import { ListPagination } from "@/components/common/ListPagination";
+import { ResultsCountSlot } from "@/components/common/ResultsCountSlot";
 import type { BlogPostItem } from "@/types/blog";
-
-function getPaginationRange(current: number, total: number): (number | null)[] {
-  const siblings = 1;
-  const range: (number | null)[] = [];
-  const start = Math.max(2, current - siblings);
-  const end = Math.min(total - 1, current + siblings);
-  range.push(1);
-  if (start > 2) range.push(null);
-  for (let p = start; p <= end; p += 1) range.push(p);
-  if (end < total - 1) range.push(null);
-  if (total > 1) range.push(total);
-  return range;
-}
 
 interface BlogGridProps {
   posts: BlogPostItem[];
@@ -43,10 +23,6 @@ export async function BlogGrid({
   buildPageHref,
 }: BlogGridProps) {
   const t = await getTranslations("BlogPage");
-  const locale = await getLocale();
-  const isFa = locale === "fa";
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-  const paginationRange = getPaginationRange(currentPage, totalPages);
 
   if (posts.length === 0) {
     return (
@@ -66,10 +42,8 @@ export async function BlogGrid({
 
   return (
     <>
-      <p className="mb-6 text-sm text-muted-foreground">
-        {t("resultsCount", { count: totalCount })}
-      </p>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4 xl:gap-x-6">
+      <ResultsCountSlot slotId="blog-count" text={t("resultsCount", { count: totalCount })} />
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {posts.map((post, index) => (
           <RevealItem
             key={post.id}
@@ -81,61 +55,12 @@ export async function BlogGrid({
           </RevealItem>
         ))}
       </div>
-      {totalPages > 1 ? (
-        <Pagination className="mt-8">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationNavPrevious
-                href={
-                  currentPage > 1 ? buildPageHref(currentPage - 1) : undefined
-                }
-                label={isFa ? "صفحه قبلی" : "Previous page"}
-                aria-disabled={currentPage === 1}
-                className={
-                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                }
-              />
-            </PaginationItem>
-            {paginationRange.map((pageNumber, index) =>
-              pageNumber === null ? (
-                <PaginationItem key={`ellipsis-${index}`}>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              ) : (
-                <PaginationItem key={pageNumber}>
-                  <PaginationNavLink
-                    href={buildPageHref(pageNumber)}
-                    isActive={pageNumber === currentPage}
-                    aria-label={
-                      isFa
-                        ? `رفتن به صفحه ${pageNumber}`
-                        : `Go to page ${pageNumber}`
-                    }
-                  >
-                    {pageNumber.toLocaleString(isFa ? "fa-IR" : "en-US")}
-                  </PaginationNavLink>
-                </PaginationItem>
-              ),
-            )}
-            <PaginationItem>
-              <PaginationNavNext
-                href={
-                  currentPage < totalPages
-                    ? buildPageHref(currentPage + 1)
-                    : undefined
-                }
-                label={isFa ? "صفحه بعدی" : "Next page"}
-                aria-disabled={currentPage === totalPages}
-                className={
-                  currentPage === totalPages
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      ) : null}
+      <ListPagination
+        currentPage={currentPage}
+        totalCount={totalCount}
+        pageSize={pageSize}
+        buildPageHref={buildPageHref}
+      />
     </>
   );
 }

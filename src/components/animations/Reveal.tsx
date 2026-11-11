@@ -10,9 +10,10 @@ import {
   EASE_OUT,
   gsap,
   prefersReducedMotion,
-  ScrollTrigger,
   useGSAP,
 } from "@/lib/gsap";
+import { watchTarget } from "@/lib/clip-ancestor";
+import { whenBooted } from "@/lib/boot";
 
 type RevealDirection = "up" | "down" | "left" | "right" | "none";
 
@@ -38,20 +39,44 @@ function hiddenState(direction: RevealDirection) {
   return { autoAlpha: 0, ...offsets[direction] };
 }
 
-function trigger(
-  el: Element,
-  amount: number,
-  play: () => void,
-) {
-  // amount ≈ fraction of the element that must be visible → top-anchored start.
-  const start = `top ${Math.round((1 - Math.min(amount, 0.5) * 0.5) * 92)}%`;
-  ScrollTrigger.create({
-    trigger: el,
-    start,
-    once: true,
-    invalidateOnRefresh: true,
-    onEnter: play,
-  });
+/** One observer for every reveal on the page: no per-element scroll maths, and no refresh needed. */
+const plays = new Map<Element, Set<() => void>>();
+let observer: IntersectionObserver | null = null;
+
+function observe(el: Element, play: () => void) {
+  if (!observer) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          // in view, or already scrolled past (a jump straight to an anchor)
+          if (!e.isIntersecting && e.boundingClientRect.top >= 0) continue;
+          const fns = plays.get(e.target);
+          observer?.unobserve(e.target);
+          plays.delete(e.target);
+          // never play under the boot loader
+          fns?.forEach((fn) => whenBooted(fn));
+        }
+      },
+      { rootMargin: "0px 4000px -8% 4000px" },
+    );
+  }
+  const target = watchTarget(el);
+  let set = plays.get(target);
+  if (!set) plays.set(target, (set = new Set()));
+  set.add(play);
+  observer.observe(target);
+  return () => {
+    const s = plays.get(target);
+    s?.delete(play);
+    if (s && !s.size) {
+      plays.delete(target);
+      observer?.unobserve(target);
+    }
+  };
+}
+
+function trigger(el: Element, _amount: number, play: () => void) {
+  return observe(el, play);
 }
 
 interface RevealProps {
@@ -81,7 +106,7 @@ export function Reveal({
 
       gsap.set(el, hiddenState(direction));
       show(el);
-      trigger(el, amount, () =>
+      return trigger(el, amount, () =>
         gsap.to(el, {
           autoAlpha: 1,
           x: 0,
@@ -133,7 +158,7 @@ export function RevealGroup({
         gsap.set(item, hiddenState(dir));
       });
       show(items);
-      trigger(root, amount, () =>
+      return trigger(root, amount, () =>
         gsap.to(items, {
           autoAlpha: 1,
           x: 0,
@@ -168,6 +193,12 @@ interface RevealItemProps {
   /** Per-item delay (seconds) when used standalone (e.g. inside a Carousel). */
   delay?: number;
   amount?: number;
+  /**
+   * Seconds the fade takes, when it should be shorter than the slide. A box with a bright border
+   * reads as "the frame first, the content later" while a long fade is half way; a short fade
+   * brings both in together.
+   */
+  fade?: number;
 }
 
 export function RevealItem({
@@ -178,6 +209,7 @@ export function RevealItem({
   hoverLift = false,
   delay = 0,
   amount = 0.15,
+  fade,
 }: RevealItemProps) {
   const inGroup = useContext(GroupContext);
   const ref = useRef<HTMLDivElement>(null);
@@ -190,18 +222,30 @@ export function RevealItem({
 
       gsap.set(el, hiddenState(direction));
       show(el);
-      trigger(el, amount, () =>
-        gsap.to(el, {
-          autoAlpha: 1,
-          x: 0,
-          y: 0,
-          duration,
-          delay,
-          ease: EASE_OUT,
-          clearProps: "transform,opacity,visibility",
-          overwrite: true,
-        }),
-      );
+      return trigger(el, amount, () => {
+        if (fade === undefined) {
+          gsap.to(el, {
+            autoAlpha: 1,
+            x: 0,
+            y: 0,
+            duration,
+            delay,
+            ease: EASE_OUT,
+            clearProps: "transform,opacity,visibility",
+            overwrite: true,
+          });
+          return;
+        }
+        // the slide keeps its length; the fade is short and finishes first
+        gsap
+          .timeline({
+            delay,
+            onComplete: () =>
+              gsap.set(el, { clearProps: "transform,opacity,visibility" }),
+          })
+          .to(el, { x: 0, y: 0, duration, ease: EASE_OUT }, 0)
+          .to(el, { autoAlpha: 1, duration: fade, ease: "power1.out" }, 0);
+      });
     },
     { scope: ref },
   );

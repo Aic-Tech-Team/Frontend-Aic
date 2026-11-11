@@ -28,6 +28,8 @@
     content: '';
     position: absolute;
     inset: 0;
+    /* the sheen sits above the button: it must never take the click */
+    pointer-events: none;
     background: linear-gradient(
       var(--gh-angle),
       hsla(0, 0%, 0%, 0) 60%,

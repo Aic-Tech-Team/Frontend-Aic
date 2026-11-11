@@ -36,7 +36,7 @@ export function ActivityBreadcrumb({
                 ) : (
                   <Link
                     href={item.href ?? "/"}
-                    className="whitespace-nowrap font-normal text-muted-foreground transition-colors hover:text-primary-300"
+                    className="-my-2.5 inline-block whitespace-nowrap py-2.5 font-normal text-muted-foreground transition-colors hover:text-primary-300"
                   >
                     {item.label}
                   </Link>

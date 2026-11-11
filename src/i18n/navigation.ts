@@ -1,5 +1,5 @@
 import { createNavigation } from "next-intl/navigation";
-import { beginNavigation } from "@/lib/begin-navigation";
+import { beginNavigation, leavesCurrentUrl } from "@/lib/begin-navigation";
 import { routing } from "./routing";
 
 const navigation = createNavigation(routing);
@@ -11,11 +11,11 @@ export function useRouter() {
   return {
     ...router,
     push: (...args: Parameters<typeof router.push>) => {
-      beginNavigation();
+      if (leavesCurrentUrl(args[0], args[1]?.locale)) beginNavigation();
       router.push(...args);
     },
     replace: (...args: Parameters<typeof router.replace>) => {
-      beginNavigation();
+      if (leavesCurrentUrl(args[0], args[1]?.locale)) beginNavigation();
       router.replace(...args);
     },
   };

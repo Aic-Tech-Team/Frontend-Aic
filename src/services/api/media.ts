@@ -1,6 +1,6 @@
 import { getApiConfig } from "@/services/api/config";
 
-const PLACEHOLDER_IMAGE = "/images/qq.jpg";
+const PLACEHOLDER_IMAGE = "/images/banner.jpg";
 
 /**
  * Turn API image fields into browser-reachable URLs.

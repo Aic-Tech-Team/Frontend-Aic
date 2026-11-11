@@ -168,7 +168,7 @@ export function Carousel({
                   type="button"
                   onClick={() => scrollTo(index)}
                   className={cn(
-                    "h-2 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "relative h-2 rounded-full after:absolute after:-inset-x-1 after:-inset-y-3 after:content-[''] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     index === selectedIndex
                       ? "w-6 bg-primary-400 shadow-[0_0_0_1px_rgba(255,255,255,0.1)]"
                       : "w-2 bg-primary/20 hover:bg-primary/40",

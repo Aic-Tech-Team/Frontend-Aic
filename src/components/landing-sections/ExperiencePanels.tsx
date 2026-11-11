@@ -8,6 +8,7 @@ import {
   Trophy,
   type LucideIcon,
 } from "lucide-react";
+import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 
 const ICONS = [Trophy, BookMarked, BookOpen, Microscope] as const;
@@ -48,6 +49,7 @@ type PanelItem = { title: string; desc: string };
 
 function Panel({
   item,
+  index,
   icon: Icon,
   tone,
   open,
@@ -55,12 +57,14 @@ function Panel({
   onBarEnd,
 }: {
   item: PanelItem;
+  index: number;
   icon: LucideIcon;
   tone: Tone;
   open: boolean;
   onActivate: () => void;
   onBarEnd: () => void;
 }) {
+  const locale = useLocale();
   return (
     <article
       tabIndex={0}
@@ -71,7 +75,7 @@ function Panel({
       onClick={onActivate}
       data-open={open}
       className={cn(
-        "experience-panel surface group relative isolate flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-3xl border outline-none transition-[border-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] focus-visible:ring-2 focus-visible:ring-ring md:transition-[flex-grow,min-height,padding,border-color] md:duration-700",
+        "experience-panel surface group relative isolate flex min-w-0 cursor-pointer flex-col overflow-hidden rounded-3xl border outline-none transition-[border-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] [backdrop-filter:none] [contain:layout_paint] focus-visible:ring-2 focus-visible:ring-ring md:transition-[flex-grow,border-color] md:duration-500",
         open ? "max-md:min-h-40 max-md:p-5" : "max-md:p-4",
         "md:flex-[1_1_0%] md:p-7 md:data-[open=true]:flex-[3.2_1_0%]",
         tone.border,
@@ -84,10 +88,43 @@ function Panel({
           tone.wash,
         )}
       />
+      {open ? (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "panel-sweep pointer-events-none absolute inset-0 z-20 hidden rounded-[inherit] md:block",
+            tone.text,
+          )}
+        >
+          <span className="panel-sweep-spin" />
+        </span>
+      ) : null}
+      {/* diagonal hatching and radar rings: the panel is never an empty box */}
       <span
         aria-hidden="true"
         className={cn(
-          "experience-glow pointer-events-none absolute -bottom-16 inset-e-[-3rem] -z-10 h-52 w-52 rounded-full bg-radial from-0% to-transparent to-80% opacity-0 blur-2xl transition-opacity duration-700 group-data-[open=true]:opacity-45 md:-bottom-20 md:inset-e-[-4.5rem] md:h-72 md:w-72",
+          "pointer-events-none absolute inset-0 -z-10 opacity-[0.07] transition-opacity duration-700 [background-image:repeating-linear-gradient(135deg,currentColor_0_1px,transparent_1px_14px)] [mask-image:linear-gradient(to_bottom,black,transparent_75%)] group-data-[open=true]:opacity-[0.16]",
+          tone.text,
+        )}
+      />
+      <span aria-hidden="true" className={cn("pointer-events-none absolute -z-10 hidden md:block", tone.text)}>
+        <span className="absolute -bottom-24 inset-e-[-6rem] size-72 rounded-full border border-current opacity-15 transition-transform duration-1000 group-data-[open=true]:scale-125" />
+        <span className="absolute -bottom-16 inset-e-[-4rem] size-56 rounded-full border border-dashed border-current opacity-20 transition-transform duration-1000 group-data-[open=true]:scale-110" />
+        <span className="absolute -bottom-8 inset-e-[-2rem] size-40 rounded-full border border-current opacity-25" />
+      </span>
+      <span
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute top-5 inset-e-6 hidden text-5xl font-black leading-none text-transparent outline-text opacity-60 md:block",
+          tone.text,
+        )}
+      >
+        {(index + 1).toLocaleString(locale, { minimumIntegerDigits: 2 })}
+      </span>
+      <span
+        aria-hidden="true"
+        className={cn(
+          "experience-glow pointer-events-none absolute -bottom-16 inset-e-[-3rem] -z-10 h-52 w-52 rounded-full bg-radial from-0% to-transparent to-80% opacity-0 transition-opacity duration-700 group-data-[open=true]:opacity-45 md:-bottom-20 md:inset-e-[-4.5rem] md:h-72 md:w-72",
           tone.glow,
         )}
       />
@@ -95,7 +132,7 @@ function Panel({
         aria-hidden="true"
         strokeWidth={0.8}
         className={cn(
-          "experience-mark pointer-events-none absolute -z-10 opacity-0 transition-all duration-700 max-md:bottom-2 max-md:inset-e-3 max-md:h-20 max-md:w-20 max-md:group-data-[open=true]:opacity-[0.16] md:-bottom-6 md:inset-e-[-1.25rem] md:h-52 md:w-52 md:opacity-[0.14] md:group-data-[open=true]:-rotate-6 md:group-data-[open=true]:opacity-20",
+          "experience-mark pointer-events-none absolute -z-10 opacity-0 transition-[transform,opacity] duration-500 max-md:bottom-2 max-md:inset-e-3 max-md:h-20 max-md:w-20 max-md:group-data-[open=true]:opacity-[0.16] md:-bottom-6 md:inset-e-[-1.25rem] md:h-52 md:w-52 md:opacity-[0.2] md:group-data-[open=true]:-rotate-6 md:group-data-[open=true]:opacity-30",
           tone.text,
         )}
       />
@@ -103,7 +140,7 @@ function Panel({
       <div className="relative z-10 flex items-center gap-3 md:contents">
         <span
           className={cn(
-            "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-current/30 bg-background/80 shadow-[0_0_28px_-8px_currentColor] transition-transform duration-700 md:h-14 md:w-14 md:bg-background/40 md:backdrop-blur-sm md:group-data-[open=true]:-rotate-6 md:group-data-[open=true]:scale-110",
+            "relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-current/30 bg-background/80 shadow-[0_0_28px_-8px_currentColor] transition-transform duration-700 md:h-14 md:w-14 md:bg-background/60 md:group-data-[open=true]:-rotate-6 md:group-data-[open=true]:scale-110",
             tone.text,
           )}
         >
@@ -179,6 +216,7 @@ export function ExperiencePanels({ items }: { items: PanelItem[] }) {
         <Panel
           key={item.title}
           item={item}
+          index={i}
           icon={ICONS[i] ?? Trophy}
           tone={TONES[i] ?? TONES[0]}
           open={active === i}

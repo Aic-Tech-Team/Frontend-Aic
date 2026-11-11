@@ -1,5 +1,6 @@
 "use client";
 
+import { contactHref } from "@/components/contact/intents";
 import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, Menu, X } from "lucide-react";
@@ -51,10 +52,9 @@ export function Navbar() {
   const pillRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
+  const dotRef = useRef<HTMLSpanElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuOpenedRef = useRef(false);
-  const isOpenRef = useRef(isOpen);
-  isOpenRef.current = isOpen;
   const closeMenu = () => setIsOpen(false);
 
   const toggleMenu = () => {
@@ -74,28 +74,15 @@ export function Navbar() {
 
   useGSAP(
     () => {
-      const root = rootRef.current;
       const pill = pillRef.current;
-      if (!root || !pill || prefersReducedMotion()) return;
+      if (!pill) return;
 
-      const hide = gsap.quickTo(root, "yPercent", {
-        duration: 0.5,
-        ease: "power3.out",
-      });
-
+      // The header stays put in both directions; it only gains its solid look once scrolled.
       ScrollTrigger.create({
         start: 0,
         end: "max",
         onUpdate: (self) => {
-          const y = self.scroll();
-          pill.toggleAttribute("data-scrolled", y > 24);
-          if (isOpenRef.current) {
-            hide(0);
-            return;
-          }
-          if (y < 120) hide(0);
-          else if (self.direction === 1) hide(-130);
-          else hide(0);
+          pill.toggleAttribute("data-scrolled", self.scroll() > 24);
         },
       });
     },
@@ -129,6 +116,21 @@ export function Navbar() {
       const active = () => links.find((l) => l.dataset.active === "true");
       place(active(), false);
 
+      const dot = dotRef.current;
+      const placeDot = () => {
+        if (!dot) return;
+        const a = active();
+        if (!a) {
+          dot.style.opacity = "0";
+          return;
+        }
+        const n = nav.getBoundingClientRect();
+        const r = a.getBoundingClientRect();
+        dot.style.transform = `translateX(${(r.left - n.left + r.width / 2 - 2).toFixed(1)}px)`;
+        dot.style.opacity = "1";
+      };
+      placeDot();
+
       const cleanups = links.map((l) => {
         const enter = () => place(l, true);
         const leave = () => place(active(), true);
@@ -144,14 +146,17 @@ export function Navbar() {
         };
       });
 
-      const onResize = () => place(active(), false);
+      const onResize = () => {
+        place(active(), false);
+        placeDot();
+      };
       window.addEventListener("resize", onResize);
       return () => {
         cleanups.forEach((fn) => fn());
         window.removeEventListener("resize", onResize);
       };
     },
-    { scope: navRef, dependencies: [pathname] },
+    { scope: navRef, dependencies: [pathname], revertOnUpdate: true },
   );
 
   useGSAP(
@@ -228,13 +233,14 @@ export function Navbar() {
 
       return () => setBodyScrollLock(false);
     },
-    { scope: menuRef, dependencies: [isOpen] },
+    { scope: menuRef, dependencies: [isOpen], revertOnUpdate: true },
   );
 
   return (
     <>
       <header
         ref={rootRef}
+        data-site-header
         data-menu-open={isOpen || undefined}
         className={cn(
           "top-0 w-full pt-3 will-change-transform sm:pt-4",
@@ -285,6 +291,12 @@ export function Navbar() {
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-y-0 left-0 rounded-full bg-primary/15 opacity-0 ring-1 ring-primary/25"
               />
+              {/* the marker of the page you are on: it slides between links, hover does not move it */}
+              <span
+                ref={dotRef}
+                aria-hidden="true"
+                className="pointer-events-none absolute bottom-[3px] left-0 size-1 rounded-full bg-primary-400 opacity-0 shadow-[0_0_6px_var(--primary)] transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+              />
               {LINKS.map((link) => {
                 const active = isActive(link.href);
                 return (
@@ -315,7 +327,7 @@ export function Navbar() {
                 size="sm"
                 className="hidden h-10 rounded-full px-5 shadow-glow lg:inline-flex"
               >
-                <Link href="/#join">{tNav("join")}</Link>
+                <Link href={contactHref("join")}>{tNav("join")}</Link>
               </Button>
               <Button
                 variant="outline"
@@ -366,7 +378,7 @@ export function Navbar() {
         </nav>
         <div data-menu-item>
           <Button asChild size="lg" className="w-full rounded-2xl shadow-glow">
-            <Link href="/#join" onClick={closeMenu}>
+            <Link href={contactHref("join")} onClick={closeMenu}>
               {tNav("join")}
               <ArrowLeft className="h-4 w-4 ltr:rotate-180" />
             </Link>

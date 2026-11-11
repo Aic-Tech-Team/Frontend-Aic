@@ -1,24 +1,32 @@
-import Image from "next/image";
+import { PosterImage } from "@/components/events/PosterImage";
 
 interface BlogHeroProps {
   src: string;
   alt: string;
 }
 
+/**
+ * The cover, whole: the covers are illustrations with words in them, so a wide crop cuts them off.
+ * At their own 16:9 shape they fill the frame; any other shape sits contained over a blurred copy
+ * of itself, so the frame is always full.
+ */
 export function BlogHero({ src, alt }: BlogHeroProps) {
   return (
     <figure className="w-full">
-      <div className="relative aspect-[16/7] w-full overflow-hidden rounded-[14px] bg-muted sm:rounded-2xl">
-        <Image
+      <div className="relative aspect-video w-full overflow-hidden rounded-[14px] bg-muted sm:rounded-2xl">
+        <PosterImage
+          bare
+          src={src}
+          alt=""
+          sizes="820px"
+          className="scale-125 opacity-70 blur-2xl"
+        />
+        <PosterImage
           src={src}
           alt={alt}
-          fill
           priority
           sizes="(min-width: 1280px) 820px, (min-width: 1024px) 68vw, 100vw"
-          // API media lives on the public host, which the server cannot reach —
-          // routing through /_next/image would 504. Let the browser fetch it.
-          unoptimized
-          className="object-cover"
+          className="object-contain"
         />
       </div>
     </figure>

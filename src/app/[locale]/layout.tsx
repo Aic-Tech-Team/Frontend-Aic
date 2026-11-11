@@ -14,12 +14,14 @@ import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { ThemeInitScript } from "@/components/layout/ThemeInitScript";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { BootLoader } from "@/components/layout/BootLoader";
 import { AnimatedBackground } from "@/components/animations/AnimatedBackground";
 import { ThemeAwareParticles } from "@/components/animations/ThemeAwareParticles";
-import { ExperienceSplash } from "@/components/animations/ExperienceSplash";
 import { ScrollProgress } from "@/components/animations/ScrollProgress";
 import { ScrollTriggerRefresh } from "@/components/animations/ScrollTriggerRefresh";
+import { ScrollChoreography } from "@/components/animations/ScrollChoreography";
 import { SurfaceSpotlight } from "@/components/animations/SurfaceSpotlight";
+import { HashScroll } from "@/components/common/HashScroll";
 import { NavigationProgress } from "@/components/common/NavigationProgress";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +60,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   const messages = await getMessages();
+  const brand = (await getTranslations({ locale, namespace: "Meta" }))("title");
   const dir = locale === "fa" ? "rtl" : "ltr";
 
   return (
@@ -72,15 +75,20 @@ export default async function LocaleLayout({
         <ThemeInitScript />
       </head>
       <body className="min-h-screen antialiased" suppressHydrationWarning>
+        <NextIntlClientProvider messages={messages}>
+          <BootLoader brand={brand} />
+        </NextIntlClientProvider>
         <ThemeProvider>
           <AnimatedBackground />
 
           <div className="pointer-events-none fixed inset-0 -z-10">
             <ThemeAwareParticles
-              particleSpread={18}
-              speed={0.08}
-              particleBaseSize={80}
-              sizeRandomness={0.8}
+              particleSpread={3.6}
+              depth={9}
+              speed={0.12}
+              particleBaseSize={130}
+              sizeRandomness={1.5}
+              opacity={0.85}
               moveParticlesOnHover={false}
               alphaParticles
               disableRotation
@@ -88,7 +96,6 @@ export default async function LocaleLayout({
             />
           </div>
 
-          <ExperienceSplash />
           <ScrollProgress />
           <SurfaceSpotlight />
 
@@ -97,6 +104,8 @@ export default async function LocaleLayout({
               <NavigationProgress />
             </Suspense>
             <ScrollTriggerRefresh />
+            <HashScroll />
+            <ScrollChoreography />
             <div className="relative z-0 flex min-h-screen flex-col">
               <Navbar />
               <main className="flex-1">{children}</main>

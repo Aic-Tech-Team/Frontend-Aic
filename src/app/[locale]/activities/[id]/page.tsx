@@ -10,6 +10,7 @@ import {
   type ApiActivity,
 } from "@/services/api/activities";
 import type { SidebarActivity } from "@/types/activity";
+import { Reveal } from "@/components/animations/Reveal";
 
 export const dynamic = "force-dynamic";
 
@@ -49,29 +50,42 @@ export default async function ActivityDetailPage({
   }
 
   const activity = mapApiActivity(result.data, locale);
+  // the short summary is shown as a lead only when the text does not already open with it
+  const showLead =
+    Boolean(result.data.short_description) &&
+    !(activity.content ?? "")
+      .trim()
+      .startsWith(activity.summary.trim().slice(0, 30));
   const recentActivities = toSidebar(list?.results ?? [], activity.id, locale);
 
   return (
-    <ActivityArticlePage
-      breadcrumb={[
-        { label: t("breadcrumbHome"), href: "/" },
-        { label: t("breadcrumbActivities"), href: "/activities" },
-        { label: activity.title },
-      ]}
-      category={activity.category}
-      title={activity.title}
-      meta={{ dateLabel: activity.dateLabel }}
-      heroImage={activity.image}
-      heroAlt={activity.title}
-      content={activity.content ?? activity.summary}
-      recentActivities={recentActivities}
-      labels={{
-        breadcrumbLabel: t("breadcrumbLabel"),
-        latestActivitiesTitle: t("latestActivitiesTitle"),
-        viewAll: t("viewAll"),
-        dateLabel: t("dateLabel"),
-      }}
-    />
+    <Reveal direction="up" duration={1.1}>
+      <ActivityArticlePage
+        breadcrumb={[
+          { label: t("breadcrumbHome"), href: "/" },
+          { label: t("breadcrumbActivities"), href: "/activities" },
+          { label: activity.title },
+        ]}
+        category={activity.category}
+        title={activity.title}
+        meta={{ dateLabel: activity.dateLabel }}
+        heroImage={activity.image}
+        heroAlt={activity.title}
+        lead={showLead ? activity.summary : ""}
+        content={activity.content ?? activity.summary}
+        recentActivities={recentActivities}
+        labels={{
+          breadcrumbLabel: t("breadcrumbLabel"),
+          latestActivitiesTitle: t("latestActivitiesTitle"),
+          viewAll: t("viewAll"),
+          dateLabel: t("dateLabel"),
+          infoTitle: t("infoTitle"),
+          categoryLabel: t("categoryLabel"),
+          share: t("share"),
+          linkCopied: t("linkCopied"),
+        }}
+      />
+    </Reveal>
   );
 }
 

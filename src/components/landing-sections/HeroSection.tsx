@@ -14,7 +14,8 @@ import {
 } from "@/components/animations/Reveal";
 import { PointerParallax } from "@/components/animations/PointerParallax";
 import ClickSpark from "@/components/animations/ClickSpark";
-import TextType from "@/components/animations/TextType";
+import { NeuralGlobeLazy } from "@/components/animations/NeuralGlobeLazy";
+import { HeroTyper } from "@/components/landing-sections/HeroTyper";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useMotionCapability } from "@/hooks/useMotionCapability";
@@ -74,11 +75,8 @@ export function Hero() {
       pre,
       mid,
       post,
-      full: `${pre}\n${mid} ${post}`,
     };
   });
-  const fullTexts = phrases.map((p) => p.full);
-  const [phraseIndex, setPhraseIndex] = useState(0);
   const visualRef = useRef<HTMLDivElement>(null);
   const [orbitsActive, setOrbitsActive] = useState(true);
   const { isNarrow, isLowEnd } = useMotionCapability();
@@ -95,27 +93,6 @@ export function Hero() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
-
-  const renderHeroText = (displayed: string, _full: string, index: number) => {
-    const { pre, mid } = phrases[index] ?? phrases[0];
-    const midStart = pre.length + 1; // after \n
-    const midEnd = midStart + mid.length;
-
-    const head = displayed.slice(0, Math.min(displayed.length, midStart));
-    const midShown =
-      displayed.length > midStart
-        ? displayed.slice(midStart, Math.min(displayed.length, midEnd))
-        : "";
-    const after = displayed.length > midEnd ? displayed.slice(midEnd) : "";
-
-    return (
-      <>
-        {head}
-        {midShown ? <span className="text-gradient">{midShown}</span> : null}
-        {after}
-      </>
-    );
-  };
 
   const floats: FloatStat[] = [
     {
@@ -154,28 +131,7 @@ export function Hero() {
           <RevealItem direction="up">
             <h1 className="mt-2 max-w-full text-4xl font-extrabold leading-[1.4] tracking-tight wrap-break-words text-foreground sm:text-5xl md:text-6xl lg:text-[3.6rem] xl:text-[4.2rem]">
               <span className="sr-only">{t("titleStatic")}</span>
-              <span aria-hidden="true" className="grid min-w-0">
-                <span className="invisible col-start-1 row-start-1 whitespace-pre-wrap">
-                  {phrases[phraseIndex]?.pre}
-                  {"\n"}
-                  {phrases[phraseIndex]?.mid} {phrases[phraseIndex]?.post}
-                </span>
-                <span className="col-start-1 row-start-1 min-w-0">
-                  <TextType
-                    as="span"
-                    text={fullTexts}
-                    typingSpeed={heroLite ? 130 : 95}
-                    deletingSpeed={heroLite ? 80 : 55}
-                    pauseDuration={heroLite ? 4200 : 3500}
-                    initialDelay={200}
-                    loop={true}
-                    showCursor
-                    startOnVisible
-                    renderText={renderHeroText}
-                    onTextIndexChange={setPhraseIndex}
-                  />
-                </span>
-              </span>
+              <HeroTyper phrases={phrases} lite={heroLite} />
             </h1>
           </RevealItem>
 
@@ -215,7 +171,7 @@ export function Hero() {
                     size="lg"
                     className="w-full rounded-2xl border-border/70 bg-card/40 sm:w-auto sm:rounded-full"
                   >
-                    <Link href="/#teams">{t("ctaAbout")}</Link>
+                    <Link href="/about">{t("ctaAbout")}</Link>
                   </Button>
                 </GlareButton>
               </div>
@@ -226,7 +182,7 @@ export function Hero() {
         <div
           ref={visualRef}
           className={cn(
-            "relative mx-auto aspect-square w-full max-w-85 overflow-visible sm:max-w-115 lg:max-w-135",
+            "relative mx-auto aspect-square w-full max-w-75 overflow-visible sm:max-w-115 lg:max-w-135",
             !orbitsActive && "hero-visual--paused",
             heroLite && "hero-visual--lite",
           )}
@@ -264,21 +220,29 @@ export function Hero() {
               ))}
             </div>
 
-            <div className="absolute left-1/2 top-1/2 z-1 w-[74%] -translate-x-1/2 -translate-y-1/2 sm:w-[80%] lg:w-[85%]">
-              <PointerParallax strength={heroLite ? 0 : 16}>
-                {globeSrc ? (
-                  <Image
-                    src={globeSrc}
-                    alt={t("imageAlt")}
-                    width={1200}
-                    height={1218}
-                    priority
-                    sizes="(max-width: 1024px) 78vw, 540px"
-                    className="hero-globe h-auto w-full object-contain"
-                  />
-                ) : (
-                  <div aria-hidden className="aspect-[1200/1218] w-full" />
-                )}
+            <div
+              data-boot-wait
+              className="absolute left-1/2 top-1/2 z-1 w-[74%] -translate-x-1/2 -translate-y-1/2 sm:w-[80%] lg:w-[85%]"
+            >
+              <PointerParallax strength={heroLite ? 0 : 12}>
+                <NeuralGlobeLazy
+                  density={5200}
+                  marker={{ lat: 32.5, lon: 54 }}
+                  className="hero-globe"
+                  fallback={
+                    globeSrc ? (
+                      <Image
+                        src={globeSrc}
+                        alt={t("imageAlt")}
+                        width={1200}
+                        height={1218}
+                        priority
+                        sizes="(max-width: 1024px) 78vw, 540px"
+                        className="hero-globe h-auto w-full object-contain"
+                      />
+                    ) : null
+                  }
+                />
               </PointerParallax>
             </div>
 
@@ -326,23 +290,25 @@ export function Hero() {
                                 } as React.CSSProperties
                               }
                             >
-                              <div
-                                className={cn(
-                                  "flex scale-90 flex-row items-center gap-2 rounded-2xl px-2.5 py-2 sm:scale-100 sm:gap-2.5 sm:px-3.5 sm:py-2.5",
-                                  heroLite ? "hero-orbit-chip" : "surface",
-                                )}
-                              >
-                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary sm:h-9 sm:w-9">
-                                  <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                              <div className="orbit-pass sm:scale-100 scale-[0.82]">
+                                <span className="orbit-pass__beacon" aria-hidden="true">
+                                  <i />
+                                  <Icon className="size-3.5" />
                                 </span>
-                                <div className="text-start">
-                                  <span className="block whitespace-nowrap text-xs font-bold text-foreground sm:text-sm">
-                                    {item.title}
+                                <span className="orbit-pass__text">
+                                  <span className="orbit-pass__title">
+                                    {item.title.split(" ").map((w, i) =>
+                                      i === 0 ? (
+                                        <b key={i} className="orbit-pass__num">
+                                          {w}
+                                        </b>
+                                      ) : (
+                                        <span key={i}> {w}</span>
+                                      )
+                                    )}
                                   </span>
-                                  <span className="block whitespace-nowrap text-[10px] text-muted-foreground sm:text-[11px]">
-                                    {item.sub}
-                                  </span>
-                                </div>
+                                  <span className="orbit-pass__sub">{item.sub}</span>
+                                </span>
                               </div>
                             </div>
                           </div>
