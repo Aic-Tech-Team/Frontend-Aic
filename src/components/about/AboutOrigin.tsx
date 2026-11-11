@@ -38,7 +38,7 @@ export async function AboutOrigin() {
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 bg-linear-to-t from-background via-background/20 to-background/30"
               />
-              <p className="absolute end-5 top-3 text-6xl font-extrabold leading-none text-transparent outline-text sm:end-10 sm:top-6 sm:text-8xl lg:text-9xl">
+              <p className="absolute end-5 top-3 text-6xl font-extrabold leading-none text-transparent outline-text-photo sm:end-10 sm:top-6 sm:text-8xl lg:text-9xl">
                 {t("originYear")}
               </p>
             </div>

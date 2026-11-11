@@ -279,7 +279,7 @@ export function TeamExplorer({
             />
             <span
               aria-hidden="true"
-              className="outline-text absolute top-4 inset-s-5 text-6xl font-black leading-none opacity-85"
+              className="outline-text-photo absolute top-4 inset-s-5 text-6xl font-black leading-none opacity-85"
             >
               {num(active + 1)}
             </span>

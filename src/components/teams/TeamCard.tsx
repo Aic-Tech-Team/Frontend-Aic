@@ -49,7 +49,7 @@ export function TeamCard({ team, index, ctaLabel, href = "/teams", className }: 
         {index !== undefined ? (
           <span
             aria-hidden
-            className="absolute -bottom-1 inset-s-3 text-6xl font-black leading-none text-transparent outline-text opacity-90 transition-transform duration-700 group-hover:-translate-y-2"
+            className="absolute -bottom-1 inset-s-3 text-6xl font-black leading-none text-transparent outline-text-photo opacity-90 transition-transform duration-700 group-hover:-translate-y-2"
           >
             {(index + 1).toLocaleString(locale, { minimumIntegerDigits: 2 })}
           </span>
