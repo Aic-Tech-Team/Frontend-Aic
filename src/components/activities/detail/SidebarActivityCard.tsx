@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import { CalendarClock } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { SidebarActivity } from "@/types/activity";
@@ -20,12 +20,11 @@ export function SidebarActivityCard({
         dir="rtl"
       >
         <span className="relative h-[68px] w-[76px] shrink-0 overflow-hidden rounded-xl bg-muted">
-          <Image
+          <SmartImage
             src={activity.image}
             alt={activity.title}
             fill
             sizes="76px"
-            unoptimized
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </span>

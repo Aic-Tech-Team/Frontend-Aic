@@ -8,7 +8,7 @@ import {
   type CSSProperties,
   type KeyboardEvent,
 } from "react";
-import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowLeft, ArrowRight, Check, ChevronLeft, Pause, Play, Users } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -258,12 +258,11 @@ export function TeamExplorer({
           <div className="relative aspect-16/9 w-full overflow-hidden bg-muted sm:aspect-2/1">
             {teams.map((tm, i) =>
               i === active || i === prev ? (
-                <Image
+                <SmartImage
                   key={tm.id}
                   src={tm.image}
                   alt=""
                   fill
-                  unoptimized
                   priority={i === 0}
                   sizes="(min-width: 1024px) 640px, 100vw"
                   className={cn(
@@ -350,7 +349,7 @@ export function TeamExplorer({
             ))}
           </div>
 
-          <footer className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-dashed border-border/60 px-6 py-4 sm:px-8">
+          <footer className="flex flex-wrap items-center justify-center gap-x-4 gap-y-4 sm:justify-between border-t border-dashed border-border/60 px-6 py-4 sm:px-8">
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -374,7 +373,7 @@ export function TeamExplorer({
             </div>
             <Link
               href={contactHref("join")}
-              className={cn(buttonVariants({ size: "lg" }), "h-11 gap-2 rounded-full px-6 shadow-glow")}
+              className={cn(buttonVariants({ size: "lg" }), "h-11 w-full gap-2 rounded-full px-6 shadow-glow sm:w-auto")}
             >
               <Users className="size-4" />
               {tj("join")}

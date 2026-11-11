@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -31,11 +31,10 @@ export function ActivityRowCard({
       )}
     >
       <div className="relative w-32 shrink-0 overflow-hidden [clip-path:polygon(0_0,100%_0,calc(100%-1.4rem)_100%,0_100%)] sm:w-48 rtl:[clip-path:polygon(1.4rem_0,100%_0,100%_100%,0_100%)]">
-        <Image
+        <SmartImage
           src={item.image || "/images/banner.jpg"}
           alt=""
           fill
-          unoptimized
           sizes="(min-width: 640px) 192px, 128px"
           className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
         />

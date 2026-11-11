@@ -1,6 +1,6 @@
 import { contactHref } from "@/components/contact/intents";
 import { StickyColumn } from "@/components/common/StickyColumn";
-import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import { Calendar, Clock, MapPin, Navigation, User } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { BlogBreadcrumb } from "@/components/blog/detail/BlogBreadcrumb";
@@ -72,7 +72,7 @@ export async function EventDetail({
       <div className="w-full py-6 sm:py-10">
         <div className="container">
           <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10">
-            <article className="surface real-ticket-mask real-ticket-mask--vertical min-w-0 border-0 p-5 sm:p-7 lg:p-9">
+            <article className="bg-card text-card-foreground real-ticket-mask real-ticket-mask--vertical min-w-0 border-0 p-5 sm:p-7 lg:p-9">
               <header className="w-full">
                 <BlogBreadcrumb
                   ariaLabel={tb("breadcrumbLabel")}
@@ -165,11 +165,10 @@ export async function EventDetail({
                             : "relative aspect-4/3 overflow-hidden rounded-2xl bg-muted"
                         }
                       >
-                        <Image
+                        <SmartImage
                           src={src}
                           alt={td("galleryAlt", { title: event.title })}
                           fill
-                          unoptimized
                           sizes="(min-width: 1024px) 30vw, 45vw"
                           className="object-cover"
                         />

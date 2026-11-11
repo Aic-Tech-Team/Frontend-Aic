@@ -6,7 +6,7 @@ export async function TeamsHero() {
   const t = await getTranslations("Teams");
 
   return (
-    <header className="relative mb-10 sm:mb-12">
+    <header className="relative mb-10 text-center sm:mb-12 lg:text-start">
       <span
         aria-hidden="true"
         className="pointer-events-none absolute -top-16 inset-s-0 -z-10 size-72 rounded-full bg-primary/20 blur-3xl"
@@ -19,7 +19,7 @@ export async function TeamsHero() {
           </h1>
         </div>
         <div className="lg:pb-3">
-          <p className="max-w-xl text-pretty text-sm leading-8 text-muted-foreground sm:text-base sm:leading-9">
+          <p className="mx-auto max-w-xl text-pretty lg:mx-0 text-sm leading-8 text-muted-foreground sm:text-base sm:leading-9">
             {t("description")}
           </p>
         </div>

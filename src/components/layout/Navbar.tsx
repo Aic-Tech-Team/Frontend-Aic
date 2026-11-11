@@ -233,7 +233,7 @@ export function Navbar() {
 
       return () => setBodyScrollLock(false);
     },
-    { scope: menuRef, dependencies: [isOpen], revertOnUpdate: true },
+    { scope: menuRef, dependencies: [isOpen] },
   );
 
   return (

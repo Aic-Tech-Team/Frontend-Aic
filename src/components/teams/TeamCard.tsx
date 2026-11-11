@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SmartImage } from "@/components/common/SmartImage";
 import { ArrowLeft } from "lucide-react";
 import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -37,11 +37,10 @@ export function TeamCard({ team, index, ctaLabel, href = "/teams", className }: 
       )}
     >
       <div className="relative aspect-4/3 w-full shrink-0 overflow-hidden rounded-2xl bg-muted">
-        <Image
+        <SmartImage
           src={team.image}
           alt=""
           fill
-          unoptimized
           sizes="(max-width: 640px) 82vw, (max-width: 1024px) 40vw, 300px"
           className="object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
         />

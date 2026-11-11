@@ -345,12 +345,14 @@ export function FocusGraph({
     if (!st.drag) return;
     st.drag = false;
     if (st.moved <= 6) return;
+    // the area whose turn is nearest to where the globe stopped. Comparing depth instead only
+    // ever picked the upper ring: it is tilted toward the viewer, so its nodes always sit nearer.
     let best = 0;
-    let bestZ = -2;
+    let bestGap = Infinity;
     NODES.forEach((n, i) => {
-      const z = turn(n.x, n.y, n.z, st.yaw, TILT).z;
-      if (z > bestZ) {
-        bestZ = z;
+      const gap = Math.abs(((st.yaw - n.a + Math.PI) % TAU + TAU) % TAU - Math.PI);
+      if (gap < bestGap) {
+        bestGap = gap;
         best = i;
       }
     });
